@@ -1,9 +1,13 @@
 # To learn about this file, go to http://docs.travis-ci.com/user/languages/c/
 language: cpp
 
-compiler:
-  - clang
-  - gcc
+matrix:
+  include:
+    - compiler: clang
+      env: NPROC=8
+    # gcc crashes when building too many targets at once.
+    - compiler: gcc
+      env: NPROC=2
 
 before_install:
   ## Get Simbody and its dependencies.
@@ -44,14 +48,9 @@ before_install:
 
 install:
   # Configure OpenSim.
-  - cmake . -DSIMBODY_HOME=simbody-install -DCMAKE_CXX_FLAGS=-Werror
-  - if [ "$CXX" = "clang++" ]; then cmake . -DBUILD_JAVA_WRAPPING=on -DBUILD_PYTHON_WRAPPING=on; fi
+  - cmake . -DBUILD_JAVA_WRAPPING=on -DBUILD_PYTHON_WRAPPING=on -DSIMBODY_HOME=simbody-install -DCMAKE_CXX_FLAGS=-Werror
   # Build OpenSim.
-  - make -j2
-  # gcc is crashing when building osimJavaJNI with other targets (_opensim?).
-  # gcc does not crash if we build wrapping targets separately.
-  - if [ "$CXX" = "g++-4.8" ]; then cmake . -DBUILD_JAVA_WRAPPING=on -DBUILD_PYTHON_WRAPPING=on; fi
-  - if [ "$CXX" = "g++-4.8" ]; then make; fi
+  - make -j$NPROC
 
 script:
   # Install OpenSim.
