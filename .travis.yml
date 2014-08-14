@@ -14,15 +14,15 @@ env:
     - SWIG=swig-2.0.10
 
 before_install:
-  ## Get Simbody and its dependencies.
-  - sudo apt-get update
-  - sudo apt-get install liblapack-dev
   # Must get a newer gcc so we can compile with C++11,
   # when using gcc OR Clang.
   # from https://github.com/travis-ci/travis-ci/issues/979.
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update -qq
   - sudo apt-get install -qq g++-4.8
+
+  ## Get Simbody and its dependencies.
+  - sudo apt-get install -qq liblapack-dev
   # Only if compiling with gcc, update environment variables
   # to use the new gcc.
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
