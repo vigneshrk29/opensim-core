@@ -7,7 +7,7 @@ matrix:
       env: NPROC=8
     # gcc crashes when building too many targets at once.
     - compiler: gcc
-      env: NPROC=3
+      env: NPROC=2
       
 env:
   global:
