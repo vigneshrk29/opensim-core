@@ -47,7 +47,7 @@ install:
   - cmake . -DSIMBODY_HOME=simbody-install -DCMAKE_CXX_FLAGS=-Werror
   - if [ "$CXX" = "clang++" ]; then cmake . -DBUILD_JAVA_WRAPPING=on -DBUILD_PYTHON_WRAPPING=on; fi
   # Build OpenSim.
-  - make -j8
+  - make -j2
   # gcc is crashing when building osimJavaJNI with other targets (_opensim?).
   # gcc does not crash if we build wrapping targets separately.
   - if [ "$CXX" = "g++-4.8" ]; then cmake . -DBUILD_JAVA_WRAPPING=on -DBUILD_PYTHON_WRAPPING=on; fi
