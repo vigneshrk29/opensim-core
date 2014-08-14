@@ -44,12 +44,14 @@ before_install:
 
 install:
   # Configure OpenSim.
-  - cmake . -DBUILD_JAVA_WRAPPING=on -DBUILD_PYTHON_WRAPPING=on -DSIMBODY_HOME=simbody-install -DCMAKE_CXX_FLAGS=-Werror
+  - cmake . -DSIMBODY_HOME=simbody-install -DCMAKE_CXX_FLAGS=-Werror
+  - if [ "$CXX" = "clang++" ]; then cmake . -DBUILD_JAVA_WRAPPING=on -DBUILD_PYTHON_WRAPPING=on; fi
   # Build OpenSim.
+  - make -j8
   # gcc is crashing when building osimJavaJNI with other targets (_opensim?).
-  # gcc does not crash if we build _opensim separately.
-  - if [ "$CXX" = "g++-4.8" ]; then make -j8 osimJavaJNI; fi
-  - make -j8 # This'll build _opensim and the tests.
+  # gcc does not crash if we build wrapping targets separately.
+  - if [ "$CXX" = "g++-4.8" ]; then cmake . -DBUILD_JAVA_WRAPPING=on -DBUILD_PYTHON_WRAPPING=on; fi
+  - if [ "$CXX" = "g++-4.8" ]; then make; fi
 
 script:
   # Install OpenSim.
