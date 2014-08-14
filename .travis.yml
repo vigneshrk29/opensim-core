@@ -7,7 +7,11 @@ matrix:
       env: NPROC=8
     # gcc crashes when building too many targets at once.
     - compiler: gcc
-      env: NPROC=2
+      env: NPROC=3
+      
+env:
+  global:
+    - SWIG=swig-2.0.10
 
 before_install:
   ## Get Simbody and its dependencies.
@@ -26,8 +30,9 @@ before_install:
   # only need the master branch.
   - git clone https://github.com/simbody/simbody.git simbody-source --depth 1 --branch master
   - cd simbody-source
-  # Configure Simbody.
-  - cmake . -DBUILD_VISUALIZER=off -DBUILD_EXAMPLES=off -DSIMBODY_STANDARD_11=on -DCMAKE_INSTALL_PREFIX=../simbody-install
+  # Configure Simbody. Use Clang even when building OpenSim
+  # with gcc, since Clang builds quicker than gcc.
+  - CC=clang CXX=clang++ cmake . -DBUILD_VISUALIZER=off -DBUILD_EXAMPLES=off -DSIMBODY_STANDARD_11=on -DCMAKE_INSTALL_PREFIX=../simbody-install
   # Build Simbody.
   - make -j8
   # Test Simbody.
@@ -38,10 +43,10 @@ before_install:
   - cd ../
 
   ## Install SWIG to build Java/python wrapping.
-  - wget http://sourceforge.net/projects/swig/files/swig/swig-2.0.10/swig-2.0.10.tar.gz/download
-  - mv download swig-2.0.10.tar.gz
-  - tar xzf swig-2.0.10.tar.gz
-  - cd swig-2.0.10
+  - wget http://sourceforge.net/projects/swig/files/swig/$SWIG/$SWIG.tar.gz/download
+  - mv download $SWIG.tar.gz
+  - tar xzf $SWIG.tar.gz
+  - cd $SWIG
   - ./configure && make && sudo make -j8 install
   # Go back to the directory containing OpenSim.
   - cd ../
@@ -53,5 +58,5 @@ install:
   - make -j$NPROC
 
 script:
-  # Install OpenSim.
+  # Test OpenSim.
   - ctest -j8 --output-on-failure
