@@ -328,8 +328,14 @@ public:
     maintained model State. Note that this does not affect the 
     system's default state (which is part of the model and hence read-only). **/
     SimTK::State& initSystem() SWIG_DECLARE_EXCEPTION {
-        buildSystem();
-        return initializeState();
+        try {
+            buildSystem();
+            return initializeState();
+        }
+        catch (const OpenSim::Exception& ex) {
+            std::cerr << ex.what() << std::endl;
+            throw ex;
+        }
     }
 
 
