@@ -37,10 +37,6 @@
 using namespace OpenSim;
 using namespace SimTK;
 
-//______________________________________________________________________________
-/**
- * First exercise: create a model that does nothing. 
- */
 int main()
 {
     try {
@@ -52,6 +48,7 @@ int main()
 
         osimModel.setName("DynamicWalkerModel");
 
+        // 4.0 API change getGround
         // Get a reference to the ground object
         const Ground& ground = osimModel.getGround();
 
@@ -86,6 +83,7 @@ int main()
         platformJoints[0].setDefaultValue(convertDegreesToRadians(-10.0));
         platformJoints[0].setDefaultLocked(true);
         // Add and scale model for display in GUI
+        // 4.0 API change to attach Geometry to frame
         platform->attachMeshGeometry("box.vtp", Vec3(1, 0.05, 1));
 
         // Add the platform to the Model
@@ -117,6 +115,7 @@ int main()
         pelvis->attachMeshGeometry("sphere.vtp", Vec3(pelvisWidth / 2.0, pelvisWidth / 2.0, pelvisWidth));
 
         // Add the joint
+        // 4.0 API now Joint need to be added separately
         osimModel.addJoint(pelvisToPlatform);
 
         // Add the pelvis to the Model
@@ -156,7 +155,7 @@ int main()
         osimModel.print("DynamicWalkerModel.osim");
 
         Model roundTrip("DynamicWalkerModel.osim");
-        roundTrip.initSystem();
+        roundTrip.initSystem();	// This crashes now due to Exception.
 
     }
     catch (OpenSim::Exception ex)
