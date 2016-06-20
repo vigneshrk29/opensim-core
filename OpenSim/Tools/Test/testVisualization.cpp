@@ -31,7 +31,7 @@ using namespace OpenSim;
 using namespace std;
 using namespace SimTK;
 
-void testVisModel(string fileName);
+void testVisModel(string fileName, const ModelDisplayHints& hints);
 
 // Implementation of DecorativeGeometryImplementation that prints the representation to 
 // a StringStream for comparison
@@ -100,7 +100,16 @@ int main()
 {
     try {
         LoadOpenSimLibrary("osimActuators");
-        testVisModel("BuiltinGeometry.osim");
+        ModelDisplayHints hints;
+        hints.set_show_frames(true);
+        testVisModel("BuiltinGeometry.osim", hints);
+        // Modify hints and test on Arm26
+        hints.set_show_wrap_geometry(false);
+        hints.set_show_markers(false);
+        hints.set_show_frames(false);
+        hints.set_show_path_points(false);
+        hints.set_show_path_geometry(false);
+        testVisModel("arm26.osim", hints);
     }
     catch (const OpenSim::Exception& e) {
         e.print(cerr);
@@ -110,12 +119,11 @@ int main()
     return 0;
 }
 
-void testVisModel(string fileName)
+void testVisModel(string fileName, const ModelDisplayHints& mdh)
 {
 
     Model* model = new Model(fileName, true);
     SimTK::State& si = model->initSystem();
-    ModelDisplayHints mdh; 
     SimTK::Array_<SimTK::DecorativeGeometry> geometryToDisplay;
     model->generateDecorations(true, mdh, si, geometryToDisplay);
     cout << geometryToDisplay.size() << endl;
