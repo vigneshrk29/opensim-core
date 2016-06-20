@@ -27,6 +27,7 @@
 #include <OpenSim/Common/Component.h>
 #include <OpenSim/Common/Set.h>
 #include "ModelComponent.h"
+#include "ModelDisplayHints.h"
 #include "Appearance.h"
 
 namespace OpenSim { 
@@ -143,7 +144,7 @@ public:
         (bool                                       fixed,
         const ModelDisplayHints&                    hints,
         const SimTK::State&                         state,
-        SimTK::Array_<SimTK::DecorativeGeometry>&   appendToThis) const override final;
+        SimTK::Array_<SimTK::DecorativeGeometry>&   appendToThis) const override;
 
 
 protected:
@@ -641,6 +642,19 @@ public:
     }
     /// destructor
     virtual ~FrameGeometry() {};
+    /// Implement method from Component interface. This method delegates to the generic Geometry
+    /// after checking for displayhints
+    void generateDecorations
+        (bool                                       fixed,
+            const ModelDisplayHints&                    hints,
+            const SimTK::State&                         state,
+            SimTK::Array_<SimTK::DecorativeGeometry>&   appendToThis) const override 
+    {
+        if (!hints.get_show_frames()) return;
+
+        Super::generateDecorations(fixed, hints, state, appendToThis);
+    };
+
 protected:
     /// Method to map FrameGeometry to Array of SimTK::DecorativeGeometry.
     void implementCreateDecorativeGeometry(
