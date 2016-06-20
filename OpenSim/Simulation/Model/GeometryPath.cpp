@@ -34,6 +34,7 @@
 #include "CoordinateSet.h"
 #include "Model.h"
 #include "ModelVisualizer.h"
+#include "ModelDisplayHints.h"
 //=============================================================================
 // STATICS
 //=============================================================================
@@ -155,13 +156,13 @@ generateDecorations(bool fixed, const ModelDisplayHints& hints,
         if (hints.get_show_path_points())
             DefaultGeometry::drawPathPoint(body, loc_B, getColor(state),
             appendToThis);
-
         Vec3 pos = matter.getMobilizedBody(body).getBodyTransform(state)*loc_B;
         // Line segments will be in ground frame
-        appendToThis.push_back(DecorativeLine(lastPos, pos)
-            .setLineThickness(4)
-            .setColor(getColor(state)).setBodyId(0).setIndexOnBody(j));
-
+        if (hints.get_show_path_geometry()) {
+            appendToThis.push_back(DecorativeLine(lastPos, pos)
+                .setLineThickness(4)
+                .setColor(getColor(state)).setBodyId(0).setIndexOnBody(j));
+        }
         lastPos = pos;
     }
 
