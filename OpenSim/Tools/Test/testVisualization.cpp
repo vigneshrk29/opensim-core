@@ -109,7 +109,7 @@ int main()
         hints.set_show_frames(false);
         hints.set_show_path_points(false);
         hints.set_show_path_geometry(false);
-        testVisModel("arm26.osim", hints);
+        //testVisModel("arm26.osim", hints);
     }
     catch (const OpenSim::Exception& e) {
         e.print(cerr);
@@ -123,7 +123,10 @@ void testVisModel(string fileName, const ModelDisplayHints& mdh)
 {
 
     Model* model = new Model(fileName, true);
+    //model->setUseVisualizer(true);
+    model->updDisplayHints() = mdh;
     SimTK::State& si = model->initSystem();
+    //model->getVisualizer().show(si);
     SimTK::Array_<SimTK::DecorativeGeometry> geometryToDisplay;
     model->generateDecorations(true, mdh, si, geometryToDisplay);
     cout << geometryToDisplay.size() << endl;
