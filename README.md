@@ -52,9 +52,9 @@ On Windows using Visual Studio
 
 * **operating system**: Windows 10.
 * **tool for nonlinear optimization and algorithmic differentiation**: [CasADi](https://web.casadi.org/), install the MATLAB version.
-* **version control**: [git](https://git-scm.com/downloads).
+* **version control**: [git](https://git-scm.com/downloads). Add git to your path if not done by default.
 * **cross-platform build system**:
-  [CMake](http://www.cmake.org/cmake/resources/software.html) >= 3.2
+  [CMake](http://www.cmake.org/cmake/resources/software.html) >= 3.2. [Add CMake to your path](https://stackoverflow.com/questions/19176029/cmake-is-not-recognised-as-an-internal-or-external-command) if not done by default.
 * **compiler / IDE**: [Visual Studio 2015](https://www.visualstudio.com/). We started this project before the release of Visual Studio 2017 and 2019, you might experience bugs with these later versions so please stick to Visual Studio 2015 (or contribute to the code to make it work with the newer versions :)). You should be able to find Visual Studio Community 2015 after a little bit of googling ([here maybe](https://stackoverflow.com/questions/44290672/how-to-download-visual-studio-community-edition-2015-not-2017)).
     * *Visual Studio Community 2015* is sufficient and is free for everyone.
     * Visual Studio 2015 does not install C++
@@ -86,44 +86,35 @@ On Windows using Visual Studio
 
 #### Download the OpenSim-Core source code modified to enable the use of algorithmic differentiation (OpenSim-AD-Core)
 
-* Clone the opensim-ad-core git repository. We'll assume you clone it into `C:/opensim-ad-core-source`.
+* Clone the opensim-ad-core git repository. We'll assume you clone it into `C:/opensim-ad/opensim-ad-core`.
   **Be careful that the repository is not on the `master` branch but on the `AD-recorder` branch.** 
 
-  If using a Git Bash or Git Shell, run the following:
+  Run the following in the command prompt :
   
-        $ git clone -b AD-recorder https://github.com/antoinefalisse/opensim-core.git C:/opensim-ad-core-source  
-  
-  If using TortoiseGit, open Windows Explorer,
-  right-click in the window, select **Git Clone...**, and provide the
-  following:
-    * **URL**: `https://github.com/antoinefalisse/opensim-core.git`.
+        git clone -b AD-recorder https://github.com/antoinefalisse/opensim-core.git C:/opensim-ad/opensim-ad-core  
 
-    * **Directory**: `C:/opensim-ad-core-source`.
-    
-    * **Checkout the `AD-recorder` branch.**
-
-#### [Optional] Superbuild: download and build OpenSim dependencies
+#### [RECOMMENDED] Superbuild: download and build OpenSim dependencies
 1. Open the CMake GUI.
 2. In the field **Where is the source code**, specify
-   `C:/opensim-ad-core-source/dependencies`.
+   `C:/opensim-ad/opensim-ad-core/dependencies`.
 3. In the field **Where to build the binaries**, specify a directory under
    which to build dependencies. Let's say this is
-   `C:/opensim-ad-core-dependencies-build`.
+   `C:/opensim-ad/opensim-ad-dependencies/opensim-ad-dependencies-build`.
 4. Click the **Configure** button.
     1. Choose the *Visual Studio 14 2015* generator. Make sure
        your build as 64-bit (Optional Platform for Generator: x64; it might be 32-bit by default).
     2. Click **Finish**.
 5. Where do you want to install OpenSim dependencies on your computer? Set this
    by changing the `CMAKE_INSTALL_PREFIX` variable. Let's say this is
-   `C:/opensim-ad-core-dependencies-install`.
+   `C:/opensim-ad/opensim-ad-dependencies/opensim-ad-dependencies-install`.
 6. Variables named `SUPERBUILD_<dependency-name>` allow you to selectively
    download dependencies. By default, all dependencies are downloaded,
    configured and built.
 7. Click the **Configure** button again. Then, click **Generate** to make
    Visual Studio project files in the build directory.
-8. Go to the build directory you specified in step 3 using the command:
+8. Go to the build directory you specified in step 3 by typing the following in the command prompt:
 
-        cd C:/opensim-ad-core-dependencies-build
+        cd C:/opensim-ad/opensim-ad-dependencies/opensim-ad-dependencies-build
 
 9. Use CMake to download, compile and install the dependencies (don't worry about the warnings):
 
@@ -138,14 +129,14 @@ On Windows using Visual Studio
      than Release; choose this if unsure.
    * **MinSizeRel**: minimum size; optimized.
 10. If you like, you can now remove the directory used for building
-    dependencies (`c:/opensim-ad-core-dependencies-build`).
+    dependencies (`C:/opensim-ad/opensim-ad-dependencies/opensim-ad-dependencies-build`).
 
 #### Configure and generate project files
 
 1. Open the CMake GUI.
-2. In the field **Where is the source code**, specify `C:/opensim-ad-core-source`.
+2. In the field **Where is the source code**, specify `C:/opensim-ad/opensim-ad-core`.
 3. In the field **Where to build the binaries**, specify something like
-   `C:/opensim-ad-core-build`, or some other path that is not inside your source
+   `C:/opensim-ad/opensim-ad-core-build`, or some other path that is not inside your source
    directory. This is *not* where we are installing OpenSim-Core; see below.
 4. Click the **Configure** button.
     1. Choose the *Visual Studio 14 2015* generator. Make sure
@@ -153,13 +144,12 @@ On Windows using Visual Studio
     2. Click **Finish**.
 5. Where do you want to install OpenSim-AD-Core on your computer? Set this by
    changing the `CMAKE_INSTALL_PREFIX` variable. We'll assume you set it to
-   `C:/opensim-ad-core-install`. If you choose a different installation location, make
-   sure to use *yours* where we use `C:/opensim-ad-core-install` below.
+   `C:/opensim-ad/opensim-ad-core-install`.
 6. Tell CMake where to find dependencies. This depends on how you got them.
-    * Superbuild: Set the variable `OPENSIM_DEPENDENCIES_DIR` to the root
+    * If you use the superbuild (RECOMMENDED): Set the variable `OPENSIM_DEPENDENCIES_DIR` to the root
       directory you specified with superbuild for installation of dependencies.
-      In our example, it would be `c:/opensim-ad-core-dependencies-install`.
-    * Obtained on your own:
+      In our example, it would be `C:/opensim-ad/opensim-ad-dependencies/opensim-ad-dependencies-install`.
+    * If you obtained the dependencies on your own:
         1. Simbody: Set the `SIMBODY_HOME` variable to where you installed
            Simbody (e.g., `C:/Simbody-ad-install`).
         2. BTK: Set the variable `BTK_DIR` to the directory containing
@@ -188,7 +178,7 @@ On Windows using Visual Studio
 
 #### Build
 
-1. Open `C:/opensim-ad-core-build/OpenSim.sln` in Visual Studio.
+1. Open `C:/opensim-ad/opensim-ad-core-build/OpenSim.sln` in Visual Studio.
 2. Select your desired *Solution configuration* from the drop-down at the top (we recommend **RelWithDebInfo** for consistency with the dependencies).
     * **Debug**: debugger symbols; no optimizations (more than 10x slower).
       Library names end with `_d`.
@@ -211,65 +201,61 @@ Build external functions
 ------------------------
 
 In the folder **External_Functions**, you can find a series of example external functions we used for different applications. To add your own external
-function, take a look at an example in `C:/opensim-ad-core/OpenSim/External_Functions`. Don't forget to edit the CMakeLists. Your new external function
+function, take a look at an example in `C:/opensim-ad/opensim-ad-core/OpenSim/External_Functions`. Don't forget to edit the CMakeLists. Your new external function
 will appear in Visual Studio after re-configuring through CMake. For the rest of the instructions, we will use the example **PredSim**.
 
 1. Build the external function. Right-click on PredSim and select **Build**. To skip the next step ([Run executable](#run-executable)), you can also right-click on PredSim, select
 **Set as StartUp Project**, click on Debug (toolbar) and click on **Start Without Debugging**. If you followed the second approach, you should find
-a MATLAB file `foo.m` in the folder `C:/opensim-ad-core-build/OpenSim/External_Functions/PredSim`.
+a MATLAB file `foo.m` in the folder `C:/opensim-ad/opensim-ad-core-build/OpenSim/External_Functions/PredSim`.
 
 
 Run executable
 --------------
 
 If you haven't run the executable yet (e.g., through **Start Without Debugging**):
-1. Open `C:/opensim-ad-core-build/RelWithDebInfo` in a terminal window (assuming you are in RelWithDebInfo mode):
+1. Open `C:/opensim-ad/opensim-ad-core-build/RelWithDebInfo` through the command prompt (assuming you are in RelWithDebInfo mode):
 
-        cd C:/opensim-ad-core-build/RelWithDebInfo
+        cd C:/opensim-ad/opensim-ad-core-build/RelWithDebInfo
     
-2. Run the executable:
+2. Run the executable by typing the following in the command prompt:
 
         PredSim.exe
     
-You should find a MATLAB file `foo.m` in the folder `C:/opensim-ad-core-build/RelWithDebInfo`.
+You should find a MATLAB file `foo.m` in the folder `C:/opensim-ad/opensim-ad-core-build/RelWithDebInfo`.
 
 Generate C-code
 ---------------
 
-1. Copy `foo.m` into `C:/opensim-ad-core/cgeneration/PredSim`.
-2. Run `C:/opensim-ad-core/cgeneration/PredSim/generateMain.m` in MATLAB. This might take a while to open the folder if `foo.m` is large (you might consider running the file through the command line).
+1. Copy `foo.m` into `C:/opensim-ad/opensim-ad-core/cgeneration/PredSim`.
+2. Run `C:/opensim-ad/opensim-ad-core/cgeneration/PredSim/generateMain.m` in MATLAB. This might take a while to open the folder if `foo.m` is large (you might consider running the file through the command line).
 
-**If you work with a new external function, you might need to adjust the dimension of `arg` as described in the comment in the MATLAB script**.
+**If you work with a new external function, you might need to adjust the dimension of `arg` as described in the comment of the MATLAB script**.
 
-After running the MATLAB script, you should find a C file `foo_jac.c` in `C:/opensim-ad-core/cgeneration/PredSim`.
+After running the MATLAB script, you should find a C file `foo_jac.c` in `C:/opensim-ad/opensim-ad-core/cgeneration/PredSim`.
 
 Compile C-code
 --------------
 
 1. Open the CMake GUI.
-2. In the field **Where is the source code**, specify `C:/opensim-ad-core/cgeneration/PredSim`.
+2. In the field **Where is the source code**, specify `C:/opensim-ad/opensim-ad-core/cgeneration/PredSim`.
 3. In the field **Where to build the binaries**, specify something like
-   `C:/opensim-ad-external-function/PredSim/PredSim-build`.
+   `C:/opensim-ad/external-functions/PredSim/PredSim-build`.
 4. Click the **Configure** button.
     1. Choose the *Visual Studio 14 2015* generator. Make sure
        your build as 64-bit (Optional Platform for Generator: x64; it might be 32-bit by default).
     2. Click **Finish**.
 5. Where do you want to install the PredSim dll on your computer? Set this by
    changing the `CMAKE_INSTALL_PREFIX` variable. We'll assume you set it to
-   `C:/opensim-ad-external-function/PredSim/PredSim-install`.
+   `C:/opensim-ad/external-functions/PredSim/PredSim-install`.
 6. Click the **Configure** button again. Then, click **Generate** to make
    Visual Studio project files in the build directory.
-7. Open a command window and go to the build directory you specified in step 3 using the command:
+7. Open `C:/opensim-ad/external-functions/PredSim/PredSim-build/PredSim.sln` in Visual Studio.
+8. Select your desired *Solution configuration* from the drop-down at the top (we recommend **RelWithDebInfo** for consistency with the dependencies).
 
-        cd C:/opensim-ad-external-function/PredSim/PredSim-build
-8. Use CMake to build the dll:
-
-        cmake --build . --config RelWithDebInfo
-9. Use CMake to install the dll:
-
-        cmake --install . --config RelWithDebInfo
+9. Build the library. Right-click on ALL_BUILD and select **Build**.
+10. Install the library. Right-click on INSTALL and select **Build**.
         
-You should find a file `PredSim.dll` in `C:/opensim-ad-external-function/PredSim/PredSim-install/bin`.
+You should find a file `PredSim.dll` in `C:/opensim-ad/external-functions/PredSim/PredSim-install/bin`.
 You can now perform the same steps for PredSim_pp (redo the steps from [Build external functions](#build-external-functions)) instead of PredSim (this is a different external function).
 
 Formulate and solve trajectory optimization problems
@@ -279,10 +265,8 @@ With the libraries `PredSim.dll` and `PredSim_pp.dll`, you have all your need to
 and generate a predictive simulation of walking such as in the animation above.
 
 Clone the [3dpredictsim git repository](https://github.com/antoinefalisse/3dpredictsim). We'll assume you clone it into `C:/3dpredictsim`. 
-
-  If using a Git Bash or Git Shell, run the following:
   
-        $ git clone https://github.com/antoinefalisse/3dpredictsim.git C:/3dpredictsim 
+        git clone https://github.com/antoinefalisse/3dpredictsim.git C:/3dpredictsim 
         
 In `C:/3dpredictsim/ExternalFunctions`, you can see that you already have the libraries `PredSim.dll` and `PredSim_pp.dll`. If you want to make
 sure that you performed all the steps above correctly, delete those libraries and copy the ones you created before.
