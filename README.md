@@ -146,7 +146,7 @@ On Windows using Visual Studio
    changing the `CMAKE_INSTALL_PREFIX` variable. We'll assume you set it to
    `C:/opensim-ad/opensim-ad-core-install`.
 6. Tell CMake where to find dependencies. This depends on how you got them.
-    * If you use the superbuild (RECOMMENDED): Set the variable `OPENSIM_DEPENDENCIES_DIR` to the root
+    * If you used the superbuild (RECOMMENDED): Set the variable `OPENSIM_DEPENDENCIES_DIR` to the root
       directory you specified with superbuild for installation of dependencies.
       In our example, it would be `C:/opensim-ad/opensim-ad-dependencies/opensim-ad-dependencies-install`.
     * If you obtained the dependencies on your own:
