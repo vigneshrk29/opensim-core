@@ -21,6 +21,7 @@ if(BUILD_TESTING)
     add_subdirectory(Pendulum_8dofs)
     add_subdirectory(Pendulum_9dofs)
     add_subdirectory(Pendulum_10dofs)
+    add_subdirectory(PredSim_CP)
 endif()
 
 
