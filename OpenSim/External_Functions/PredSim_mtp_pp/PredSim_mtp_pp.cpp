@@ -40,11 +40,11 @@ using namespace OpenSim;
 constexpr int n_in = 2;
 constexpr int n_out = 1;
 /// number of elements in input/output vectors of function F
-constexpr int ndof = 29;        // # degrees of freedom (excluding locked)
-constexpr int ndofr = 31;       // # degrees of freedom (including locked)
-constexpr int NX = ndof*2;      // # states
-constexpr int NU = ndof;        // # controls
-constexpr int NR = ndof+4*4;    // # residual torques + # joint origins
+constexpr int ndof = 31;       // # degrees of freedom (excluding locked)
+constexpr int ndofr = ndof+2;  // # degrees of freedom (including locked)
+constexpr int NX = ndof*2;     // # states
+constexpr int NU = ndof;       // # controls
+constexpr int NR = ndof+6+6;   // # residual torques + # GRFs + # joint origins
 
 // Helper function value
 template<typename T>
@@ -134,8 +134,8 @@ int F_generic(const T** arg, T** res) {
     OpenSim::CustomJoint* ankle_l;
     OpenSim::CustomJoint* subtalar_r;
     OpenSim::CustomJoint* subtalar_l;
-    OpenSim::WeldJoint* mtp_r;
-    OpenSim::WeldJoint* mtp_l;
+    OpenSim::CustomJoint* mtp_r;
+    OpenSim::CustomJoint* mtp_l;
     OpenSim::CustomJoint* back;
     OpenSim::CustomJoint* shoulder_r;
     OpenSim::CustomJoint* shoulder_l;
@@ -256,6 +256,16 @@ int F_generic(const T** arg, T** res) {
     st_subtalar_r[0].setCoordinateNames(OpenSim::Array<std::string>("subtalar_angle_r", 1, 1));
     st_subtalar_r[0].setFunction(new LinearFunction());
     st_subtalar_r[0].setAxis(Vec3(0.78717961, 0.60474746, -0.12094949));
+    /// Mtp_l transform
+    SpatialTransform st_mtp_l;
+    st_mtp_l[0].setCoordinateNames(OpenSim::Array<std::string>("mtp_angle_l", 1, 1));
+    st_mtp_l[0].setFunction(new LinearFunction());
+    st_mtp_l[0].setAxis(Vec3(0.5809544, 0, 0.81393611));
+    /// Mtp_r transform
+    SpatialTransform st_mtp_r;
+    st_mtp_r[0].setCoordinateNames(OpenSim::Array<std::string>("mtp_angle_r", 1, 1));
+    st_mtp_r[0].setFunction(new LinearFunction());
+    st_mtp_r[0].setAxis(Vec3(-0.5809544, 0, 0.81393611));
     /// Back transform
     SpatialTransform st_back;
     st_back[0].setCoordinateNames(OpenSim::Array<std::string>("lumbar_extension", 1, 1));
@@ -319,8 +329,8 @@ int F_generic(const T** arg, T** res) {
     ankle_r = new CustomJoint("ankle_r", *tibia_r, Vec3(0, -0.415694825374905, 0), Vec3(0), *talus_r, Vec3(0), Vec3(0), st_ankle_r);
     subtalar_l = new CustomJoint("subtalar_l", *talus_l, Vec3(-0.0445720919117321, -0.0383391276542374, -0.00723828107321956), Vec3(0), *calcn_l, Vec3(0), Vec3(0),st_subtalar_l);
     subtalar_r = new CustomJoint("subtalar_r", *talus_r, Vec3(-0.0445720919117321, -0.0383391276542374, 0.00723828107321956), Vec3(0), *calcn_r, Vec3(0), Vec3(0),st_subtalar_r);
-    mtp_l = new WeldJoint("mtp_l", *calcn_l, Vec3(0.163409678774199, -0.00182784875586352, -0.000987038328166303), Vec3(0), *toes_l, Vec3(0), Vec3(0));
-    mtp_r = new WeldJoint("mtp_r", *calcn_r, Vec3(0.163409678774199, -0.00182784875586352, 0.000987038328166303), Vec3(0), *toes_r, Vec3(0), Vec3(0));
+    mtp_l = new CustomJoint("mtp_l", *calcn_l, Vec3(0.163409678774199, -0.00182784875586352, -0.000987038328166303), Vec3(0), *toes_l, Vec3(0), Vec3(0),st_mtp_l);
+    mtp_r = new CustomJoint("mtp_r", *calcn_r, Vec3(0.163409678774199, -0.00182784875586352, 0.000987038328166303), Vec3(0), *toes_r, Vec3(0), Vec3(0),st_mtp_r);
     back = new CustomJoint("back", *pelvis, Vec3(-0.0972499926058214, 0.0787077894476112, 0), Vec3(0), *torso, Vec3(0), Vec3(0), st_back);
     shoulder_l = new CustomJoint("shoulder_l", *torso, Vec3(0.0028142880546385, 0.35583331053375, -0.151641511660395), Vec3(0), *humerus_l, Vec3(0), Vec3(0), st_sho_l);
     shoulder_r = new CustomJoint("shoulder_r", *torso, Vec3(0.0028142880546385, 0.35583331053375, 0.151641511660395), Vec3(0), *humerus_r, Vec3(0), Vec3(0), st_sho_r);
@@ -442,18 +452,22 @@ int F_generic(const T** arg, T** res) {
     // Assign inputs to model variables
     /// States
     for (int i = 0; i < NX; ++i) QsUs[i] = x[i];
-    /// pro_sup dofs are locked so Qs and Qdots are hard coded
+    /// pro_sup dofs are locked so Qs and Qdots are hard coded (0)
     QsUs[NX] = 1.51;
     QsUs[NX+1] = 0;
     QsUs[NX+2] = 1.51;
     QsUs[NX+3] = 0;
     /// Controls
+    T ut[NU+2];
+    for (int i = 0; i < NU; ++i) ut[i] = u[i];
+    /// pro_sup dofs are locked so Qdotdots are hard coded (0)
+    /// Need to have a temporary vector to add 0s to the vector before
+    /// adjusting for the index difference between OpenSim and Simbody.
+    ut[NU] = 0;
+    ut[NU+1] = 0;
     /// OpenSim and Simbody have different state orders so we need to adjust
     auto indicesOSInSimbody = getIndicesOSInSimbody(*model);
-    for (int i = 0; i < NU; ++i) ua[i] = u[indicesOSInSimbody[i]];
-    /// pro_sup dofs are locked so Qs and Qdots are hard coded
-    ua[29] = 0; // Be careful, this might not be valid if the model changes
-    ua[30] = 0;
+    for (int i = 0; i < ndofr; ++i) ua[i] = ut[indicesOSInSimbody[i]];
 
     // Set state variables and realize
     model->setStateVariableValues(*state, QsUs);
@@ -558,30 +572,35 @@ int F_generic(const T** arg, T** res) {
     Vec3 tibia_or_l  = tibia_l->getPositionInGround(*state);
     Vec3 tibia_or_r  = tibia_r->getPositionInGround(*state);
 
+    // Extract ground reaction forces
+    SpatialVec GRF_r = GRF_1_r + GRF_2_r + GRF_3_r + GRF_4_r + GRF_5_r + GRF_6_r;
+    SpatialVec GRF_l = GRF_1_l + GRF_2_l + GRF_3_l + GRF_4_l + GRF_5_l + GRF_6_l;
+
+    // Residual forces in OpenSim order
+    T res_os[ndofr];
+    /// OpenSim and Simbody have different state orders so we need to adjust
+    auto indicesSimbodyInOS = getIndicesSimbodyInOS(*model);
+    for (int i = 0; i < ndofr; ++i) res_os[i] =
+            value<T>(residualMobilityForces[indicesSimbodyInOS[i]]);
     // Extract results
     int nc = 3;
     /// Residual forces
-    /// OpenSim and Simbody have different state orders so we need to adjust
-    auto indicesSimbodyInOS = getIndicesSimbodyInOS(*model);
-    for (int i = 0; i < NU; ++i) res[0][i] =
-            value<T>(residualMobilityForces[indicesSimbodyInOS[i]]);
+    /// We do want to extract the pro_sup torques (last two -> till NU)
+    for (int i = 0; i < NU; ++i) res[0][i] = res_os[i];
+    /// ground reaction forces
+    for (int i = 0; i < nc; ++i) {
+        res[0][i + NU] = value<T>(GRF_r[1][i]);       /// GRF_r
+    }
+    for (int i = 0; i < nc; ++i) {
+        res[0][i + NU + nc] = value<T>(GRF_l[1][i]);  /// GRF_l
+    }
     /// Joint origins
-    res[0][ndof]     = value<T>(calcn_or_r[0]);   /// calcn_or_r_x
-    res[0][ndof + 1] = value<T>(calcn_or_r[2]);   /// calcn_or_r_z
-    res[0][ndof + 2] = value<T>(calcn_or_l[0]);   /// calcn_or_l_x
-    res[0][ndof + 3] = value<T>(calcn_or_l[2]);   /// calcn_or_l_x
-    res[0][ndof + 4] = value<T>(femur_or_r[0]);   /// femur_or_r_x
-    res[0][ndof + 5] = value<T>(femur_or_r[2]);   /// femur_or_r_z
-    res[0][ndof + 6] = value<T>(femur_or_l[0]);   /// femur_or_l_x
-    res[0][ndof + 7] = value<T>(femur_or_l[2]);   /// femur_or_l_z
-    res[0][ndof + 8] = value<T>(hand_or_r[0]);    /// hand_or_r_x
-    res[0][ndof + 9] = value<T>(hand_or_r[2]);    /// hand_or_r_z
-    res[0][ndof + 10] = value<T>(hand_or_l[0]);   /// hand_or_l_x
-    res[0][ndof + 11] = value<T>(hand_or_l[2]);   /// hand_or_l_z
-    res[0][ndof + 12] = value<T>(tibia_or_r[0]);  /// tibia_or_r_x
-    res[0][ndof + 13] = value<T>(tibia_or_r[2]);  /// tibia_or_r_z
-    res[0][ndof + 14] = value<T>(tibia_or_l[0]);  /// tibia_or_l_x
-    res[0][ndof + 15] = value<T>(tibia_or_l[2]);  /// tibia_or_l_z
+    for (int i = 0; i < nc; ++i) {
+        res[0][i + NU + nc + nc] = value<T>(calcn_or_r[i]);      /// calcn_or_r
+    }
+    for (int i = 0; i < nc; ++i) {
+        res[0][i + NU + nc + nc + nc] = value<T>(calcn_or_l[i]); /// calcn_or_l
+    }
 
     return 0;
 

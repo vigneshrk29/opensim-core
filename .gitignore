@@ -25,3 +25,7 @@ dependencies/*
 
 # MAC File System files
 .DS_Store
+
+# Ignore generated files for external functions
+**/foo.m
+**/foo_jac.c
