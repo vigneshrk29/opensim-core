@@ -37,7 +37,9 @@ if(BUILD_TESTING)
     add_subdirectory(PredSim_mtpPin_cm2)
     add_subdirectory(PredSim_mtpPin_pp_cm2)       
     add_subdirectory(TrackSim_mtpPin_2_4cs)
-    
+    add_subdirectory(TrackSim_mtpPin_2_6cs)
+    add_subdirectory(PredSim_mtpPin_cm3)
+    add_subdirectory(PredSim_mtpPin_pp_cm3) 
 endif()
 
 
