@@ -13,6 +13,8 @@ add_subdirectory(versionUpdate)
 
 add_subdirectory(opensim-cmd)
 
+add_subdirectory(KS)
+
 if(UNIX)
     install(PROGRAMS opensim-install-command-line.sh DESTINATION
         ${CMAKE_INSTALL_BINDIR})
