@@ -187,7 +187,7 @@ void InverseKinematicsKSTool::setupProperties()
 	_accuracyProp.setValue(1e-5);
 	_propertySet.append( &_accuracyProp );
 
-	_timeScaleProp.setComment("Scale factor for time. For numerical reasons, choose timeScale such that the" 
+	_timeScaleProp.setComment("Scale factor for time. For numerical reasons, choose timeScale such that the"
 		"generalized coordinates and their derivatives have same order of magnitude.");
 	_timeScaleProp.setName("time_scale");
 	_timeScaleProp.setValue(20.0);
@@ -280,7 +280,7 @@ operator=(const InverseKinematicsKSTool &aTool)
 	_ikTaskSet = aTool._ikTaskSet;
 	_markerFileName = aTool._markerFileName;
 	_timeRange = aTool._timeRange;
-	_reportErrors = aTool._reportErrors; 
+	_reportErrors = aTool._reportErrors;
 	_coordinateFileName = aTool._coordinateFileName;
 	_reportErrors = aTool._reportErrors;
 	_outputMotionFileName = aTool._outputMotionFileName;
@@ -306,16 +306,16 @@ bool InverseKinematicsKSTool::run()
 	bool success = false;
 	bool modelFromFile=true;
 	try{
-		
+
 		//Load and create the indicated model
-		if (!_model) 
+		if (!_model)
 			_model = new Model(_modelFileName);
 		else
 			modelFromFile = false;
 
 		_model->printBasicInfo(cout);
 
-		// Do the maneuver to change then restore working directory 
+		// Do the maneuver to change then restore working directory
 		// so that the parsing code behaves properly if called from a different directory.
 		string saveWorkingDirectory = IO::getCwd();
 		string directoryOfSetupFile = IO::getParentDirectory(getDocumentFileName());
@@ -332,16 +332,16 @@ bool InverseKinematicsKSTool::run()
 
 		cout<<"Running tool "<<getName()<<".\n";
 
-		_model->setUseVisualizer(true); 
+		_model->setUseVisualizer(true);
 		_model->updForceSet().clearAndDestroy(); // Required if using Visualizer
 
 		// Initialize the model's underlying computational system and get its default state.
 		SimTK::State& s = modelFromFile?_model->initSystem(): _model->updMultibodySystem().updDefaultState();
 
-		SimTK::Vector qDefaults = s.getQ(); 
+		SimTK::Vector qDefaults = s.getQ();
 
 		//Convert old Tasks to references for assembly and tracking
-		MarkersReference markersReference;
+		/*MarkersReference markersReference;*/
 		Set<MarkerWeight> markerWeights;
 		SimTK::Array_<CoordinateReference> coordinateReferences;
 		Array<std::string> mNotUsed;
@@ -369,7 +369,7 @@ bool InverseKinematicsKSTool::run()
 
 		// Control if all the markers in the model are also in the TaskSet //version 2.1
 		const MarkerSet& modelMarkerSet = _model->getMarkerSet();
-		for(unsigned int index_model=0; index_model < modelMarkerSet.getSize(); index_model++){ 
+		for(unsigned int index_model=0; index_model < modelMarkerSet.getSize(); index_model++){
 			string modelMarkerName = modelMarkerSet.get(index_model).getName();
 			bool notInTaskSet = true;
 			for (unsigned int mInTaskSetIndex = 0; mInTaskSetIndex < mInTaskSet.size(); mInTaskSetIndex++) {
@@ -383,10 +383,12 @@ bool InverseKinematicsKSTool::run()
 			}
 		}
 
-		//Set the weights for markers
-		markersReference.setMarkerWeightSet(markerWeights);
-		//Load the makers
-		markersReference.loadMarkersFile(_markerFileName);
+        MarkersReference markersReference(_markerFileName, markerWeights);
+
+		////Set the weights for markers
+		//markersReference.setMarkerWeightSet(markerWeights);
+		////Load the makers
+		//markersReference.loadMarkersFile(_markerFileName);
 		// marker names
 		const SimTK::Array_<std::string>& markerNames =  markersReference.getNames();
 
@@ -440,7 +442,7 @@ bool InverseKinematicsKSTool::run()
 		int nq = s.getNQ();
 		int nu = s.getNU();
 		int ns = nq*_order;
-				
+
 		CoordinateSet& modelCoordinateSet = _model->updCoordinateSet();
 		Array<int> iLocked;
 		Array<int> iClamped;
@@ -484,7 +486,7 @@ bool InverseKinematicsKSTool::run()
 			ikSolver.track(s);
 			qIK(i) = s.getQ();
 		}
-		
+
 		const Vector &q = s.getQ();
 		int nqf = nq-nl;		// number of free coordinates
 		int nsf = nqf*_order;	// number of free states
@@ -499,8 +501,8 @@ bool InverseKinematicsKSTool::run()
 			}
 		}
 
-		
-		
+
+
 
 		s.updTime() = start_time;
 		s.updQ() = qIK(0);
@@ -522,7 +524,7 @@ bool InverseKinematicsKSTool::run()
 
 		x_kf_array[0] = x;
 		P_kf_array[0] = P;
-		
+
 		////////////
 		// FILTER //
 		////////////
@@ -530,12 +532,12 @@ bool InverseKinematicsKSTool::run()
 		// Loop over time frames
 		for (int n = 1; n < Nframes; n++) {
 		// for (int n = 1; n < 2; n++) {
-			
+
 			// PREDICT
 			for(int i=0; i<nqf; ++i){
 				for(int j=0; j<nqf; ++j)	P_pred(i*_order, j*_order, _order, _order) = F*P(i*_order, j*_order, _order, _order)*~F;
 			}
-			
+
 			for(int i=0; i<nqf; ++i){
 				x_pred(i*_order,_order) = F*x(i*_order, _order);
 				P_pred(i*_order, i*_order, _order, _order) = P_pred(i*_order, i*_order, _order, _order) + Q;
@@ -559,7 +561,7 @@ bool InverseKinematicsKSTool::run()
 
 			ikSolver.setState(s); // Update: Fuction added to AssemblySolver
 			// ikSolver.track(s); // failure
-			_model->getMultibodySystem().realize(s, SimTK::Stage::Velocity); 
+			_model->getMultibodySystem().realize(s, SimTK::Stage::Velocity);
 
 			x_pred_array[n] = x_pred;
 			P_pred_array[n] = P_pred;
@@ -569,9 +571,9 @@ bool InverseKinematicsKSTool::run()
 			ikSolver.computeCurrentMarkerLocations(markerLocations);
 
 			markersReference.getValues(s, measMarkerLocations);
-			// get markers defined by the model 
+			// get markers defined by the model
 			const MarkerSet& modelMarkerSet = _model->getMarkerSet();
-			
+
 			Array<Vec3> innov;
 			Vec3 diff(0);
 			int il = 0;
@@ -587,7 +589,7 @@ bool InverseKinematicsKSTool::run()
 				if(index_model >= 0){
 					// 2. Check if marker used for estimation
 					index = mNotUsed.findIndex(markerNames[i]);
-					if (index == -1) { 
+					if (index == -1) {
 						// 3. Check if marker location is measured in current frame
 						// Don't use marker for update if its position is not measured [0 0 0] or if it contains NaN.
 
@@ -609,15 +611,15 @@ bool InverseKinematicsKSTool::run()
 				}
 			}
 
-			int nmUsed = innov.getSize(); 
+			int nmUsed = innov.getSize();
 			// cout << "Time = " << s.getTime() << ": number of used markers = " << nmUsed << endl;
-			
+
 			Vector innovation(3*nmUsed); innovation=0.0;
 			for(int j=0; j<nmUsed; ++j) {
 				for(int k=0; k<3; ++k)
 					innovation[j*3+k] = innov[j][k];
 			}
-			
+
 			// Construct Jacobian
 			Matrix measModelJ(3*nmUsed, nu); measModelJ=0.0;
 			int indexU = 0;
@@ -636,8 +638,9 @@ bool InverseKinematicsKSTool::run()
 						// cout << marker.getFrameName() << endl;
 						// OpenSim::Body& body = marker.getBody(); // had to replace this
 						// OpenSim::Frame& frame = _model->getFrameSet().get(marker.getFrameName);
-						std::string bName = marker.getFrameName();
-						
+						/*std::string bName = marker.getFrameName();*/
+                        std::string bName = marker.getParentFrameName();
+
 						// const OpenSim::Body & body = _model->getBodySet().get(bName);
 						const OpenSim::PhysicalFrame & pFrame = _model->getComponent<PhysicalFrame>(bName);
 						const SimTK::MobilizedBodyIndex moBodyIndex = pFrame.getMobilizedBodyIndex();
@@ -649,14 +652,14 @@ bool InverseKinematicsKSTool::run()
 						_model->getMatterSubsystem().calcStationJacobian(s, moBodyIndex, mLoc, Jm);
 						measModelJ(il*3, 0, 3, nu) = Jm;
 						il = il + 1;
-						
+
 					}
 				}
 			}
 			//std::cout << "Measured modelJ" << measModelJ << std::endl;
 
-			
-			
+
+
 			Matrix P_predr(nsf, nq); P_predr=0.0;
 			j=0;
 			for(int k=0; k<nq; ++k) {
@@ -668,14 +671,14 @@ bool InverseKinematicsKSTool::run()
 
 			Matrix NinvPT(nu, nsf); NinvPT=0.0;
 			bool transpose = 0;
-			for (int j=0; j<nsf; ++j) { 
+			for (int j=0; j<nsf; ++j) {
 				_model->getMatterSubsystem().multiplyByNInv(s, transpose, ~P_predr[j], NinvPT(j));
 			}
-			
+
 
 			Matrix PHT(nsf, 3*nmUsed); PHT=0.0;
 			PHT = ~NinvPT * ~measModelJ;
-		
+
 			Matrix S(3*nmUsed, 3*nmUsed); S=0.0;
 			Matrix PHTr(nq, 3*nmUsed); PHTr=0.0;
 			j=0;
@@ -685,14 +688,14 @@ bool InverseKinematicsKSTool::run()
 					j = j+1;
 				}
 			}
-		
+
 			Matrix NinvPHTr(nu, 3*nmUsed); NinvPHTr=0.0;
-			for (int j=0; j<3*nmUsed; ++j) { 
+			for (int j=0; j<3*nmUsed; ++j) {
 				_model->getMatterSubsystem().multiplyByNInv(s, transpose, PHTr(j), NinvPHTr(j));
 			}
 			S = measModelJ * NinvPHTr; // +R!
-			
-			SimTK::Array_<double> weights;  
+
+			SimTK::Array_<double> weights;
 			markersReference.getWeights(s, weights);
 			index = 0;
 			il = 0;
@@ -711,20 +714,20 @@ bool InverseKinematicsKSTool::run()
 						il = il+1;
 					}
 				}
-			} 
-	
+			}
+
 			// Solve the pseudoinverse problem of ~K = pinv(~S)*~PHT;
 			// ( if S has full rank : Matrix K = PHT * S.invert();
 			Matrix transposeS = ~S;
 			SimTK::FactorQTZ pinvS(transposeS);
 			double invCond = pinvS.getRCondEstimate();
-			
+
 			Matrix transposeK(3*nmUsed, nsf); transposeK = 0.0;
 			Matrix transposeKm(3*nmUsed, nsf); transposeKm = 0.0;
 			Matrix transposePHT = ~PHT;
 			pinvS.solve<Real>(transposePHT, transposeKm);
 			Matrix K = ~transposeKm;
-						
+
 			x = x_pred + K*innovation;
 
 			Matrix P_predr2(nq, nsf); P_predr2=0.0;
@@ -737,10 +740,10 @@ bool InverseKinematicsKSTool::run()
 			}
 
 			Matrix NinvP(nu, nsf); NinvP=0.0;
-			for (int j=0; j<nsf; ++j) { 
+			for (int j=0; j<nsf; ++j) {
 				_model->getMatterSubsystem().multiplyByNInv(s, transpose, P_predr2(j), NinvP(j));
 			}
-		
+
 			P = P_pred - K*measModelJ*NinvP;
 
 			// check whether inequality constraints are active
@@ -772,7 +775,7 @@ bool InverseKinematicsKSTool::run()
 				SimTK::FactorSVD pinvDPDt(DPDt);
 				Matrix invDPDt(noIneqAct,noIneqAct); invDPDt = 0.0;
 				pinvDPDt.inverse<Real>(invDPDt);
-				x = x - P*~D*invDPDt*D*(x-d);   
+				x = x - P*~D*invDPDt*D*(x-d);
 			}
 
 			x_kf_array[n] = x;
@@ -794,12 +797,12 @@ bool InverseKinematicsKSTool::run()
 			// Friedl: unnecessary when only KS results are reported.
 			 s.updQ() = qhat;
 			 _model->getMultibodySystem().realize(s, SimTK::Stage::Velocity);
-			 _model->getVisualizer().show(s);  
-			 
+			 _model->getVisualizer().show(s);
+
 
 		}
 
-		
+
 		//////////////
 		// SMOOTHER //
 		//////////////
@@ -812,10 +815,10 @@ bool InverseKinematicsKSTool::run()
 		// Loop over time frames
 		for (int n = 1; n < Nframes; n++) {
 			int index = Nframes-1-n;
-				
+
 			// Probably not most robust solution!
 			Matrix invPpred = P_pred_array[index+1].invert();
-		
+
 			Matrix Ktilde(nsf,nsf); Ktilde = 0;
 			for(int i=0; i<nqf; ++i){
 				for(int j=0; j<nqf; ++j)	Ktilde(i*_order, j*_order, _order, _order) = invFQ*invPpred(i*_order, j*_order, _order, _order);
@@ -825,7 +828,7 @@ bool InverseKinematicsKSTool::run()
 			for(int i=0; i<nqf; ++i){
 				Ftilde(i*_order, i*_order, _order, _order) = Ftilde(i*_order, i*_order, _order, _order) + invF;
 			}
-		
+
 			x_rts = Ftilde * x_rts + Ktilde * x_pred_array[index+1];
 			x_rts_array[index] = x_rts;
 		}
@@ -848,16 +851,16 @@ bool InverseKinematicsKSTool::run()
 				}
 				else { // Update
 					q_ks(k) = qDefaults(k);
-				}				
+				}
 			}
 
 			s.updQ() = q_ks;
-			
+
 			_model->getMultibodySystem().realize(s, SimTK::Stage::Velocity);
 			_model->getVisualizer().show(s);
 
 
-			
+
 			if(_reportErrors){
 				Array<double> markerErrors(0.0, 3);
 				double totalSquaredMarkerError = 0.0;
@@ -869,7 +872,7 @@ bool InverseKinematicsKSTool::run()
 				ikSolver.computeCurrentMarkerLocations(markerLocations);
 
 				markersReference.getValues(s, measMarkerLocations);
-				// get markers defined by the model 
+				// get markers defined by the model
 				const MarkerSet& modelMarkerSet = _model->getMarkerSet();
 
 				int il = 0;
@@ -885,7 +888,7 @@ bool InverseKinematicsKSTool::run()
 					if(index >= 0){
 						// 2. Check if marker used for estimation
 						index = mNotUsed.findIndex(markerNames[i]);
-						if (index == -1) { 
+						if (index == -1) {
 							// 3. Check if marker location is measured in current frame
 							// Don't use marker for update if its position is not measured [0 0 0] of if it contains NaN.
 
@@ -898,7 +901,7 @@ bool InverseKinematicsKSTool::run()
 							}
 							else {
 
-								diff = measMarkerLocations[i] - markerLocations[il]; 
+								diff = measMarkerLocations[i] - markerLocations[il];
 								SquaredError = diff.normSqr();
 
 								totalSquaredMarkerError += SquaredError;
@@ -913,7 +916,7 @@ bool InverseKinematicsKSTool::run()
 						//il = il + 1;
 					}
 				}
-				
+
 				double rms = sqrt(totalSquaredMarkerError / nm);
 				markerErrors.set(0, totalSquaredMarkerError);
 				markerErrors.set(1, rms);
@@ -941,7 +944,7 @@ bool InverseKinematicsKSTool::run()
 
 			kinematicsReporter.step(s, n);
 			analysisSet.step(s, n);
-		
+
 		}
 
 		if (mWeightTooHigh.size()!=0) {
@@ -949,8 +952,8 @@ bool InverseKinematicsKSTool::run()
 				cout << "\nWarning!! Weight for marker " << mWeightTooHigh[marker_nr] << " in TaskSet is too high == unrealistically small measurement error assumed. Choose weights between 0.25 and 4.\n" << endl;
 			}
 		}
-		
-		// Do the maneuver to change then restore working directory 
+
+		// Do the maneuver to change then restore working directory
 		// so that output files are saved to same folder as setup file.
 		if (_outputMotionFileName!= "" && _outputMotionFileName!="Unassigned"){
 			kinematicsReporter.getPositionStorage()->print(_outputMotionFileName);
@@ -985,7 +988,7 @@ bool InverseKinematicsKSTool::run()
 			}
 			modelMarkerLocations->setColumnLabels(labels);
 			modelMarkerLocations->setName("Model Marker Locations from IK");
-	
+
 			IO::makeDir(getResultsDir());
 			Storage::printResult(modelMarkerLocations, "ks_model_marker_locations", getResultsDir(), -1, ".sto");
 
@@ -997,7 +1000,7 @@ bool InverseKinematicsKSTool::run()
 		success = true;
 
 		cout << "InverseKinematicsKSTool completed " << Nframes-1 << " frames in " <<(double)(clock()-start)/CLOCKS_PER_SEC << "s\n" <<endl;
-		
+
 	}
 	catch (const std::exception& ex) {
 		std::cout << "InverseKinematicsKSTool Failed: " << ex.what() << std::endl;
