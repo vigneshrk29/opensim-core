@@ -112,6 +112,30 @@ public:
             "Flag indicating whether or not to report model marker locations. "
             "Note, model marker locations are expressed in Ground.");
 
+    OpenSim_DECLARE_PROPERTY(order_smoother, int,
+            "Order of the smoother. Derivatives up to order_smoother+1 "
+            "will be estimated (default is 4).")
+
+    OpenSim_DECLARE_PROPERTY(time_scale, double,
+            "Scale factor for the time. For numerical reasons, choose "
+            "time_scale such that the generalized coordinates and their "
+            "derivatives have the same order of magnitude (default is 20).");
+
+    OpenSim_DECLARE_PROPERTY(sd_process, double,
+            "Estimate of the standard deviation of the (order_smoother+1)th "
+            "derivative of the generalized coordinates with order_smoother "
+            "the order of the filter (default is 15).");
+
+    OpenSim_DECLARE_PROPERTY(sd_meas, double,
+            "Estimate of the standard deviation of the marker error "
+            "(default is 0.03).");
+
+    OpenSim_DECLARE_PROPERTY(use_visualizer, bool,
+            "Whether or not to use the visualizer when runnin the KS tool "
+            "(default is false).");
+
+
+
 //=============================================================================
 // METHODS
 //=============================================================================
@@ -165,12 +189,6 @@ public:
     std::string getOutputMotionFileName() { return get_output_motion_file(); }
     IKTaskSet& getIKTaskSet() { return upd_IKTaskSet(); }
 
-    // TODO: is this still necessary?
-//#ifndef SWIG
-//	InverseKinematicsKSTool&
-//		operator=(const InverseKinematicsKSTool &aInverseKinematicsKSTool);
-//#endif
-
 	//--------------------------------------------------------------------------
 	// INTERFACE
 	//--------------------------------------------------------------------------
@@ -181,7 +199,9 @@ public:
     // MarkersReference (set of marker trajectories and their weights) and
     // CoordinateReferences that are being used by the InverseKinematicsSolver.
     void populateReferences(MarkersReference& markersReference,
-        SimTK::Array_<CoordinateReference>&coordinateReferences) const;
+        SimTK::Array_<CoordinateReference>&coordinateReferences,
+        Array<std::string>& mNotUsed, Array<std::string>& mInTaskSet,
+        Array<std::string>& mWeightTooHigh) const;
     /** @endcond **/
 
 

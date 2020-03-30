@@ -62,9 +62,6 @@ int main(int argc,char **argv)
 	try {
 	//----------------------
 
-	// REGISTER TYPES
-	InverseKinematicsKSTool::registerTypes();
-
 	// PARSE COMMAND LINE
 	string option = "";
 	string setupFileName;
