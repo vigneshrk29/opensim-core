@@ -232,8 +232,8 @@ bool InverseKinematicsKSTool::run()
         SimTK::Array_<double> squaredMarkerErrors(nm, 0.0);
         SimTK::Array_<Vec3> markerLocations(nm, Vec3(0));
         SimTK::Array_<Vec3> measMarkerLocations(nm, Vec3(0));
-        std::cout << "Number of markers " << nm << std::endl;
-		std::cout << "Marker not used :" << mNotUsed <<std::endl;
+        std::cout << "Number of markers: " << nm << std::endl;
+		std::cout << "Marker(s) not used: " << mNotUsed <<std::endl;
 
 		Stopwatch watch;
 		double dt = 1.0/markersReference.getSamplingFrequency();
@@ -256,45 +256,59 @@ bool InverseKinematicsKSTool::run()
 		G(0) = pow(Ts,get_order_smoother())/fac;
 		Q = pow(get_sd_process(),2)*G*~G;
 
-		// Find locked joints
+		// Find locked and clamped joints
 		int nq = s.getNQ();
 		int nu = s.getNU();
 		int ns = nq*get_order_smoother();
-
-		CoordinateSet& modelCoordinateSet = _model->updCoordinateSet();
 		Array<int> iLocked;
-		Array<int> iClamped;
+		Array<int> iClamped_t;
 		Array<double> lowerClampbounds;
 		Array<double> upperClampbounds;
-		int nl = 0; // number of locked coordinates
-		int k = 0; // Index in the variable x
+		//int k = 0; // index in the variable x
+        // OpenSim and Simbody have difference conventions for indexing the
+        // states; systemYIndexMap relates OpenSim coordinates to Simbody
+        // indices.
+        auto systemYIndexMap = createSystemYIndexMap(*_model);
 		// Loop over coordinates
-		int n_coordinates = modelCoordinateSet.getSize();
-		for (int i = 0; i < n_coordinates; i++) {
-			Coordinate& aCoord = modelCoordinateSet[i];
-			cout << aCoord.getName() << endl;
-			if (aCoord.getLocked(s)) {
-				iLocked.append(i);
-				cout << aCoord.getName() << " (" << i <<") is locked" << endl;
-				nl = nl + 1;
+        for (const auto& coord : _model->getComponentList<Coordinate>()) {
+			cout << coord.getName() << endl;
+            int iqx = systemYIndexMap[coord.getStateVariableNames()[0]];
+			if (coord.getLocked(s)) {
+                iLocked.append(iqx);
+				cout << coord.getName() << " (" << iqx <<") is locked" << endl;
 			}
 			else {
-				if (aCoord.getClamped(s)) {
-					iClamped.append(k);
-					lowerClampbounds.append(aCoord.getRangeMin());
-					upperClampbounds.append(aCoord.getRangeMax());
-					cout << aCoord.getName() << " (" << k <<") is clamped" << endl;
+				if (coord.getClamped(s)) {
+					iClamped_t.append(iqx);
+					lowerClampbounds.append(coord.getRangeMin());
+					upperClampbounds.append(coord.getRangeMax());
+					cout << coord.getName() << " (" << iqx <<") is clamped" << endl;
 				}
-				k += 1;
 			}
 		}
+        // In the matrix x below, values for unlocked coordinates are gathered.
+        // Later, values for clamped coordinates are processed based on the
+        // matrix x. We therefore need to obtain the indices of the clamped
+        // coordinates in the matrix x. This piece of code does that. Assume
+        // coordinates with indices 5 and 7 are locked, and coordinates with
+        // indices 6 and 9 are clamped. In matrix x, values of the coordinates
+        // with indices 5 and 7 will not be included. Therefore, in the matrix
+        // x, the indices of the clamped coordinates are 5 (6-1) and 7 (9-2).
+        // This should be better coded, not very robust.
+        Array<int> iClamped;
+        int nLocked_temp = 0;
+        for(int k=0; k<nq; ++k){
+			if (iLocked.findIndex(k) != -1) nLocked_temp += 1;
+            if (iClamped_t.findIndex(k) != -1) iClamped.append(k-nLocked_temp);
+        }
+        int nLocked = iLocked.size();
 		int nClamped = iClamped.size();
 		std::cout << "Number locked: " << iLocked.size() << std::endl;
 		std::cout << "Number clamped: " << nClamped << std::endl;
 		std::cout << "Lower clamp bounds: " << lowerClampbounds << std::endl;
 		std::cout << "Upper clamp bounds: " << upperClampbounds << std::endl;
 
-		// Initial state estimate based on IK (global optimization method) solution
+		// Initial state estimate based on IK (global optimization) solution
 		int Nframesinit = 3;
 		Matrix qIK(nq,Nframesinit); qIK = 0;
 		for (int i = 0; i < Nframesinit; i++) {
@@ -303,8 +317,7 @@ bool InverseKinematicsKSTool::run()
 			qIK(i) = s.getQ();
 		}
 
-		const Vector &q = s.getQ();
-		int nqf = nq-nl;		// number of free coordinates
+		int nqf = nq-nLocked; // number of free coordinates
 		int nsf = nqf*get_order_smoother();	// number of free states
 		Vector x(nsf); x=0.0;
 		int j = 0;
@@ -978,4 +991,31 @@ void InverseKinematicsKSTool::populateReferences(MarkersReference& markersRefere
     //Markers in the model and the marker file but not in the markerWeights are
     //ignored
     markersReference.initializeFromMarkersFile(get_marker_file(), markerWeights);
+}
+
+std::unordered_map<std::string, int> InverseKinematicsKSTool::createSystemYIndexMap(
+        const Model& model) {
+    std::unordered_map<std::string, int> sysYIndices;
+    auto s = model.getWorkingState();
+    const auto svNames = model.getStateVariableNames();
+    s.updY() = 0;
+    for (int iy = 0; iy < s.getNY(); ++iy) {
+        s.updY()[iy] = SimTK::NaN;
+        const auto svValues = model.getStateVariableValues(s);
+        for (int isv = 0; isv < svNames.size(); ++isv) {
+            if (SimTK::isNaN(svValues[isv])) {
+                sysYIndices[svNames[isv]] = iy;
+                s.updY()[iy] = 0;
+                break;
+            }
+        }
+        if (SimTK::isNaN(s.updY()[iy])) {
+            // If we reach here, this is an unused slot for a quaternion.
+            s.updY()[iy] = 0;
+        }
+    }
+    SimTK_ASSERT2_ALWAYS(svNames.size() == (int)sysYIndices.size(),
+            "Expected to find %i state indices but found %i.", svNames.size(),
+            sysYIndices.size());
+    return sysYIndices;
 }

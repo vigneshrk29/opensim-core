@@ -204,6 +204,13 @@ public:
         Array<std::string>& mWeightTooHigh) const;
     /** @endcond **/
 
+    #ifndef SWIG
+    /// The map provides the index of each state variable in
+    /// SimTK::State::getY() from its state variable path string.
+    /// Copied from MocoUtilities
+    std::unordered_map<std::string, int> createSystemYIndexMap(const Model& model);
+    #endif
+
 
 //=============================================================================
 };	// END of class InverseKinematicsKSTool
