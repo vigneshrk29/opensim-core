@@ -175,20 +175,19 @@ bool InverseKinematicsKSTool::run()
         // populate the references according to the setting of this Tool
         populateReferences(markersReference, coordinateReferences, mNotUsed,
                 mInTaskSet, mWeightTooHigh);
-
-        // TODO: not sure this is useful
         // Control if all the markers in the model are also in the TaskSet
         const MarkerSet& modelMarkerSet = _model->getMarkerSet();
-        for(unsigned int index_model=0; index_model < modelMarkerSet.getSize(); index_model++){
+        for(int index_model=0; index_model < modelMarkerSet.getSize(); index_model++){
 	        string modelMarkerName = modelMarkerSet.get(index_model).getName();
 	        bool notInTaskSet = true;
-	        for (unsigned int mInTaskSetIndex = 0; mInTaskSetIndex < mInTaskSet.size(); mInTaskSetIndex++) {
+	        for (int mInTaskSetIndex = 0; mInTaskSetIndex < mInTaskSet.size(); mInTaskSetIndex++) {
 		        if (modelMarkerName.compare(mInTaskSet[mInTaskSetIndex]) == 0){
 			        notInTaskSet = false;
 			        break;
 		        }
 	        }
 	        if (notInTaskSet) {
+                cout << "coming here" << endl;
 		        mNotUsed.append(modelMarkerName);
 	        }
         }
@@ -228,11 +227,11 @@ bool InverseKinematicsKSTool::run()
         // Get the actual number of markers the Solver is using, which
         // can be fewer than the number of references if there isn't a
         // corresponding model marker for each reference.
-        int nm = ikSolver.getNumMarkersInUse();
-        SimTK::Array_<double> squaredMarkerErrors(nm, 0.0);
-        SimTK::Array_<Vec3> markerLocations(nm, Vec3(0));
-        SimTK::Array_<Vec3> measMarkerLocations(nm, Vec3(0));
-        std::cout << "Number of markers: " << nm << std::endl;
+        int nMarkers = ikSolver.getNumMarkersInUse();
+        SimTK::Array_<double> squaredMarkerErrors(nMarkers, 0.0);
+        SimTK::Array_<Vec3> markerLocations(nMarkers, Vec3(0));
+        SimTK::Array_<Vec3> measMarkerLocations(nMarkers, Vec3(0));
+        std::cout << "Number of markers: " << nMarkers << std::endl;
 		std::cout << "Marker(s) not used: " << mNotUsed <<std::endl;
 
 		Stopwatch watch;
@@ -264,7 +263,6 @@ bool InverseKinematicsKSTool::run()
 		Array<int> iClamped_t;
 		Array<double> lowerClampbounds;
 		Array<double> upperClampbounds;
-		//int k = 0; // index in the variable x
         // OpenSim and Simbody have difference conventions for indexing the
         // states; systemYIndexMap relates OpenSim coordinates to Simbody
         // indices.
@@ -286,7 +284,9 @@ bool InverseKinematicsKSTool::run()
 				}
 			}
 		}
-        // In the matrix x below, values for unlocked coordinates are gathered.
+        // Note from Antoine when adjusting the code for OpenSim >= 4.0.
+        // In the matrix x below, values for unlocked coordinates are gathered
+        // in the order of the Simbody states => s.getQ().
         // Later, values for clamped coordinates are processed based on the
         // matrix x. We therefore need to obtain the indices of the clamped
         // coordinates in the matrix x. This piece of code does that. Assume
@@ -294,7 +294,7 @@ bool InverseKinematicsKSTool::run()
         // indices 6 and 9 are clamped. In matrix x, values of the coordinates
         // with indices 5 and 7 will not be included. Therefore, in the matrix
         // x, the indices of the clamped coordinates are 5 (6-1) and 7 (9-2).
-        // This should be better coded, not very robust.
+        // This should be better coded, not very robust but seems to work.
         Array<int> iClamped;
         int nLocked_temp = 0;
         for(int k=0; k<nq; ++k){
@@ -357,8 +357,6 @@ bool InverseKinematicsKSTool::run()
 		double tol_m = 0.000001;
 		// Loop over time frames
 		for (int n = 1; n < Nframes; n++) {
-		// for (int n = 1; n < 2; n++) {
-
 			// PREDICT
 			for(int i=0; i<nqf; ++i){
 				for(int j=0; j<nqf; ++j) {
@@ -393,7 +391,7 @@ bool InverseKinematicsKSTool::run()
 			}
 			s.updQ() = qpred;
 
-			ikSolver.setState(s); // Update: Fuction added to AssemblySolver
+			ikSolver.setState(s); // Function added to AssemblySolver
 			_model->getMultibodySystem().realize(s, SimTK::Stage::Velocity);
 
 			x_pred_array[n] = x_pred;
@@ -402,20 +400,18 @@ bool InverseKinematicsKSTool::run()
 			// UPDATE
 			// innovation
 			ikSolver.computeCurrentMarkerLocations(markerLocations);
-
 			markersReference.getValues(s, measMarkerLocations);
 			// get markers defined by the model
 			const MarkerSet& modelMarkerSet = _model->getMarkerSet();
-
 			Array<Vec3> innov;
 			Vec3 diff(0);
 			int il = 0;
 			int index = 0;
-			int index_model = 0; //version 2.1
+			int index_model = 0;
 			bool markerNotMeasured = false;
-			// Array<double> measlocations(0.0, 3*nm);
+			// Array<double> measlocations(0.0, 3*nMarkers);
 			Array<std::string> mNotUsedInStep = mNotUsed;
-			for(unsigned int i=0; i < nm; i++){ // Loop over all the markers in the marker-file
+			for(int i=0; i < nMarkers; i++){ // Loop over all the markers in the marker-file
 			// 1. Check if we have this marker in the model, else ignore it
 				index_model = modelMarkerSet.getIndex(ikSolver.getMarkerNameForIndex(i));
 				// cout << measMarkerLocations[i] << endl;
@@ -440,21 +436,21 @@ bool InverseKinematicsKSTool::run()
 					}
 				}
 			}
-			int nmUsed = innov.getSize();
-			// cout << "Time = " << s.getTime() << ": number of used markers = " << nmUsed << endl;
-			Vector innovation(3*nmUsed); innovation=0.0;
-			for(int j=0; j<nmUsed; ++j) {
+			int nMarkersUsed = innov.getSize();
+			// cout << "Time = " << s.getTime() << ": number of used markers = " << nMarkersUsed << endl;
+			Vector innovation(3*nMarkersUsed); innovation=0.0;
+			for(int j=0; j<nMarkersUsed; ++j) {
 				for(int k=0; k<3; ++k)
 					innovation[j*3+k] = innov[j][k];
 			}
 			// Construct Jacobian
-			Matrix measModelJ(3*nmUsed, nu); measModelJ=0.0;
+			Matrix measModelJ(3*nMarkersUsed, nu); measModelJ=0.0;
 			int indexU = 0;
 			index = 0;
 			il = 0;
 			//Loop through all markers in the reference
-			for(unsigned int i=0; i < nm; i++){
-			// Check if we have this marker in the model, else ignore it
+			for(int i=0; i < nMarkers; i++){
+			    // Check if we have this marker in the model, else ignore it
 				index = modelMarkerSet.getIndex(ikSolver.getMarkerNameForIndex(i));
 				if(index >= 0){
 					// Check if the marker is used in the current frame
@@ -487,20 +483,20 @@ bool InverseKinematicsKSTool::run()
 			for (int j=0; j<nsf; ++j) {
 				_model->getMatterSubsystem().multiplyByNInv(s, transpose, ~P_predr[j], NinvPT(j));
 			}
-			Matrix PHT(nsf, 3*nmUsed); PHT=0.0;
+			Matrix PHT(nsf, 3*nMarkersUsed); PHT=0.0;
 			PHT = ~NinvPT * ~measModelJ;
 
-			Matrix S(3*nmUsed, 3*nmUsed); S=0.0;
-			Matrix PHTr(nq, 3*nmUsed); PHTr=0.0;
+			Matrix S(3*nMarkersUsed, 3*nMarkersUsed); S=0.0;
+			Matrix PHTr(nq, 3*nMarkersUsed); PHTr=0.0;
 			j=0;
 			for(int k=0; k<nq; ++k) {
 				if (iLocked.findIndex(k) == -1){
-					PHTr(k, 0, 1, 3*nmUsed) = PHT(j*get_order_smoother(), 0, 1, 3*nmUsed);
+					PHTr(k, 0, 1, 3*nMarkersUsed) = PHT(j*get_order_smoother(), 0, 1, 3*nMarkersUsed);
 					j = j+1;
 				}
 			}
-			Matrix NinvPHTr(nu, 3*nmUsed); NinvPHTr=0.0;
-			for (int j=0; j<3*nmUsed; ++j) {
+			Matrix NinvPHTr(nu, 3*nMarkersUsed); NinvPHTr=0.0;
+			for (int j=0; j<3*nMarkersUsed; ++j) {
 				_model->getMatterSubsystem().multiplyByNInv(s, transpose, PHTr(j), NinvPHTr(j));
 			}
 			S = measModelJ * NinvPHTr; // +R!
@@ -509,10 +505,10 @@ bool InverseKinematicsKSTool::run()
 			markersReference.getWeights(s, weights);
 			index = 0;
 			il = 0;
-			//Loop through all markers in the reference
-			// cout << "Marker names size " << nm << endl;
-			for(unsigned int j=0; j < nm; j++){
-			// Check if we have this marker in the model, else ignore it
+			// Loop through all markers in the reference
+			// cout << "Marker names size " << nMarkers << endl;
+			for(int j=0; j < nMarkers; j++){
+			    // Check if we have this marker in the model, else ignore it
 				index = modelMarkerSet.getIndex(ikSolver.getMarkerNameForIndex(j));
 				if(index >= 0){
 					// Check if the marker is used in the current frame
@@ -532,8 +528,8 @@ bool InverseKinematicsKSTool::run()
 			SimTK::FactorQTZ pinvS(transposeS);
 			double invCond = pinvS.getRCondEstimate();
 
-			Matrix transposeK(3*nmUsed, nsf); transposeK = 0.0;
-			Matrix transposeKm(3*nmUsed, nsf); transposeKm = 0.0;
+			Matrix transposeK(3*nMarkersUsed, nsf); transposeK = 0.0;
+			Matrix transposeKm(3*nMarkersUsed, nsf); transposeKm = 0.0;
 			Matrix transposePHT = ~PHT;
 			pinvS.solve<Real>(transposePHT, transposeKm);
 			Matrix K = ~transposeKm;
@@ -556,11 +552,10 @@ bool InverseKinematicsKSTool::run()
 
 			P = P_pred - K*measModelJ*NinvP;
 
-			// check whether inequality constraints are active
+			// Check whether inequality constraints are active
 			lowerClampbounds;
             Array<int> iIneqAct;
             Array<double> coordBound;
-
 			for (int clampedNr = 0; clampedNr < nClamped; clampedNr++) {
 				int DOFnr = iClamped.get(clampedNr);
 				// std::cout << x(DOFnr*get_order_smoother()) << "  " << lowerClampbounds.get(clampedNr) << "  " << upperClampbounds.get(clampedNr) << std::endl;
@@ -609,8 +604,6 @@ bool InverseKinematicsKSTool::run()
 			    _model->getMultibodySystem().realize(s, SimTK::Stage::Velocity);
 			    _model->getVisualizer().show(s);
             }
-
-
 		}
 
 		//////////////
@@ -690,7 +683,7 @@ bool InverseKinematicsKSTool::run()
 				int nm = 0;
 				bool markerNotMeasured = false;
 				Array<std::string> mNotUsedInStep = mNotUsed;
-				for(unsigned int i=0; i < ikSolver.getNumMarkersInUse(); i++){
+				for(int i=0; i < ikSolver.getNumMarkersInUse(); i++){
 					// 1. Check if we have this marker in the model, else ignore it
 					index = modelMarkerSet.getIndex(ikSolver.getMarkerNameForIndex(i));
 					if(index >= 0){
@@ -734,13 +727,13 @@ bool InverseKinematicsKSTool::run()
 
 			if(get_report_marker_locations()){
                 ikSolver.computeCurrentMarkerLocations(markerLocations);
-                Array<double> locations(0.0, 3*nm);
-                for(int j=0; j<nm; ++j){
+                Array<double> locations(0.0, 3*nMarkers);
+                for(int j=0; j<nMarkers; ++j){
                     for(int k=0; k<3; ++k)
                         locations.set(3*j+k, markerLocations[j][k]);
                 }
 
-                modelMarkerLocations->append(s.getTime(), 3*nm, &locations[0]);
+                modelMarkerLocations->append(s.getTime(), 3*nMarkers, &locations[0]);
 
             }
 
@@ -786,12 +779,12 @@ bool InverseKinematicsKSTool::run()
         }
 
 		if(modelMarkerLocations){
-            Array<string> labels("", 3*nm+1);
+            Array<string> labels("", 3*nMarkers+1);
             labels[0] = "time";
-            Array<string> XYZ("", 3*nm);
+            Array<string> XYZ("", 3*nMarkers);
             XYZ[0] = "_tx"; XYZ[1] = "_ty"; XYZ[2] = "_tz";
 
-			for(int j=0; j<nm; ++j){
+			for(int j=0; j<nMarkers; ++j){
                 for(int k=0; k<3; ++k)
                     labels.set(3*j+k+1, ikSolver.getMarkerNameForIndex(j)+XYZ[k]);
             }

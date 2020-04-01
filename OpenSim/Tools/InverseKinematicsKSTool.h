@@ -10,7 +10,7 @@
  * through the Warrior Web program.                                           *
  *                                                                            *
  * Copyright (c) 2005-2020 Stanford University and the Authors                *
- * Author(s): Ajay Seth, Wouter Aerts, Friedl De Groote, Antion Falisse       *
+ * Author(s): Ajay Seth, Wouter Aerts, Friedl De Groote, Antoine Falisse      *
  *                                                                            *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may    *
  * not use this file except in compliance with the License. You may obtain a  *
@@ -131,7 +131,7 @@ public:
             "(default is 0.03).");
 
     OpenSim_DECLARE_PROPERTY(use_visualizer, bool,
-            "Whether or not to use the visualizer when runnin the KS tool "
+            "Whether or not to use the visualizer when running the KS tool "
             "(default is false).");
 
 
@@ -205,9 +205,9 @@ public:
     /** @endcond **/
 
     #ifndef SWIG
-    /// The map provides the index of each state variable in
-    /// SimTK::State::getY() from its state variable path string.
-    /// Copied from MocoUtilities
+    // The map provides the index of each state variable in
+    // SimTK::State::getY() from its state variable path string.
+    // Copied from MocoUtilities.
     std::unordered_map<std::string, int> createSystemYIndexMap(const Model& model);
     #endif
 
