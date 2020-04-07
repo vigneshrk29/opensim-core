@@ -1,0 +1,19 @@
+Standing_Posture.mot								
+nRows=10								
+nColumns=9								
+name Standing_Posture.mot								
+datacolumns 9								
+datarows 10								
+range 0.010000 0.1000000								
+endheader								
+time	Base_to_ground_Rx	Base_to_ground_Ry	Base_to_ground_Rz	Base_to_ground_Tx	Base_to_ground_Ty	Base_to_ground_Tz	Joint_1	Joint_2
+0.01	0	0	10	0	1.15	0	-45	80
+0.02	0	0	10	0	1.15	0	-45	80
+0.03	0	0	10	0	1.15	0	-45	80
+0.04	0	0	10	0	1.15	0	-45	80
+0.05	0	0	10	0	1.15	0	-45	80
+0.06	0	0	10	0	1.15	0	-45	80
+0.07	0	0	10	0	1.15	0	-45	80
+0.08	0	0	10	0	1.15	0	-45	80
+0.09	0	0	10	0	1.15	0	-45	80
+0.1	0	0	10	0	1.15	0	-45	80
