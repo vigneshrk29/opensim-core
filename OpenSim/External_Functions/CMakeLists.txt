@@ -40,6 +40,9 @@ if(BUILD_TESTING)
     add_subdirectory(TrackSim_mtpPin_2_6cs)
     add_subdirectory(PredSim_mtpPin_cm3)
     add_subdirectory(PredSim_mtpPin_pp_cm3) 
+    add_subdirectory(DummyModel)    
+    add_subdirectory(PredSim_v2) 
+    add_subdirectory(PredSim_v2_pp) 
 endif()
 
 
