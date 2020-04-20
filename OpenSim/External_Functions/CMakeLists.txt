@@ -43,7 +43,8 @@ if(BUILD_TESTING)
     add_subdirectory(DummyModel)    
     add_subdirectory(PredSim_v2) 
     add_subdirectory(PredSim_v2_pp)
-    add_subdirectory(subject1_2D)     
+    add_subdirectory(subject1_2D)    
+    add_subdirectory(testAntoine)     
 endif()
 
 
