@@ -17,10 +17,12 @@ if(BUILD_API_EXAMPLES)
         DataTable
         DataAdapter
         DummyModel
+        subject1_2D
         DESTINATION "${OPENSIM_INSTALL_CPPEXDIR}")
 
     add_subdirectory(ExampleHopperDevice)
     add_subdirectory(DummyModel)
+    add_subdirectory(subject1_2D)
     add_subdirectory(SymbolicExpressionReporter)
     add_subdirectory(DataTable)
     add_subdirectory(DataAdapter)
