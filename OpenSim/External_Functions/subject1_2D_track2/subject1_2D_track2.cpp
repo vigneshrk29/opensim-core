@@ -35,12 +35,13 @@ using namespace OpenSim;
 
 // Inputs/outputs of function F
 /// number of vectors in inputs/outputs of function F
-constexpr int n_in = 2;
+constexpr int n_in = 3;
 constexpr int n_out = 1;
 /// number of elements in input/output vectors of function F
 constexpr int ndof = 12;    // # degrees of freedom
 constexpr int NX = 2*ndof;  // # states
 constexpr int NU = ndof;    // # controls
+constexpr int NP = 30;      // # parameters
 constexpr int NR = ndof+6;  // # residual torques + GRFs + GRMs
 
 // Helper function value
@@ -126,13 +127,6 @@ int F_generic(const T** arg, T** res) {
     OpenSim::PinJoint* mtp_r;
     OpenSim::PinJoint* mtp_l;
     OpenSim::PinJoint* back;
-    /// Contact elements
-    OpenSim::HuntCrossleyForce_smooth* HC_heel_r;
-    OpenSim::HuntCrossleyForce_smooth* HC_front_r;
-    OpenSim::HuntCrossleyForce_smooth* HC_front2_r;
-    OpenSim::HuntCrossleyForce_smooth* HC_heel_l;
-    OpenSim::HuntCrossleyForce_smooth* HC_front_l;
-    OpenSim::HuntCrossleyForce_smooth* HC_front2_l;
 
     // OpenSim model: initialize components
     /// Model
@@ -241,65 +235,18 @@ int F_generic(const T** arg, T** res) {
     model->addBody(toes_r);
     model->addBody(torso);
 
-     model->addJoint(ground_pelvis);
-     model->addJoint(hip_l);
-     model->addJoint(hip_r);
-     model->addJoint(knee_l);
-     model->addJoint(knee_r);
-     model->addJoint(ankle_l);
-     model->addJoint(ankle_r);
-     model->addJoint(subtalar_l);
-     model->addJoint(subtalar_r);
-     model->addJoint(mtp_l);
-     model->addJoint(mtp_r);
-     model->addJoint(back);
-
-    /// Contact elements
-    /// Parameters
-    osim_double_adouble radiusSphere_heel = 0.035;
-    osim_double_adouble radiusSphere_front = 0.025;
-    osim_double_adouble radiusSphere_front2 = 0.025;
-    osim_double_adouble stiffness_heel = 3000000;
-    osim_double_adouble stiffness_front = 1500000;
-    osim_double_adouble stiffness_front2 = 1500000;
-    osim_double_adouble dissipation = 2.0;
-    osim_double_adouble staticFriction = 0.8;
-    osim_double_adouble dynamicFriction = 0.8;
-    osim_double_adouble viscousFriction = 0.5;
-    osim_double_adouble transitionVelocity = 0.2;
-    Vec3 locSphere_heel = Vec3(0.01, 0, 0);
-    Vec3 locSphere_front = Vec3(0.025, -0.01, 0);
-    Vec3 locSphere_front2 = Vec3(0.15, -0.01, 0);
-    Vec3 normal = Vec3(0, 1, 0);
-    osim_double_adouble offset = 0;
-    /// Right foot contact shere specifications
-    HC_heel_r = new HuntCrossleyForce_smooth("sphere_heel_r", "calcn_r", locSphere_heel, radiusSphere_heel,
-        stiffness_heel, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_front_r = new HuntCrossleyForce_smooth("sphere_front_r", "toes_r", locSphere_front, radiusSphere_front,
-        stiffness_front, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_front2_r = new HuntCrossleyForce_smooth("sphere_front2_r", "calcn_r", locSphere_front2, radiusSphere_front2,
-        stiffness_front2, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    /// Add right foot contact spheres to model
-    model->addComponent(HC_heel_r);
-    HC_heel_r->connectSocket_body_sphere(*calcn_r);
-    model->addComponent(HC_front_r);
-    HC_front_r->connectSocket_body_sphere(*toes_r);
-    model->addComponent(HC_front2_r);
-    HC_front2_r->connectSocket_body_sphere(*calcn_r);
-    /// Left foot contact shere specifications
-    HC_heel_l = new HuntCrossleyForce_smooth("sphere_heel_l", "calcn_l", locSphere_heel, radiusSphere_heel,
-        stiffness_heel, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_front_l = new HuntCrossleyForce_smooth("sphere_front_l", "toes_l", locSphere_front, radiusSphere_front,
-        stiffness_front, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_front2_l = new HuntCrossleyForce_smooth("sphere_front2_l", "calcn_l", locSphere_front2, radiusSphere_front2,
-        stiffness_front2, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    /// Add left foot contact spheres to model
-    model->addComponent(HC_heel_l);
-    HC_heel_l->connectSocket_body_sphere(*calcn_l);
-    model->addComponent(HC_front_l);
-    HC_front_l->connectSocket_body_sphere(*toes_l);
-    model->addComponent(HC_front2_l);
-    HC_front2_l->connectSocket_body_sphere(*calcn_l);
+    model->addJoint(ground_pelvis);
+    model->addJoint(hip_l);
+    model->addJoint(hip_r);
+    model->addJoint(knee_l);
+    model->addJoint(knee_r);
+    model->addJoint(ankle_l);
+    model->addJoint(ankle_r);
+    model->addJoint(subtalar_l);
+    model->addJoint(subtalar_r);
+    model->addJoint(mtp_l);
+    model->addJoint(mtp_r);
+    model->addJoint(back);
 
     // Initialize system and state.
     SimTK::State* state;
@@ -308,9 +255,11 @@ int F_generic(const T** arg, T** res) {
     // Read inputs
     std::vector<T> x(arg[0], arg[0] + NX);
     std::vector<T> u(arg[1], arg[1] + NU);
+    std::vector<T> p(arg[2], arg[2] + NP);
 
     // States and controls
     T ua[NU]; /// joint accelerations (Qdotdots) - controls
+    T up[NP]; /// contact model parameters - parameters
     Vector QsUs(NX); /// joint positions (Qs) and velocities (Us) - states
 
     // Assign inputs to model variables
@@ -321,6 +270,8 @@ int F_generic(const T** arg, T** res) {
     /// OpenSim and Simbody have different state orders so we need to adjust
     auto indicesOSInSimbody = getIndicesOSInSimbody(*model);
     for (int i = 0; i < NU; ++i) ua[i] = u[indicesOSInSimbody[i]];
+    /// Parameters
+    for (int i = 0; i < NP; ++i) up[i] = p[i];
 
     // Set state variables and realize
     model->setStateVariableValues(*state, QsUs);
@@ -345,41 +296,73 @@ int F_generic(const T** arg, T** res) {
             model->getBodySet().get(i).getMassCenter(),
             model->getBodySet().get(i).getMass()*gravity, appliedBodyForces);
     }
-    /// Add contact forces to appliedBodyForces
-    /// Right foot
-    Array<osim_double_adouble> Force_values_heel_r = HC_heel_r->getRecordValues(*state);
-    Array<osim_double_adouble> Force_values_front_r = HC_front_r->getRecordValues(*state);
-    Array<osim_double_adouble> Force_values_front2_r = HC_front2_r->getRecordValues(*state);
-    SpatialVec GRF_heel_r;
-    GRF_heel_r[0] = Vec3(Force_values_heel_r[9], Force_values_heel_r[10], Force_values_heel_r[11]);
-    GRF_heel_r[1] = Vec3(Force_values_heel_r[6], Force_values_heel_r[7], Force_values_heel_r[8]);
-    SpatialVec GRF_front_r;
-    GRF_front_r[0] = Vec3(Force_values_front_r[9], Force_values_front_r[10], Force_values_front_r[11]);
-    GRF_front_r[1] = Vec3(Force_values_front_r[6], Force_values_front_r[7], Force_values_front_r[8]);
-    SpatialVec GRF_front2_r;
-    GRF_front2_r[0] = Vec3(Force_values_front2_r[9], Force_values_front2_r[10], Force_values_front2_r[11]);
-    GRF_front2_r[1] = Vec3(Force_values_front2_r[6], Force_values_front2_r[7], Force_values_front2_r[8]);
-    int nCalcn_r = model->getBodySet().get("calcn_r").getMobilizedBodyIndex();
-    int nToes_r = model->getBodySet().get("toes_r").getMobilizedBodyIndex();
-    appliedBodyForces[nCalcn_r] = appliedBodyForces[nCalcn_r] + GRF_heel_r + GRF_front2_r;
-    appliedBodyForces[nToes_r] = appliedBodyForces[nToes_r] + GRF_front_r;
-    /// Left foot
-    Array<osim_double_adouble> Force_values_heel_l = HC_heel_l->getRecordValues(*state);
-    Array<osim_double_adouble> Force_values_front_l = HC_front_l->getRecordValues(*state);
-    Array<osim_double_adouble> Force_values_front2_l = HC_front2_l->getRecordValues(*state);
-    SpatialVec GRF_heel_l;
-    GRF_heel_l[0] = Vec3(Force_values_heel_l[9], Force_values_heel_l[10], Force_values_heel_l[11]);
-    GRF_heel_l[1] = Vec3(Force_values_heel_l[6], Force_values_heel_l[7], Force_values_heel_l[8]);
-    SpatialVec GRF_front_l;
-    GRF_front_l[0] = Vec3(Force_values_front_l[9], Force_values_front_l[10], Force_values_front_l[11]);
-    GRF_front_l[1] = Vec3(Force_values_front_l[6], Force_values_front_l[7], Force_values_front_l[8]);
-    SpatialVec GRF_front2_l;
-    GRF_front2_l[0] = Vec3(Force_values_front2_l[9], Force_values_front2_l[10], Force_values_front2_l[11]);
-    GRF_front2_l[1] = Vec3(Force_values_front2_l[6], Force_values_front2_l[7], Force_values_front2_l[8]);
-    int nCalcn_l = model->getBodySet().get("calcn_l").getMobilizedBodyIndex();
-    int nToes_l = model->getBodySet().get("toes_l").getMobilizedBodyIndex();
-    appliedBodyForces[nCalcn_l] = appliedBodyForces[nCalcn_l] + GRF_heel_l + GRF_front2_l;
-    appliedBodyForces[nToes_l] = appliedBodyForces[nToes_l] + GRF_front_l;
+
+    /// Extract contact forces
+    Vec3 AppliedPointForce_s1_l, AppliedPointForce_s2_l, AppliedPointForce_s3_l;
+    Vec3 AppliedPointForce_s1_r, AppliedPointForce_s2_r, AppliedPointForce_s3_r;
+    int nc = 3;
+    for (int i = 0; i < nc; ++i) {
+        AppliedPointForce_s1_l[i]   = up[i];
+        AppliedPointForce_s2_l[i]   = up[i + nc];
+        AppliedPointForce_s3_l[i]   = up[i + nc + nc];
+        AppliedPointForce_s1_r[i]   = up[i + nc + nc + nc];
+        AppliedPointForce_s2_r[i]   = up[i + nc + nc + nc + nc];
+        AppliedPointForce_s3_r[i]   = up[i + nc + nc + nc + nc + nc];
+    }
+    /// Extract contact sphere locations
+    Vec3 locSphere_s1_r, locSphere_s2_r, locSphere_s3_r;
+    for (int i = 0; i < nc; ++i) {
+        locSphere_s1_r[i]   = up[i + nc + nc + nc + nc + nc + nc];
+        locSphere_s2_r[i]   = up[i + nc + nc + nc + nc + nc + nc + nc];
+        locSphere_s3_r[i]   = up[i + nc + nc + nc + nc + nc + nc + nc + nc];
+    }
+    Vec3 locSphere_s1_l(locSphere_s1_r[0],locSphere_s1_r[1],-locSphere_s1_r[2]);
+    Vec3 locSphere_s2_l(locSphere_s2_r[0],locSphere_s2_r[1],-locSphere_s2_r[2]);
+    Vec3 locSphere_s3_l(locSphere_s3_r[0],locSphere_s3_r[1],-locSphere_s3_r[2]);
+    /// Extract radii
+    osim_double_adouble radiusSphere_s1, radiusSphere_s2, radiusSphere_s3;
+    radiusSphere_s1 =  up[nc + nc + nc + nc + nc + nc + nc + nc + nc];
+    radiusSphere_s2 =  up[nc + nc + nc + nc + nc + nc + nc + nc + nc + 1];
+    radiusSphere_s3 =  up[nc + nc + nc + nc + nc + nc + nc + nc + nc + 2];
+    /// Compute contact point positions in body frames
+    Vec3 normal = Vec3(0, 1, 0);
+    /// sphere s1_l
+    Vec3 pos_InGround_s1_l = calcn_l->findStationLocationInGround(*state, locSphere_s1_l);
+    Vec3 contactPointpos_InGround_s1_l = pos_InGround_s1_l - radiusSphere_s1*normal;
+    Vec3 contactPointpos_InGround_s1_l_adj = contactPointpos_InGround_s1_l - 0.5*contactPointpos_InGround_s1_l[1]*normal;
+    Vec3 contactPointPos_InBody_s1_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_s1_l_adj, *calcn_l);
+    /// sphere s1_r
+    Vec3 pos_InGround_s1_r = calcn_r->findStationLocationInGround(*state, locSphere_s1_r);
+    Vec3 contactPointpos_InGround_s1_r = pos_InGround_s1_r - radiusSphere_s1*normal;
+    Vec3 contactPointpos_InGround_s1_r_adj = contactPointpos_InGround_s1_r - 0.5*contactPointpos_InGround_s1_r[1]*normal;
+    Vec3 contactPointPos_InBody_s1_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_s1_r_adj, *calcn_r);
+     /// sphere s2_l
+    Vec3 pos_InGround_s2_l = calcn_l->findStationLocationInGround(*state, locSphere_s2_l);
+    Vec3 contactPointpos_InGround_s2_l = pos_InGround_s2_l - radiusSphere_s2*normal;
+    Vec3 contactPointpos_InGround_s2_l_adj = contactPointpos_InGround_s2_l - 0.5*contactPointpos_InGround_s2_l[1]*normal;
+    Vec3 contactPointPos_InBody_s2_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_s2_l_adj, *calcn_l);
+     /// sphere s2_r
+    Vec3 pos_InGround_s2_r = calcn_r->findStationLocationInGround(*state, locSphere_s2_r);
+    Vec3 contactPointpos_InGround_s2_r = pos_InGround_s2_r - radiusSphere_s2*normal;
+    Vec3 contactPointpos_InGround_s2_r_adj = contactPointpos_InGround_s2_r - 0.5*contactPointpos_InGround_s2_r[1]*normal;
+    Vec3 contactPointPos_InBody_s2_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_s2_r_adj, *calcn_r);
+    /// sphere s3_l
+    Vec3 pos_InGround_s3_l = toes_l->findStationLocationInGround(*state, locSphere_s3_l);
+    Vec3 contactPointpos_InGround_s3_l = pos_InGround_s3_l - radiusSphere_s3*normal;
+    Vec3 contactPointpos_InGround_s3_l_adj = contactPointpos_InGround_s3_l - 0.5*contactPointpos_InGround_s3_l[1]*normal;
+    Vec3 contactPointPos_InBody_s3_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_s3_l_adj, *toes_l);
+     /// sphere s3_r
+    Vec3 pos_InGround_s3_r = toes_r->findStationLocationInGround(*state, locSphere_s3_r);
+    Vec3 contactPointpos_InGround_s3_r = pos_InGround_s3_r - radiusSphere_s3*normal;
+    Vec3 contactPointpos_InGround_s3_r_adj = contactPointpos_InGround_s3_r - 0.5*contactPointpos_InGround_s3_r[1]*normal;
+    Vec3 contactPointPos_InBody_s3_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_s3_r_adj, *toes_r);
+     /// Add contact forces to appliedBodyForces
+    model->getMatterSubsystem().addInStationForce(*state, calcn_l->getMobilizedBodyIndex(), contactPointPos_InBody_s1_l, AppliedPointForce_s1_l, appliedBodyForces);
+    model->getMatterSubsystem().addInStationForce(*state, calcn_l->getMobilizedBodyIndex(), contactPointPos_InBody_s2_l, AppliedPointForce_s2_l, appliedBodyForces);
+    model->getMatterSubsystem().addInStationForce(*state, toes_l->getMobilizedBodyIndex(), contactPointPos_InBody_s3_l, AppliedPointForce_s3_l, appliedBodyForces);
+    model->getMatterSubsystem().addInStationForce(*state, calcn_r->getMobilizedBodyIndex(), contactPointPos_InBody_s1_r, AppliedPointForce_s1_r, appliedBodyForces);
+    model->getMatterSubsystem().addInStationForce(*state, calcn_r->getMobilizedBodyIndex(), contactPointPos_InBody_s2_r, AppliedPointForce_s2_r, appliedBodyForces);
+    model->getMatterSubsystem().addInStationForce(*state, toes_r->getMobilizedBodyIndex(), contactPointPos_InBody_s3_r, AppliedPointForce_s3_r, appliedBodyForces);
     /// knownUdot
     Vector knownUdot(ndof);
     knownUdot.setToZero();
@@ -393,56 +376,26 @@ int F_generic(const T** arg, T** res) {
 
     // Compute contact torques about the ground frame origin
     /// Calculate torques
-    /// sphere heel_l
-    Vec3 pos_InGround_heel_l = calcn_l->findStationLocationInGround(*state, locSphere_heel);
-    Vec3 contactPointpos_InGround_heel_l = pos_InGround_heel_l - radiusSphere_heel*normal;
-    Vec3 contactPointpos_InGround_heel_l_adj = contactPointpos_InGround_heel_l - 0.5*contactPointpos_InGround_heel_l[1]*normal;
-    Vec3 contactPointPos_InBody_heel_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_heel_l_adj, *calcn_l);
-    /// sphere heel_r
-    Vec3 pos_InGround_heel_r = calcn_r->findStationLocationInGround(*state, locSphere_heel);
-    Vec3 contactPointpos_InGround_heel_r = pos_InGround_heel_r - radiusSphere_heel*normal;
-    Vec3 contactPointpos_InGround_heel_r_adj = contactPointpos_InGround_heel_r - 0.5*contactPointpos_InGround_heel_r[1]*normal;
-    Vec3 contactPointPos_InBody_heel_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_heel_r_adj, *calcn_r);
-    /// sphere front_l
-    Vec3 pos_InGround_front_l = toes_l->findStationLocationInGround(*state, locSphere_front);
-    Vec3 contactPointpos_InGround_front_l = pos_InGround_front_l - radiusSphere_front*normal;
-    Vec3 contactPointpos_InGround_front_l_adj = contactPointpos_InGround_front_l - 0.5*contactPointpos_InGround_front_l[1]*normal;
-    Vec3 contactPointPos_InBody_front_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_front_l_adj, *toes_l);
-     /// sphere front_r
-    Vec3 pos_InGround_front_r = toes_r->findStationLocationInGround(*state, locSphere_front);
-    Vec3 contactPointpos_InGround_front_r = pos_InGround_front_r - radiusSphere_front*normal;
-    Vec3 contactPointpos_InGround_front_r_adj = contactPointpos_InGround_front_r - 0.5*contactPointpos_InGround_front_r[1]*normal;
-    Vec3 contactPointPos_InBody_front_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_front_r_adj, *toes_r);
-    /// sphere front2_l
-    Vec3 pos_InGround_front2_l = calcn_l->findStationLocationInGround(*state, locSphere_front2);
-    Vec3 contactPointpos_InGround_front2_l = pos_InGround_front2_l - radiusSphere_front2*normal;
-    Vec3 contactPointpos_InGround_front2_l_adj = contactPointpos_InGround_front2_l - 0.5*contactPointpos_InGround_front2_l[1]*normal;
-    Vec3 contactPointPos_InBody_front2_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_front2_l_adj, *calcn_l);
-     /// sphere front2_r
-    Vec3 pos_InGround_front2_r = calcn_r->findStationLocationInGround(*state, locSphere_front2);
-    Vec3 contactPointpos_InGround_front2_r = pos_InGround_front2_r - radiusSphere_front2*normal;
-    Vec3 contactPointpos_InGround_front2_r_adj = contactPointpos_InGround_front2_r - 0.5*contactPointpos_InGround_front2_r[1]*normal;
-    Vec3 contactPointPos_InBody_front2_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_front2_r_adj, *calcn_r);
     /// Get transforms
     SimTK::Transform TR_GB_calcn_l = calcn_l->getMobilizedBody().getBodyTransform(*state);
     SimTK::Transform TR_GB_calcn_r = calcn_r->getMobilizedBody().getBodyTransform(*state);
     SimTK::Transform TR_GB_toes_l = toes_l->getMobilizedBody().getBodyTransform(*state);
     SimTK::Transform TR_GB_toes_r = toes_r->getMobilizedBody().getBodyTransform(*state);
 
-    Vec3 AppliedPointTorque_heel_l, AppliedPointTorque_front_l, AppliedPointTorque_front2_l;
-    Vec3 AppliedPointTorque_heel_r, AppliedPointTorque_front_r, AppliedPointTorque_front2_r;
-    AppliedPointTorque_heel_l = (TR_GB_calcn_l*contactPointPos_InBody_heel_l) % GRF_heel_l[1];
-    AppliedPointTorque_heel_r = (TR_GB_calcn_r*contactPointPos_InBody_heel_r) % GRF_heel_r[1];
-    AppliedPointTorque_front_l = (TR_GB_toes_l*contactPointPos_InBody_front_l) % GRF_front_l[1];
-    AppliedPointTorque_front_r = (TR_GB_toes_r*contactPointPos_InBody_front_r) % GRF_front_r[1];
-    AppliedPointTorque_front2_l = (TR_GB_calcn_l*contactPointPos_InBody_front2_l) % GRF_front2_l[1];
-    AppliedPointTorque_front2_r = (TR_GB_calcn_r*contactPointPos_InBody_front2_r) % GRF_front2_r[1];
+    Vec3 AppliedPointTorque_s1_l, AppliedPointTorque_s2_l, AppliedPointTorque_s3_l;
+    Vec3 AppliedPointTorque_s1_r, AppliedPointTorque_s2_r, AppliedPointTorque_s3_r;
+    AppliedPointTorque_s1_l = (TR_GB_calcn_l*contactPointPos_InBody_s1_l) % AppliedPointForce_s1_l;
+    AppliedPointTorque_s1_r = (TR_GB_calcn_r*contactPointPos_InBody_s1_r) % AppliedPointForce_s1_r;
+    AppliedPointTorque_s2_l = (TR_GB_calcn_l*contactPointPos_InBody_s2_l) % AppliedPointForce_s2_l;
+    AppliedPointTorque_s2_r = (TR_GB_calcn_r*contactPointPos_InBody_s2_r) % AppliedPointForce_s2_r;
+    AppliedPointTorque_s3_l = (TR_GB_toes_l*contactPointPos_InBody_s3_l) % AppliedPointForce_s3_l;
+    AppliedPointTorque_s3_r = (TR_GB_toes_r*contactPointPos_InBody_s3_r) % AppliedPointForce_s3_r;
     /// Contact torques
-    Vec3 MOM_l = AppliedPointTorque_heel_l + AppliedPointTorque_front_l + AppliedPointTorque_front2_l;
-    Vec3 MOM_r = AppliedPointTorque_heel_r + AppliedPointTorque_front_r + AppliedPointTorque_front2_r;
+    Vec3 MOM_l = AppliedPointTorque_s1_l + AppliedPointTorque_s2_l + AppliedPointTorque_s3_l;
+    Vec3 MOM_r = AppliedPointTorque_s1_r + AppliedPointTorque_s2_r + AppliedPointTorque_s3_r;
     /// Contact forces
-    Vec3 GRF_l = GRF_heel_l[1] + GRF_front_l[1] + GRF_front2_l[1];
-    Vec3 GRF_r = GRF_heel_r[1] + GRF_front_r[1] + GRF_front2_r[1];
+    Vec3 GRF_l = AppliedPointForce_s1_l + AppliedPointForce_s2_l + AppliedPointForce_s3_l;
+    Vec3 GRF_r = AppliedPointForce_s1_r + AppliedPointForce_s2_r + AppliedPointForce_s3_r;
 
     // Extract results
     /// Residual forces
@@ -472,12 +425,14 @@ int main() {
 
     Recorder x[NX];
     Recorder u[NU];
+    Recorder p[NP];
     Recorder tau[NR];
 
     for (int i = 0; i < NX; ++i) x[i] <<= 0;
     for (int i = 0; i < NU; ++i) u[i] <<= 0;
+    for (int i = 0; i < NP; ++i) p[i] <<= 0;
 
-    const Recorder* Recorder_arg[n_in] = { x,u };
+    const Recorder* Recorder_arg[n_in] = { x,u,p };
     Recorder* Recorder_res[n_out] = { tau };
 
     F_generic<Recorder>(Recorder_arg, Recorder_res);
