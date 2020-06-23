@@ -137,7 +137,7 @@ int F_generic(const double** arg, double** res) {
 	for (int i = 0; i < NX; ++i) QsUs[i] = x[i];    // states
 	for (int i = 0; i < NU; ++i) ua[i] = u[i];      // controls
 	model->setStateVariableValues(*state, QsUs);
-	model->realizeVelocity(*state);
+	model->realizeAcceleration(*state);
 	// Residual forces
 	/// appliedMobilityForces (# mobilities)
 	Vector appliedMobilityForces(ndof);
@@ -190,6 +190,50 @@ int F_generic(const double** arg, double** res) {
     // Coordinates of the origin of the segment to which the contact sphere is attached
     Vec3 Segment2_or  = Segment2->getPositionInGround(*state);
 
+
+    // Virtual sensors
+    // Accelerometer data
+    /// Transforms: from ground to body
+    SimTK::Rotation R_BG_Base = ~(Base->getMobilizedBody().getBodyRotation(*state));
+    SimTK::Rotation R_BG_Segment1 = ~(Segment1->getMobilizedBody().getBodyRotation(*state));
+    SimTK::Rotation R_BG_Segment2 = ~(Segment2->getMobilizedBody().getBodyRotation(*state));
+
+    SimTK::Rotation R_GB_Base = (Base->getMobilizedBody().getBodyRotation(*state));
+    SimTK::Rotation R_GB_Segment1 = (Segment1->getMobilizedBody().getBodyRotation(*state));
+    SimTK::Rotation R_GB_Segment2 = (Segment2->getMobilizedBody().getBodyRotation(*state));
+
+    /// Accelerations: of the segment origin relative to the ground in ground
+    SimTK::Vec3 linAcc_Base = Base->getLinearAccelerationInGround(*state);
+    std::cout << linAcc_Base << std::endl;
+    SimTK::Vec3 linVel_Base = Base->getLinearVelocityInGround(*state);
+    //std::cout << linVel_Base << std::endl;
+
+    /// Positions: TODO assume it is the body COM
+    SimTK::Vec3 com_Base = Base->getMassCenter();
+    /// Angular Velocity
+    SimTK::Vec3 angVel_Base_inG = Base->getAngularVelocityInGround(*state); // Corresponds to gyroscope data
+    SimTK::Vec3 angVel_Base_inB = R_BG_Base*angVel_Base_inG; // TODO
+    //std::cout << angVel_Base_inB << std::endl;
+
+    SimTK::Vec3 angVel_Segment1_inG = Segment1->getAngularVelocityInGround(*state); // Corresponds to gyroscope data
+    SimTK::Vec3 angVel_Segment1_inB = R_BG_Segment1*angVel_Segment1_inG; // TODO
+    //std::cout << angVel_Segment1_inB << std::endl;
+
+    SimTK::Vec3 angVel_Segment2_inG = Segment2->getAngularVelocityInGround(*state); // Corresponds to gyroscope data
+    SimTK::Vec3 angVel_Segment2_inB = R_BG_Segment2*angVel_Segment2_inG; // TODO
+    //std::cout << angVel_Segment2_inB << std::endl;
+
+    /// Angular acceleration
+    SimTK::Vec3 angAcc_Base_inG = Base->getAngularAccelerationInGround(*state);
+    SimTK::Vec3 angAcc_Base_inB = R_BG_Base*angAcc_Base_inG; // TODO
+    //std::cout << angAcc_Base_inB << std::endl;
+
+    /// Sensor acceleration
+    SimTK::Vec3 accSensor_Base_inB = R_BG_Base * (linAcc_Base - gravity) + SimTK::cross(angAcc_Base_inB, com_Base) + SimTK::cross(angVel_Base_inB, SimTK::cross(angVel_Base_inB, com_Base));
+    SimTK::Vec3 accSensor_Base_inG = R_GB_Base * accSensor_Base_inB; // Corresponds to accelerometer data TO CONFIRM
+    std::cout << accSensor_Base_inB << std::endl;
+    std::cout << accSensor_Base_inG << std::endl;
+
 	if (res[0]) {
 		for (int i = 0; i < NU; ++i) {
 			res[0][i] = (residualMobilityForces[i]); // residual torques
@@ -216,19 +260,32 @@ int main() {
 	double tau[NR];
 
 	for (int i = 0; i < NX; ++i) x[i] = 0;
-	for (int i = 0; i < NU; ++i) u[i] = 0;
-    x[4] = 10*SimTK::Pi/180;
-    x[8] = 1.15;
-    x[12] = -45*SimTK::Pi/180;
-    x[14] = 80*SimTK::Pi/180;
+	for (int i = 0; i < NU; ++i) u[i] = 1;
+
+    for (int i = 12; i < NX; ++i) x[i] = 0;
+
+    //x[7] = 2;
+    x[8] = 10;
+    //x[5] = 1;
+    //x[13] = 1;
+    //x[15] = 1;
+
+    //u[3] = 1;
+
+
+
+    //x[4] = 10*SimTK::Pi/180;
+    //x[8] = 1.15;
+    //x[12] = -45*SimTK::Pi/180;
+    //x[14] = 80*SimTK::Pi/180;
 
 	const double* Recorder_arg[n_in] = { x,u };
 	double* Recorder_res[n_out] = { tau };
 
 	F_generic(Recorder_arg, Recorder_res);
-
+/*
     for (int i = 0; i < NR; ++i)
-        std::cout << Recorder_res[0][i] << std::endl;
+        std::cout << Recorder_res[0][i] << std::endl;*/
 
 	return 0;
 }
