@@ -93,6 +93,32 @@ SimTK::Array_<int> getIndicesSimbodyInOS(const Model& model) {
     return idxSimbodyInOS;
 }
 
+// This function returns the linear acceleration of the imu frame wrt the
+// ground frame expressed in the ground frame.
+// frameName is the name of the body segment to which the imu is attached.
+// translation_imu is the translation offset of the imu frame'origin from the
+// parent (body segment) frame's origin, expressed in the parent frame.
+const SimTK::Vec3 getLinearAccelerationIMUInGround(Model& model, const State& s, const std::string& frameName, const Vec3& gravity, const Vec3& translation_imu)
+{
+        SimTK::Rotation R_GB = (model.getBodySet().get(frameName).getMobilizedBody().getBodyTransform(s).R());
+        /// Body linear acceleration in ground
+        SimTK::Vec3 linAcc_inG = model.getBodySet().get(frameName).getLinearAccelerationInGround(s);
+        /// Body angular velocity in ground
+        SimTK::Vec3 angVel_inG = model.getBodySet().get(frameName).getAngularVelocityInGround(s);
+        /// Body angular velocity in body
+        SimTK::Vec3 angVel_inB = ~R_GB*angVel_inG;
+        /// Body angular acceleration in ground
+        SimTK::Vec3 angAcc_inG = model.getBodySet().get(frameName).getAngularAccelerationInGround(s);
+        /// Body angular acceleration in body
+        SimTK::Vec3 angAcc_inB = ~R_GB*angAcc_inG;
+        /// Sensor linear acceleration
+        /// See van den Bogert et al. (1995), equation (1), p949.
+        SimTK::Vec3 linAcc_imu_inB = ~R_GB * (linAcc_inG - gravity) + SimTK::cross(angAcc_inB, translation_imu) + SimTK::cross(angVel_inB, SimTK::cross(angVel_inB, translation_imu));
+        SimTK::Vec3 linAcc_imu_inG = R_GB * linAcc_imu_inB;
+
+        return linAcc_imu_inG;
+}
+
 // Function F
 template<typename T>
 int F_generic(const T** arg, T** res) {
@@ -444,26 +470,11 @@ int F_generic(const T** arg, T** res) {
     Vec3 GRF_l = GRF_s1_l[1] + GRF_s2_l[1] + GRF_s3_l[1];
     Vec3 GRF_r = GRF_s1_r[1] + GRF_s2_r[1] + GRF_s3_r[1];
 
-    // Virtual sensors
-    /// Transforms: from ground to body
-    SimTK::Transform TR_BG_pelvis = ~(pelvis->getMobilizedBody().getBodyTransform(*state));
+    const SimTK::Vec3 translation_pelvis_imu(-0.17825090079013006, 0.06148338297319611, -0.0039742631657566363);
+    SimTK::Vec3 linAcc_pelvis_imu_inG   = getLinearAccelerationIMUInGround(*model, *state, "pelvis", gravity, translation_pelvis_imu);
+    SimTK::Vec3 angVel_pelvis_imu_inG   = model->getBodySet().get("pelvis").getAngularVelocityInGround(*state);
 
-    /// Accelerations: of the segment origin relative to the ground in ground
-    SimTK::Vec3 linAcc_pelvis = pelvis->getLinearAccelerationInGround(*state);
-
-    /// Positions: TODO assume it is the body COM
-    SimTK::Vec3 com_pelvis = pelvis->getMassCenter();
-
-    ///// Angular Velocity
-    //SimTK::Vec3 angVel_pelvis_inG = pelvis->getAngularVelocityInGround(*state);
-    //SimTK::Vec3 angVel_pelvis_inB = TR_BG_pelvis*angVel_pelvis_inG; // TODO
-
-    //SimTK::Vec3 angAcc_pelvis_inG = pelvis->getAngularAccelerationInGround(*state);
-    //SimTK::Vec3 angAcc_pelvis_inB = TR_BG_pelvis*angAcc_pelvis_inG; // TODO
-
-    //SimTK::Vec3 accSensor_pelvis = TR_BG_pelvis * (linAcc_pelvis - gravity) + SimTK::cross(angAcc_pelvis_inB, com_pelvis) + SimTK::cross(angVel_pelvis_inB, SimTK::cross(angVel_pelvis_inB, com_pelvis));
-
-
+    std::cout << linAcc_pelvis_imu_inG << std::endl;
 
 
 

@@ -42,7 +42,7 @@ constexpr int ndof = 31;        // # degrees of freedom (excluding locked)
 constexpr int ndofr = ndof+2;   // # degrees of freedom (including locked)
 constexpr int NX = ndof*2;      // # states
 constexpr int NU = ndof;        // # controls
-constexpr int NR = ndof;    // # residual torques + # joint origins
+constexpr int NR = ndof + 8*3;    // # residual torques + # joint origins
 
 // Helper function value
 template<typename T>
@@ -92,6 +92,32 @@ SimTK::Array_<int> getIndicesSimbodyInOS(const Model& model) {
 		}
 	}
     return idxSimbodyInOS;
+}
+
+//// This function returns the linear acceleration of the imu frame wrt the
+//// ground frame expressed in the ground frame.
+//// frameName is the name of the body segment to which the imu is attached.
+//// imuTranslation_B is the translation offset of the imu frame'origin from the
+//// parent (body segment) frame's origin, expressed in the parent frame.
+const SimTK::Vec3 getLinearAccelerationIMUInGround(Model& model, const State& s, const Vector_<SpatialVec>& A_GB , const std::string& frameName, const Vec3& gravity_G, const Vec3& imuTranslation_B)
+{
+        SimTK::Rotation R_GB = model.getBodySet().get(frameName).getMobilizedBody().getBodyTransform(s).R();
+        /// Body linear acceleration in ground
+        SimTK::Vec3 linAcc_G = A_GB[model.getBodySet().get(frameName).getMobilizedBodyIndex()][1];
+        /// Body angular acceleration in ground
+        SimTK::Vec3 angAcc_G = A_GB[model.getBodySet().get(frameName).getMobilizedBodyIndex()][0];
+        /// Body angular velocity in ground
+        SimTK::Vec3 angVel_G = model.getBodySet().get(frameName).getAngularVelocityInGround(s);
+        /// Body angular velocity in body
+        SimTK::Vec3 angVel_B = ~R_GB*angVel_G;
+        /// Body angular acceleration in body
+        SimTK::Vec3 angAcc_B = ~R_GB*angAcc_G;
+        /// Sensor linear acceleration
+        /// See van den Bogert et al. (1995), equation (1), p949.
+        SimTK::Vec3 linAcc_imu_B = ~R_GB * (linAcc_G - gravity_G) + SimTK::cross(angAcc_B, imuTranslation_B) + SimTK::cross(angVel_B, SimTK::cross(angVel_B, imuTranslation_B));
+        SimTK::Vec3 linAcc_imu_G = R_GB * linAcc_imu_B;
+
+        return linAcc_imu_G;
 }
 
 // Function F
@@ -494,7 +520,7 @@ int F_generic(const T** arg, T** res) {
 
     // Set state variables and realize
     model->setStateVariableValues(*state, QsUs);
-    model->realizeVelocity(*state);
+    model->realizeAcceleration(*state);
 
     // Compute residual forces
     /// appliedMobilityForces (# mobilities)
@@ -585,17 +611,38 @@ int F_generic(const T** arg, T** res) {
         appliedMobilityForces, appliedBodyForces, knownUdot,
         residualMobilityForces);
 
-    //// Extract several joint origins to set constraints in problem
-    //Vec3 calcn_or_l  = calcn_l->getPositionInGround(*state);
-    //Vec3 calcn_or_r  = calcn_r->getPositionInGround(*state);
-    //Vec3 femur_or_l  = femur_l->getPositionInGround(*state);
-    //Vec3 femur_or_r  = femur_r->getPositionInGround(*state);
-    //Vec3 hand_or_l   = hand_l->getPositionInGround(*state);
-    //Vec3 hand_or_r   = hand_r->getPositionInGround(*state);
-    //Vec3 tibia_or_l  = tibia_l->getPositionInGround(*state);
-    //Vec3 tibia_or_r  = tibia_r->getPositionInGround(*state);
-    //Vec3 toes_or_l  = toes_l->getPositionInGround(*state);
-    //Vec3 toes_or_r  = toes_r->getPositionInGround(*state);
+    const SimTK::Vec3 translation_pelvis_imu(-0.17825090079013006, 0.06148338297319611, -0.0039742631657566363);
+    const SimTK::Vec3 translation_torso_imu(0.11141304895632698, 0.32812980850924067, -0.012040552365984683);
+
+    const SimTK::Vec3 translation_femur_r_imu(0.043933841399841023, -0.14958344693305592, 0.099866089437989247);
+    const SimTK::Vec3 translation_femur_l_imu(0.057420458331616797, -0.12466095809783695, -0.1025425014551595);
+
+    const SimTK::Vec3 translation_tibia_r_imu(0.047080175165178595, -0.11466976609963364, 0.0052928998697051033);
+    const SimTK::Vec3 translation_tibia_l_imu(0.053945123225004443, -0.12392203671935126, -0.006707066365313652);
+
+    const SimTK::Vec3 translation_calcn_r_imu(0.14808446197590852, 0.040621301301533644, 0.035088429802814902);
+    const SimTK::Vec3 translation_calcn_l_imu(0.15253209992514105, 0.045078665693204636, -0.044293377012806667);
+
+    SimTK::Vec3 angVel_pelvis_imu_inG   = model->getBodySet().get("pelvis").getAngularVelocityInGround(*state);
+    SimTK::Vec3 angVel_torso_imu_inG    = model->getBodySet().get("torso").getAngularVelocityInGround(*state);
+    SimTK::Vec3 angVel_femur_l_imu_inG  = model->getBodySet().get("femur_l").getAngularVelocityInGround(*state);
+    SimTK::Vec3 angVel_femur_r_imu_inG  = model->getBodySet().get("femur_r").getAngularVelocityInGround(*state);
+    SimTK::Vec3 angVel_tibia_l_imu_inG  = model->getBodySet().get("tibia_l").getAngularVelocityInGround(*state);
+    SimTK::Vec3 angVel_tibia_r_imu_inG  = model->getBodySet().get("tibia_r").getAngularVelocityInGround(*state);
+    SimTK::Vec3 angVel_calcn_l_imu_inG  = model->getBodySet().get("calcn_l").getAngularVelocityInGround(*state);
+    SimTK::Vec3 angVel_calcn_r_imu_inG  = model->getBodySet().get("calcn_r").getAngularVelocityInGround(*state);
+
+    Vector_<SpatialVec> A_GB(nbodies);
+    model->getMatterSubsystem().calcBodyAccelerationFromUDot(*state, knownUdot, A_GB);
+
+    SimTK::Vec3 linAcc_pelvis_imu_inG   = getLinearAccelerationIMUInGround(*model, *state, A_GB, "pelvis",  gravity, translation_pelvis_imu);
+    SimTK::Vec3 linAcc_torso_imu_inG    = getLinearAccelerationIMUInGround(*model, *state, A_GB, "torso",   gravity, translation_torso_imu);
+    SimTK::Vec3 linAcc_femur_l_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "femur_l", gravity, translation_femur_l_imu);
+    SimTK::Vec3 linAcc_femur_r_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "femur_r", gravity, translation_femur_r_imu);
+    SimTK::Vec3 linAcc_tibia_l_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "tibia_l", gravity, translation_tibia_l_imu);
+    SimTK::Vec3 linAcc_tibia_r_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "tibia_r", gravity, translation_tibia_r_imu);
+    SimTK::Vec3 linAcc_calcn_l_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "calcn_l", gravity, translation_calcn_l_imu);
+    SimTK::Vec3 linAcc_calcn_r_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "calcn_r", gravity, translation_calcn_r_imu);
 
     // Residual forces in OpenSim order
     T res_os[ndofr];
@@ -608,27 +655,15 @@ int F_generic(const T** arg, T** res) {
     /// Residual forces
     /// We do want to extract the pro_sup torques (last two -> till NU)
     for (int i = 0; i < NU; ++i) res[0][i] = res_os[i];
-    ///// Joint origins
-    //res[0][NU]     = value<T>(calcn_or_r[0]);   /// calcn_or_r_x
-    //res[0][NU + 1] = value<T>(calcn_or_r[2]);   /// calcn_or_r_z
-    //res[0][NU + 2] = value<T>(calcn_or_l[0]);   /// calcn_or_l_x
-    //res[0][NU + 3] = value<T>(calcn_or_l[2]);   /// calcn_or_l_x
-    //res[0][NU + 4] = value<T>(femur_or_r[0]);   /// femur_or_r_x
-    //res[0][NU + 5] = value<T>(femur_or_r[2]);   /// femur_or_r_z
-    //res[0][NU + 6] = value<T>(femur_or_l[0]);   /// femur_or_l_x
-    //res[0][NU + 7] = value<T>(femur_or_l[2]);   /// femur_or_l_z
-    //res[0][NU + 8] = value<T>(hand_or_r[0]);    /// hand_or_r_x
-    //res[0][NU + 9] = value<T>(hand_or_r[2]);    /// hand_or_r_z
-    //res[0][NU + 10] = value<T>(hand_or_l[0]);   /// hand_or_l_x
-    //res[0][NU + 11] = value<T>(hand_or_l[2]);   /// hand_or_l_z
-    //res[0][NU + 12] = value<T>(tibia_or_r[0]);  /// tibia_or_r_x
-    //res[0][NU + 13] = value<T>(tibia_or_r[2]);  /// tibia_or_r_z
-    //res[0][NU + 14] = value<T>(tibia_or_l[0]);  /// tibia_or_l_x
-    //res[0][NU + 15] = value<T>(tibia_or_l[2]);  /// tibia_or_l_z
-    //res[0][NU + 16] = value<T>(toes_or_r[0]);  /// tibia_or_r_x
-    //res[0][NU + 17] = value<T>(toes_or_r[2]);  /// tibia_or_r_z
-    //res[0][NU + 18] = value<T>(toes_or_l[0]);  /// tibia_or_l_x
-    //res[0][NU + 19] = value<T>(toes_or_l[2]);  /// tibia_or_l_z
+    //for (int i = 0; i < ndofr; ++i) res[0][i] = (residualMobilityForces[indicesSimbodyInOS[i]]);
+    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 0*nc] = (angVel_pelvis_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 1*nc] = (angVel_torso_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 2*nc] = (angVel_femur_l_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 3*nc] = (angVel_femur_r_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 4*nc] = (linAcc_pelvis_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 5*nc] = (linAcc_torso_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 6*nc] = (linAcc_femur_l_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 7*nc] = (linAcc_femur_r_imu_inG[i]);
 
     return 0;
 
