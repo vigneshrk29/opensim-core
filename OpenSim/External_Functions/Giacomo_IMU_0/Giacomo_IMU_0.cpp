@@ -94,30 +94,37 @@ SimTK::Array_<int> getIndicesSimbodyInOS(const Model& model) {
     return idxSimbodyInOS;
 }
 
-//// This function returns the linear acceleration of the imu frame wrt the
-//// ground frame expressed in the ground frame.
-//// frameName is the name of the body segment to which the imu is attached.
-//// imuTranslation_B is the translation offset of the imu frame'origin from the
-//// parent (body segment) frame's origin, expressed in the parent frame.
-const SimTK::Vec3 getLinearAccelerationIMUInGround(Model& model, const State& s, const Vector_<SpatialVec>& A_GB , const std::string& frameName, const Vec3& gravity_G, const Vec3& imuTranslation_B)
+// This function returns the linear acceleration of the imu frame wrt the
+// ground frame expressed in the ground frame.
+// A_GB contains the angular and linear accelerations of the bodies. It is a
+// Vector_ (whose first entry is the ground) of SpatialVecs (whose first and
+// second entries contain the angular and linear accelerations, respectively).
+// frameName is the name of the body segment to which the imu is attached.
+// imuTranslation_B is the translation offset of the imu frame'origin from the
+// parent (body segment) frame's origin, expressed in the parent frame.
+const SimTK::Vec3 getLinearAccelerationIMUInGround(Model& model,
+        const State& s, const Vector_<SpatialVec>& A_GB ,
+        const std::string& frameName, const Vec3& gravity_G,
+        const Vec3& imuTranslation_B)
 {
-        SimTK::Rotation R_GB = model.getBodySet().get(frameName).getMobilizedBody().getBodyTransform(s).R();
-        /// Body linear acceleration in ground
-        SimTK::Vec3 linAcc_G = A_GB[model.getBodySet().get(frameName).getMobilizedBodyIndex()][1];
-        /// Body angular acceleration in ground
-        SimTK::Vec3 angAcc_G = A_GB[model.getBodySet().get(frameName).getMobilizedBodyIndex()][0];
-        /// Body angular velocity in ground
-        SimTK::Vec3 angVel_G = model.getBodySet().get(frameName).getAngularVelocityInGround(s);
-        /// Body angular velocity in body
-        SimTK::Vec3 angVel_B = ~R_GB*angVel_G;
-        /// Body angular acceleration in body
-        SimTK::Vec3 angAcc_B = ~R_GB*angAcc_G;
-        /// Sensor linear acceleration
-        /// See van den Bogert et al. (1995), equation (1), p949.
-        SimTK::Vec3 linAcc_imu_B = ~R_GB * (linAcc_G - gravity_G) + SimTK::cross(angAcc_B, imuTranslation_B) + SimTK::cross(angVel_B, SimTK::cross(angVel_B, imuTranslation_B));
-        SimTK::Vec3 linAcc_imu_G = R_GB * linAcc_imu_B;
+    /// Rotation
+    const SimTK::Rotation R_GB = model.getBodySet().get(frameName).getMobilizedBody().getBodyTransform(s).R();
+    /// Body linear acceleration in ground
+    const SimTK::Vec3 linAcc_G = A_GB[model.getBodySet().get(frameName).getMobilizedBodyIndex()][1];
+    /// Body angular acceleration in ground
+    const SimTK::Vec3 angAcc_G = A_GB[model.getBodySet().get(frameName).getMobilizedBodyIndex()][0];
+    /// Body angular velocity in ground
+    const SimTK::Vec3 angVel_G = model.getBodySet().get(frameName).getAngularVelocityInGround(s);
+    /// Body angular velocity in body
+    const SimTK::Vec3 angVel_B = ~R_GB*angVel_G;
+    /// Body angular acceleration in body
+    const SimTK::Vec3 angAcc_B = ~R_GB*angAcc_G;
+    /// Sensor linear acceleration
+    /// See van den Bogert et al. (1995), equation (1), p949.
+    const SimTK::Vec3 linAcc_imu_B = ~R_GB * (linAcc_G - gravity_G) + SimTK::cross(angAcc_B, imuTranslation_B) + SimTK::cross(angVel_B, SimTK::cross(angVel_B, imuTranslation_B));
+    const SimTK::Vec3 linAcc_imu_G = R_GB * linAcc_imu_B;
 
-        return linAcc_imu_G;
+    return linAcc_imu_G;
 }
 
 // Function F
@@ -613,24 +620,21 @@ int F_generic(const T** arg, T** res) {
 
     const SimTK::Vec3 translation_pelvis_imu(-0.17825090079013006, 0.06148338297319611, -0.0039742631657566363);
     const SimTK::Vec3 translation_torso_imu(0.11141304895632698, 0.32812980850924067, -0.012040552365984683);
-
     const SimTK::Vec3 translation_femur_r_imu(0.043933841399841023, -0.14958344693305592, 0.099866089437989247);
     const SimTK::Vec3 translation_femur_l_imu(0.057420458331616797, -0.12466095809783695, -0.1025425014551595);
-
-    const SimTK::Vec3 translation_tibia_r_imu(0.047080175165178595, -0.11466976609963364, 0.0052928998697051033);
-    const SimTK::Vec3 translation_tibia_l_imu(0.053945123225004443, -0.12392203671935126, -0.006707066365313652);
-
-    const SimTK::Vec3 translation_calcn_r_imu(0.14808446197590852, 0.040621301301533644, 0.035088429802814902);
-    const SimTK::Vec3 translation_calcn_l_imu(0.15253209992514105, 0.045078665693204636, -0.044293377012806667);
+    //const SimTK::Vec3 translation_tibia_r_imu(0.047080175165178595, -0.11466976609963364, 0.0052928998697051033);
+    //const SimTK::Vec3 translation_tibia_l_imu(0.053945123225004443, -0.12392203671935126, -0.006707066365313652);
+    //const SimTK::Vec3 translation_calcn_r_imu(0.14808446197590852, 0.040621301301533644, 0.035088429802814902);
+    //const SimTK::Vec3 translation_calcn_l_imu(0.15253209992514105, 0.045078665693204636, -0.044293377012806667);
 
     SimTK::Vec3 angVel_pelvis_imu_inG   = model->getBodySet().get("pelvis").getAngularVelocityInGround(*state);
     SimTK::Vec3 angVel_torso_imu_inG    = model->getBodySet().get("torso").getAngularVelocityInGround(*state);
     SimTK::Vec3 angVel_femur_l_imu_inG  = model->getBodySet().get("femur_l").getAngularVelocityInGround(*state);
     SimTK::Vec3 angVel_femur_r_imu_inG  = model->getBodySet().get("femur_r").getAngularVelocityInGround(*state);
-    SimTK::Vec3 angVel_tibia_l_imu_inG  = model->getBodySet().get("tibia_l").getAngularVelocityInGround(*state);
-    SimTK::Vec3 angVel_tibia_r_imu_inG  = model->getBodySet().get("tibia_r").getAngularVelocityInGround(*state);
-    SimTK::Vec3 angVel_calcn_l_imu_inG  = model->getBodySet().get("calcn_l").getAngularVelocityInGround(*state);
-    SimTK::Vec3 angVel_calcn_r_imu_inG  = model->getBodySet().get("calcn_r").getAngularVelocityInGround(*state);
+    //SimTK::Vec3 angVel_tibia_l_imu_inG  = model->getBodySet().get("tibia_l").getAngularVelocityInGround(*state);
+    //SimTK::Vec3 angVel_tibia_r_imu_inG  = model->getBodySet().get("tibia_r").getAngularVelocityInGround(*state);
+    //SimTK::Vec3 angVel_calcn_l_imu_inG  = model->getBodySet().get("calcn_l").getAngularVelocityInGround(*state);
+    //SimTK::Vec3 angVel_calcn_r_imu_inG  = model->getBodySet().get("calcn_r").getAngularVelocityInGround(*state);
 
     Vector_<SpatialVec> A_GB(nbodies);
     model->getMatterSubsystem().calcBodyAccelerationFromUDot(*state, knownUdot, A_GB);
@@ -639,10 +643,10 @@ int F_generic(const T** arg, T** res) {
     SimTK::Vec3 linAcc_torso_imu_inG    = getLinearAccelerationIMUInGround(*model, *state, A_GB, "torso",   gravity, translation_torso_imu);
     SimTK::Vec3 linAcc_femur_l_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "femur_l", gravity, translation_femur_l_imu);
     SimTK::Vec3 linAcc_femur_r_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "femur_r", gravity, translation_femur_r_imu);
-    SimTK::Vec3 linAcc_tibia_l_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "tibia_l", gravity, translation_tibia_l_imu);
-    SimTK::Vec3 linAcc_tibia_r_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "tibia_r", gravity, translation_tibia_r_imu);
-    SimTK::Vec3 linAcc_calcn_l_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "calcn_l", gravity, translation_calcn_l_imu);
-    SimTK::Vec3 linAcc_calcn_r_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "calcn_r", gravity, translation_calcn_r_imu);
+    //SimTK::Vec3 linAcc_tibia_l_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "tibia_l", gravity, translation_tibia_l_imu);
+    //SimTK::Vec3 linAcc_tibia_r_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "tibia_r", gravity, translation_tibia_r_imu);
+    //SimTK::Vec3 linAcc_calcn_l_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "calcn_l", gravity, translation_calcn_l_imu);
+    //SimTK::Vec3 linAcc_calcn_r_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "calcn_r", gravity, translation_calcn_r_imu);
 
     // Residual forces in OpenSim order
     T res_os[ndofr];
@@ -653,17 +657,16 @@ int F_generic(const T** arg, T** res) {
     // Extract results
     int nc = 3;
     /// Residual forces
-    /// We do want to extract the pro_sup torques (last two -> till NU)
+    /// We do want to extract the pro_sup torques (last two -> until NU)
     for (int i = 0; i < NU; ++i) res[0][i] = res_os[i];
-    //for (int i = 0; i < ndofr; ++i) res[0][i] = (residualMobilityForces[indicesSimbodyInOS[i]]);
-    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 0*nc] = (angVel_pelvis_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 1*nc] = (angVel_torso_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 2*nc] = (angVel_femur_l_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 3*nc] = (angVel_femur_r_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 4*nc] = (linAcc_pelvis_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 5*nc] = (linAcc_torso_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 6*nc] = (linAcc_femur_l_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + ndofr + 7*nc] = (linAcc_femur_r_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 0*nc] = (angVel_pelvis_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 1*nc] = (angVel_torso_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 2*nc] = (angVel_femur_l_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 3*nc] = (angVel_femur_r_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 4*nc] = (linAcc_pelvis_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 5*nc] = (linAcc_torso_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 6*nc] = (linAcc_femur_l_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 7*nc] = (linAcc_femur_r_imu_inG[i]);
 
     return 0;
 
@@ -681,8 +684,8 @@ int main() {
     Recorder u[NU];
     Recorder tau[NR];
 
-    for (int i = 0; i < NX; ++i) x[i] <<= 1;
-    for (int i = 0; i < NU; ++i) u[i] <<= 1;
+    for (int i = 0; i < NX; ++i) x[i] <<= -0;
+    for (int i = 0; i < NU; ++i) u[i] <<= 0;
 
     const Recorder* Recorder_arg[n_in] = { x,u };
     Recorder* Recorder_res[n_out] = { tau };
@@ -690,10 +693,7 @@ int main() {
     F_generic<Recorder>(Recorder_arg, Recorder_res);
 
     double res[NR];
-    for (int i = 0; i < NR; ++i) {
-        Recorder_res[0][i] >>= res[i];
-        std::cout << res[i] << std::endl;
-    }
+    for (int i = 0; i < NR; ++i) Recorder_res[0][i] >>= res[i];
 
     Recorder::stop_recording();
 
