@@ -527,7 +527,7 @@ int F_generic(const T** arg, T** res) {
 
     // Set state variables and realize
     model->setStateVariableValues(*state, QsUs);
-    model->realizeAcceleration(*state);
+    model->realizeVelocity(*state);
 
     // Compute residual forces
     /// appliedMobilityForces (# mobilities)
@@ -684,7 +684,7 @@ int main() {
     Recorder u[NU];
     Recorder tau[NR];
 
-    for (int i = 0; i < NX; ++i) x[i] <<= -0;
+    for (int i = 0; i < NX; ++i) x[i] <<= 0;
     for (int i = 0; i < NU; ++i) u[i] <<= 0;
 
     const Recorder* Recorder_arg[n_in] = { x,u };
