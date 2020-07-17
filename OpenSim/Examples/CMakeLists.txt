@@ -18,11 +18,13 @@ if(BUILD_API_EXAMPLES)
         DataAdapter
         DummyModel
         subject1_2D
+        Giacomo_IMU_0
         DESTINATION "${OPENSIM_INSTALL_CPPEXDIR}")
 
     add_subdirectory(ExampleHopperDevice)
     add_subdirectory(DummyModel)
     add_subdirectory(subject1_2D)
+    add_subdirectory(Giacomo_IMU_0)
     add_subdirectory(SymbolicExpressionReporter)
     add_subdirectory(DataTable)
     add_subdirectory(DataAdapter)
