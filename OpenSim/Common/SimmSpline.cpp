@@ -313,7 +313,7 @@ const osim_double_adouble* SimmSpline::getYValues() const
 //{
 //    Function::updateFromXMLNode(aNode, versionNumber);
 //    calcCoefficients();
-//}   
+//}
 
 //=============================================================================
 // EVALUATION
