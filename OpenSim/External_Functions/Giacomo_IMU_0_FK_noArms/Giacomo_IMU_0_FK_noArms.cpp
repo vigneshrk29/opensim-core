@@ -10,7 +10,7 @@
 #include <OpenSim/Simulation/SimbodyEngine/Joint.h>
 #include <OpenSim/Common/LinearFunction.h>
 #include <OpenSim/Common/Constant.h>
-#include <OpenSim/Common/SimmSpline.h>
+//#include <OpenSim/Common/SimmSpline.h>
 #include <OpenSim/Common/MultiplierFunction.h>
 #include <OpenSim/Simulation/Model/HuntCrossleyForce_smooth.h>
 #include "SimTKcommon/internal/recorder.h"
@@ -38,8 +38,7 @@ using namespace OpenSim;
 constexpr int n_in = 2;
 constexpr int n_out = 1;
 /// number of elements in input/output vectors of function F
-constexpr int ndof = 31;        // # degrees of freedom (excluding locked)
-constexpr int ndofr = ndof+2;   // # degrees of freedom (including locked)
+constexpr int ndof = 23;        // # degrees of freedom (excluding locked)
 constexpr int NX = ndof*2;      // # states
 constexpr int NU = ndof;        // # controls
 constexpr int NR = ndof + 8*3;    // # residual torques + # joint origins
@@ -127,6 +126,26 @@ const SimTK::Vec3 getLinearAccelerationIMUInGround(Model& model,
     return linAcc_imu_G;
 }
 
+const SimTK::Vec3 getLinearAccelerationIMUInGround2(Model& model,
+        const State& s, const Vector_<SpatialVec>& A_GB ,
+        const std::string& frameName, const Vec3& gravity_G,
+        const Vec3& imuTranslation_B)
+{
+    /// Rotation
+    const SimTK::Rotation R_GB = model.getBodySet().get(frameName).getMobilizedBody().getBodyTransform(s).R();
+    /// Body linear acceleration in ground
+    const SimTK::Vec3 linAcc_G = A_GB[model.getBodySet().get(frameName).getMobilizedBodyIndex()][1];
+    /// Body angular acceleration in ground
+    const SimTK::Vec3 angAcc_G = A_GB[model.getBodySet().get(frameName).getMobilizedBodyIndex()][0];
+    /// Body angular velocity in ground
+    const SimTK::Vec3 angVel_G = model.getBodySet().get(frameName).getAngularVelocityInGround(s);
+    /// Sensor linear acceleration
+    /// See van den Bogert et al. (1995), equation (1), p949.
+    const SimTK::Vec3 linAcc_imu_G = (linAcc_G - gravity_G) + SimTK::cross(angAcc_G, R_GB*imuTranslation_B) + SimTK::cross(angVel_G, SimTK::cross(angVel_G, R_GB*imuTranslation_B));
+
+    return linAcc_imu_G;
+}
+
 // Function F
 template<typename T>
 int F_generic(const T** arg, T** res) {
@@ -147,14 +166,14 @@ int F_generic(const T** arg, T** res) {
     OpenSim::Body* toes_r;
     OpenSim::Body* toes_l;
     OpenSim::Body* torso;
-    OpenSim::Body* humerus_r;
-    OpenSim::Body* humerus_l;
-    OpenSim::Body* ulna_r;
-    OpenSim::Body* ulna_l;
-    OpenSim::Body* radius_r;
-    OpenSim::Body* radius_l;
-    OpenSim::Body* hand_r;
-    OpenSim::Body* hand_l;
+    //OpenSim::Body* humerus_r;
+    //OpenSim::Body* humerus_l;
+    //OpenSim::Body* ulna_r;
+    //OpenSim::Body* ulna_l;
+    //OpenSim::Body* radius_r;
+    //OpenSim::Body* radius_l;
+    //OpenSim::Body* hand_r;
+    //OpenSim::Body* hand_l;
     /// Joints
     OpenSim::CustomJoint* ground_pelvis;
     OpenSim::CustomJoint* hip_r;
@@ -168,14 +187,14 @@ int F_generic(const T** arg, T** res) {
     OpenSim::PinJoint* mtp_r;
     OpenSim::PinJoint* mtp_l;
     OpenSim::CustomJoint* back;
-    OpenSim::CustomJoint* shoulder_r;
-    OpenSim::CustomJoint* shoulder_l;
-    OpenSim::CustomJoint* elbow_r;
-    OpenSim::CustomJoint* elbow_l;
-    OpenSim::CustomJoint* radioulnar_r;
-    OpenSim::CustomJoint* radioulnar_l;
-    OpenSim::WeldJoint* radius_hand_r;
-    OpenSim::WeldJoint* radius_hand_l;
+    //OpenSim::CustomJoint* shoulder_r;
+    //OpenSim::CustomJoint* shoulder_l;
+    //OpenSim::CustomJoint* elbow_r;
+    //OpenSim::CustomJoint* elbow_l;
+    //OpenSim::CustomJoint* radioulnar_r;
+    //OpenSim::CustomJoint* radioulnar_l;
+    //OpenSim::WeldJoint* radius_hand_r;
+    //OpenSim::WeldJoint* radius_hand_l;
     /// Contact elements
     OpenSim::HuntCrossleyForce_smooth* HC_1_r;
     OpenSim::HuntCrossleyForce_smooth* HC_2_r;
@@ -206,14 +225,14 @@ int F_generic(const T** arg, T** res) {
     toes_l = new OpenSim::Body("toes_l", 0.21612567618267114, Vec3(0.037062248525816174, 0.006426979513147313, 0.018745356913346334), Inertia(0.000114487808706978, 0.000228975617413956, 0.000114487808706978, 0, 0, 0));
     toes_r = new OpenSim::Body("toes_r", 0.21612567618267114, Vec3(0.037062248525816174, 0.006426979513147313, -0.018745356913346334), Inertia(0.000114487808706978, 0.000228975617413956, 0.000114487808706978, 0, 0, 0));
     torso = new OpenSim::Body("torso", 26.767853484219973, Vec3(-0.029119398106347269, 0.31060691313437089, 0), Inertia(1.3861651249269105, 0.7102392349150769, 1.345647175191848, 0, 0, 0));
-    humerus_l = new OpenSim::Body("humerus_l", 2.028049108223819, Vec3(0, -0.18049429839653774, 0), Inertia(0.014350103502831833, 0.0049503412468751024, 0.016107528701613263, 0, 0, 0));
-    humerus_r = new OpenSim::Body("humerus_r", 2.028049108223819, Vec3(0, -0.18049429839653774, 0), Inertia(0.014350103502831833, 0.0049503412468751024, 0.016107528701613263, 0, 0, 0));
-    ulna_l = new OpenSim::Body("ulna_l", 0.6061696596536138, Vec3(0, -0.1408058196310753, 0), Inertia(0.0040338514094605477, 0.00084163408880709608, 0.0043756801413223296, 0, 0, 0));
-    ulna_r = new OpenSim::Body("ulna_r", 0.6061696596536138, Vec3(0, -0.1408058196310753, 0), Inertia(0.0040338514094605477, 0.00084163408880709608, 0.0043756801413223296, 0, 0, 0));
-    radius_l = new OpenSim::Body("radius_l", 0.6061696596536138, Vec3(0, -0.1408058196310753, 0), Inertia(0.0040338514094605477, 0.00084163408880709608, 0.0043756801413223296, 0, 0, 0));
-    radius_r = new OpenSim::Body("radius_r", 0.6061696596536138, Vec3(0, -0.1408058196310753, 0), Inertia(0.0040338514094605477, 0.00084163408880709608, 0.0043756801413223296, 0, 0, 0));
-    hand_l = new OpenSim::Body("hand_l", 0.45649813875148687, Vec3(0, -0.079553389651757511, 0), Inertia(0.001214785772194061, 0.00074494149931631317, 0.0018249023932063251, 0, 0, 0));
-    hand_r = new OpenSim::Body("hand_r", 0.45649813875148687, Vec3(0, -0.079553389651757511, 0), Inertia(0.001214785772194061, 0.00074494149931631317, 0.0018249023932063251, 0, 0, 0));
+    //humerus_l = new OpenSim::Body("humerus_l", 2.028049108223819, Vec3(0, -0.18049429839653774, 0), Inertia(0.014350103502831833, 0.0049503412468751024, 0.016107528701613263, 0, 0, 0));
+    //humerus_r = new OpenSim::Body("humerus_r", 2.028049108223819, Vec3(0, -0.18049429839653774, 0), Inertia(0.014350103502831833, 0.0049503412468751024, 0.016107528701613263, 0, 0, 0));
+    //ulna_l = new OpenSim::Body("ulna_l", 0.6061696596536138, Vec3(0, -0.1408058196310753, 0), Inertia(0.0040338514094605477, 0.00084163408880709608, 0.0043756801413223296, 0, 0, 0));
+    //ulna_r = new OpenSim::Body("ulna_r", 0.6061696596536138, Vec3(0, -0.1408058196310753, 0), Inertia(0.0040338514094605477, 0.00084163408880709608, 0.0043756801413223296, 0, 0, 0));
+    //radius_l = new OpenSim::Body("radius_l", 0.6061696596536138, Vec3(0, -0.1408058196310753, 0), Inertia(0.0040338514094605477, 0.00084163408880709608, 0.0043756801413223296, 0, 0, 0));
+    //radius_r = new OpenSim::Body("radius_r", 0.6061696596536138, Vec3(0, -0.1408058196310753, 0), Inertia(0.0040338514094605477, 0.00084163408880709608, 0.0043756801413223296, 0, 0, 0));
+    //hand_l = new OpenSim::Body("hand_l", 0.45649813875148687, Vec3(0, -0.079553389651757511, 0), Inertia(0.001214785772194061, 0.00074494149931631317, 0.0018249023932063251, 0, 0, 0));
+    //hand_r = new OpenSim::Body("hand_r", 0.45649813875148687, Vec3(0, -0.079553389651757511, 0), Inertia(0.001214785772194061, 0.00074494149931631317, 0.0018249023932063251, 0, 0, 0));
     /// Joints
     /// Ground-Pelvis transform
     SpatialTransform st_ground_pelvis;
@@ -259,50 +278,14 @@ int F_generic(const T** arg, T** res) {
     st_hip_r[2].setAxis(Vec3(0, 1, 0));
     /// Knee_l transform
     SpatialTransform st_knee_l;
-    st_knee_l[0].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_l", 1, 1));
-    st_knee_l[0].setFunction(new LinearFunction());
-    st_knee_l[0].setAxis(Vec3(0,0,1));
-    st_knee_l[1].setFunction(new Constant(0));
-    st_knee_l[1].setAxis(Vec3(0,1,0));
-    st_knee_l[2].setFunction(new Constant(0));
-    st_knee_l[2].setAxis(Vec3(1,0,0));
-    st_knee_l[3].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_l", 1, 1));
-    osim_double_adouble knee_X_r_x[] = { -2.0944, -1.74533, -1.39626, -1.0472, -0.698132, -0.349066, -0.174533, 0.197344, 0.337395, 0.490178, 1.52146, 2.0944 };
-    osim_double_adouble knee_X_r_y[] = { -0.0032, 0.00179, 0.00411, 0.0041, 0.00212, -0.001, -0.0031, -0.005227, -0.005435, -0.005574, -0.005435, -0.00525 };
-    OpenSim::SimmSpline* knee_X_r = new SimmSpline(12, knee_X_r_x, knee_X_r_y, "function_X");
-    st_knee_l[3].setFunction(new MultiplierFunction(knee_X_r, 1.0165488144806301));
-    st_knee_l[3].setAxis(Vec3(1,0,0));
-    st_knee_l[4].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_l", 1, 1));
-    osim_double_adouble knee_Y_r_x[] = { -2.0944, -1.22173, -0.523599, -0.349066, -0.174533, 0.159149, 2.0944 };
-    osim_double_adouble knee_Y_r_y[] = { -0.4226, -0.4082, -0.399, -0.3976, -0.3966, -0.395264, -0.396 };
-    OpenSim::SimmSpline* knee_Y_r = new SimmSpline(7, knee_Y_r_x, knee_Y_r_y, "function_Y");
-    st_knee_l[4].setFunction(new MultiplierFunction(knee_Y_r, 1.0165488144806301));
-    st_knee_l[4].setAxis(Vec3(0,1,0));
-    st_knee_l[5].setFunction(new Constant(0));
-    st_knee_l[5].setAxis(Vec3(0,0,1));
+    st_knee_l[2].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_l", 1, 1));
+    st_knee_l[2].setFunction(new LinearFunction());
+    st_knee_l[2].setAxis(Vec3(0, 0, 1));
     /// Knee_r transform
     SpatialTransform st_knee_r;
-    st_knee_r[0].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
-    st_knee_r[0].setFunction(new LinearFunction());
-    st_knee_r[0].setAxis(Vec3(0,0,1));
-    st_knee_r[1].setFunction(new Constant(0));
-    st_knee_r[1].setAxis(Vec3(0,1,0));
-    st_knee_r[2].setFunction(new Constant(0));
-    st_knee_r[2].setAxis(Vec3(1,0,0));
-    st_knee_r[3].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
-    osim_double_adouble knee_X_l_x[] = { -2.0944, -1.74533, -1.39626, -1.0472, -0.698132, -0.349066, -0.174533, 0.197344, 0.337395, 0.490178, 1.52146, 2.0944 };
-    osim_double_adouble knee_X_l_y[] = { -0.0032, 0.00179, 0.00411, 0.0041, 0.00212, -0.001, -0.0031, -0.005227, -0.005435, -0.005574, -0.005435, -0.00525 };
-    OpenSim::SimmSpline* knee_X_l = new SimmSpline(12, knee_X_l_x, knee_X_l_y, "function_X");
-    st_knee_r[3].setFunction(new MultiplierFunction(knee_X_l, 1.0165488144806301));
-    st_knee_r[3].setAxis(Vec3(1,0,0));
-    st_knee_r[4].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
-    osim_double_adouble knee_Y_l_x[] = { -2.0944, -1.22173, -0.523599, -0.349066, -0.174533, 0.159149, 2.0944 };
-    osim_double_adouble knee_Y_l_y[] = { -0.4226, -0.4082, -0.399, -0.3976, -0.3966, -0.395264, -0.396 };
-    OpenSim::SimmSpline* knee_Y_l = new SimmSpline(7, knee_Y_l_x, knee_Y_l_y, "function_Y");
-    st_knee_r[4].setFunction(new MultiplierFunction(knee_Y_l, 1.0165488144806301));
-    st_knee_r[4].setAxis(Vec3(0,1,0));
-    st_knee_r[5].setFunction(new Constant(0));
-    st_knee_r[5].setAxis(Vec3(0,0,1));
+    st_knee_r[2].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
+    st_knee_r[2].setFunction(new LinearFunction());
+    st_knee_r[2].setAxis(Vec3(0, 0, 1));
     /// Ankle_l transform
     SpatialTransform st_ankle_l;
     st_ankle_l[0].setCoordinateNames(OpenSim::Array<std::string>("ankle_angle_l", 1, 1));
@@ -324,54 +307,54 @@ int F_generic(const T** arg, T** res) {
     st_back[2].setCoordinateNames(OpenSim::Array<std::string>("lumbar_rotation", 1, 1));
     st_back[2].setFunction(new LinearFunction());
     st_back[2].setAxis(Vec3(0, 1, 0));
-    /// Shoulder_l transform
-    SpatialTransform st_sho_l;
-    st_sho_l[0].setCoordinateNames(OpenSim::Array<std::string>("arm_flex_l", 1, 1));
-    st_sho_l[0].setFunction(new LinearFunction());
-    st_sho_l[0].setAxis(Vec3(0, 0, 1));
-    st_sho_l[1].setCoordinateNames(OpenSim::Array<std::string>("arm_add_l", 1, 1));
-    st_sho_l[1].setFunction(new LinearFunction());
-    st_sho_l[1].setAxis(Vec3(-1, 0, 0));
-    st_sho_l[2].setCoordinateNames(OpenSim::Array<std::string>("arm_rot_l", 1, 1));
-    st_sho_l[2].setFunction(new LinearFunction());
-    st_sho_l[2].setAxis(Vec3(0, -1, 0));
-    /// Shoulder_r transform
-    SpatialTransform st_sho_r;
-    st_sho_r[0].setCoordinateNames(OpenSim::Array<std::string>("arm_flex_r", 1, 1));
-    st_sho_r[0].setFunction(new LinearFunction());
-    st_sho_r[0].setAxis(Vec3(0, 0, 1));
-    st_sho_r[1].setCoordinateNames(OpenSim::Array<std::string>("arm_add_r", 1, 1));
-    st_sho_r[1].setFunction(new LinearFunction());
-    st_sho_r[1].setAxis(Vec3(1, 0, 0));
-    st_sho_r[2].setCoordinateNames(OpenSim::Array<std::string>("arm_rot_r", 1, 1));
-    st_sho_r[2].setFunction(new LinearFunction());
-    st_sho_r[2].setAxis(Vec3(0, 1, 0));
-    /// Elbow_l transform
-    SpatialTransform st_elb_l;
-    st_elb_l[0].setCoordinateNames(OpenSim::Array<std::string>("elbow_flex_l", 1, 1));
-    st_elb_l[0].setFunction(new LinearFunction());
-    st_elb_l[0].setAxis(Vec3(-0.22604696, -0.022269, 0.97386183));
-    /// Elbow_r transform
-    SpatialTransform st_elb_r;
-    st_elb_r[0].setCoordinateNames(OpenSim::Array<std::string>("elbow_flex_r", 1, 1));
-    st_elb_r[0].setFunction(new LinearFunction());
-    st_elb_r[0].setAxis(Vec3(0.22604696, 0.022269, 0.97386183));
-    /// Radioulnar_l transform
-    SpatialTransform st_radioulnar_l;
-    st_radioulnar_l[0].setCoordinateNames(OpenSim::Array<std::string>("pro_sup_l", 1, 1));
-    st_radioulnar_l[0].setFunction(new LinearFunction());
-    st_radioulnar_l[0].setAxis(Vec3(-0.05639803, -0.99840646, 0.001952));
-    /// Radioulnar_r transform
-    SpatialTransform st_radioulnar_r;
-    st_radioulnar_r[0].setCoordinateNames(OpenSim::Array<std::string>("pro_sup_r", 1, 1));
-    st_radioulnar_r[0].setFunction(new LinearFunction());
-    st_radioulnar_r[0].setAxis(Vec3(0.05639803, 0.99840646, 0.001952));
+    ///// Shoulder_l transform
+    //SpatialTransform st_sho_l;
+    //st_sho_l[0].setCoordinateNames(OpenSim::Array<std::string>("arm_flex_l", 1, 1));
+    //st_sho_l[0].setFunction(new LinearFunction());
+    //st_sho_l[0].setAxis(Vec3(0, 0, 1));
+    //st_sho_l[1].setCoordinateNames(OpenSim::Array<std::string>("arm_add_l", 1, 1));
+    //st_sho_l[1].setFunction(new LinearFunction());
+    //st_sho_l[1].setAxis(Vec3(-1, 0, 0));
+    //st_sho_l[2].setCoordinateNames(OpenSim::Array<std::string>("arm_rot_l", 1, 1));
+    //st_sho_l[2].setFunction(new LinearFunction());
+    //st_sho_l[2].setAxis(Vec3(0, -1, 0));
+    ///// Shoulder_r transform
+    //SpatialTransform st_sho_r;
+    //st_sho_r[0].setCoordinateNames(OpenSim::Array<std::string>("arm_flex_r", 1, 1));
+    //st_sho_r[0].setFunction(new LinearFunction());
+    //st_sho_r[0].setAxis(Vec3(0, 0, 1));
+    //st_sho_r[1].setCoordinateNames(OpenSim::Array<std::string>("arm_add_r", 1, 1));
+    //st_sho_r[1].setFunction(new LinearFunction());
+    //st_sho_r[1].setAxis(Vec3(1, 0, 0));
+    //st_sho_r[2].setCoordinateNames(OpenSim::Array<std::string>("arm_rot_r", 1, 1));
+    //st_sho_r[2].setFunction(new LinearFunction());
+    //st_sho_r[2].setAxis(Vec3(0, 1, 0));
+    ///// Elbow_l transform
+    //SpatialTransform st_elb_l;
+    //st_elb_l[0].setCoordinateNames(OpenSim::Array<std::string>("elbow_flex_l", 1, 1));
+    //st_elb_l[0].setFunction(new LinearFunction());
+    //st_elb_l[0].setAxis(Vec3(-0.22604696, -0.022269, 0.97386183));
+    ///// Elbow_r transform
+    //SpatialTransform st_elb_r;
+    //st_elb_r[0].setCoordinateNames(OpenSim::Array<std::string>("elbow_flex_r", 1, 1));
+    //st_elb_r[0].setFunction(new LinearFunction());
+    //st_elb_r[0].setAxis(Vec3(0.22604696, 0.022269, 0.97386183));
+    ///// Radioulnar_l transform
+    //SpatialTransform st_radioulnar_l;
+    //st_radioulnar_l[0].setCoordinateNames(OpenSim::Array<std::string>("pro_sup_l", 1, 1));
+    //st_radioulnar_l[0].setFunction(new LinearFunction());
+    //st_radioulnar_l[0].setAxis(Vec3(-0.05639803, -0.99840646, 0.001952));
+    ///// Radioulnar_r transform
+    //SpatialTransform st_radioulnar_r;
+    //st_radioulnar_r[0].setCoordinateNames(OpenSim::Array<std::string>("pro_sup_r", 1, 1));
+    //st_radioulnar_r[0].setFunction(new LinearFunction());
+    //st_radioulnar_r[0].setAxis(Vec3(0.05639803, 0.99840646, 0.001952));
     /// Joint specifications
     ground_pelvis = new CustomJoint("ground_pelvis", model->getGround(), Vec3(0), Vec3(0), *pelvis, Vec3(0), Vec3(0), st_ground_pelvis);
     hip_l = new CustomJoint("hip_l", *pelvis, Vec3(-0.069729482228687481, -0.065192627656523949, -0.08235377321209908), Vec3(0), *femur_l, Vec3(0), Vec3(0), st_hip_l);
     hip_r = new CustomJoint("hip_r", *pelvis, Vec3(-0.069729482228687481, -0.065192627656523949, 0.08235377321209908), Vec3(0), *femur_r, Vec3(0), Vec3(0), st_hip_r);
-    knee_l = new CustomJoint("knee_l", *femur_l, Vec3(0, 0, 0), Vec3(0), *tibia_l, Vec3(0), Vec3(0), st_knee_l);
-    knee_r = new CustomJoint("knee_r", *femur_r, Vec3(0, 0, 0), Vec3(0), *tibia_r, Vec3(0), Vec3(0), st_knee_r);
+    knee_l = new CustomJoint("knee_l", *femur_l, Vec3(-0.00457432, -0.40237106, 0), Vec3(0), *tibia_l, Vec3(0), Vec3(0), st_knee_l);
+    knee_r = new CustomJoint("knee_r", *femur_r, Vec3(-0.00457432, -0.40237106, 0), Vec3(0), *tibia_r, Vec3(0), Vec3(0), st_knee_r);
     ankle_l = new CustomJoint("ankle_l", *tibia_l, Vec3(0, -0.47661136042795454, 0), Vec3(0), *talus_l, Vec3(0), Vec3(0), st_ankle_l);
     ankle_r = new CustomJoint("ankle_r", *tibia_r, Vec3(0, -0.47661136042795454, 0), Vec3(0), *talus_r, Vec3(0), Vec3(0), st_ankle_r);
     subtalar_l = new PinJoint("subtalar_l", *talus_l, Vec3(-0.052240631809365744, -0.044935298429421636, -0.0084836129573544541), Vec3(1.7681899999999999, -0.906223, 1.8196000000000001),
@@ -383,14 +366,14 @@ int F_generic(const T** arg, T** res) {
     mtp_r = new PinJoint("mtp_r", *calcn_r, Vec3(0.19152398949178992, -0.0021423265043824377, 0.0011568563123665165), Vec3(-3.1415899999999999, 0.61990100000000004, 0),
                                 *toes_r, Vec3(0), Vec3(-3.1415899999999999, 0.61990100000000004, 0));
     back = new CustomJoint("back", *pelvis, Vec3(-0.099317664221058408, 0.080381227745941017, 0), Vec3(0), *torso, Vec3(0), Vec3(0), st_back);
-    shoulder_l = new CustomJoint("shoulder_l", *torso, Vec3(0.0030623900341841875, 0.36059521321693366, -0.16500992260263453), Vec3(0), *humerus_l, Vec3(0), Vec3(0), st_sho_l);
-    shoulder_r = new CustomJoint("shoulder_r", *torso, Vec3(0.0030623900341841875, 0.36059521321693366, 0.16500992260263453), Vec3(0), *humerus_r, Vec3(0), Vec3(0), st_sho_r);
-    elbow_l = new CustomJoint("elbow_l", *humerus_l, Vec3(0.014421812854093517, -0.31410344120358441, 0.010527791717515771), Vec3(0), *ulna_l, Vec3(0), Vec3(0), st_elb_l);
-    elbow_r = new CustomJoint("elbow_r", *humerus_r, Vec3(0.014421812854093517, -0.31410344120358441, -0.010527791717515771), Vec3(0), *ulna_r, Vec3(0), Vec3(0), st_elb_r);
-    radioulnar_l = new CustomJoint("radioulnar_l", *ulna_l, Vec3(-0.0078589566368657427, -0.015195696294888168, -0.030472003264362887), Vec3(0), *radius_l, Vec3(0), Vec3(0),st_radioulnar_l);
-    radioulnar_r = new CustomJoint("radioulnar_r", *ulna_r, Vec3(-0.0078589566368657427, -0.015195696294888168, 0.030472003264362887), Vec3(0), *radius_r, Vec3(0), Vec3(0),st_radioulnar_r);
-    radius_hand_l = new WeldJoint("radius_hand_l", *radius_l, Vec3(-0.010277276874462305, -0.27552611746618899, -0.015900163494535866), Vec3(0), *hand_l, Vec3(0), Vec3(0));
-    radius_hand_r = new WeldJoint("radius_hand_r", *radius_r, Vec3(-0.010277276874462305, -0.27552611746618899, 0.015900163494535866), Vec3(0), *hand_r, Vec3(0), Vec3(0));
+    //shoulder_l = new CustomJoint("shoulder_l", *torso, Vec3(0.0030623900341841875, 0.36059521321693366, -0.16500992260263453), Vec3(0), *humerus_l, Vec3(0), Vec3(0), st_sho_l);
+    //shoulder_r = new CustomJoint("shoulder_r", *torso, Vec3(0.0030623900341841875, 0.36059521321693366, 0.16500992260263453), Vec3(0), *humerus_r, Vec3(0), Vec3(0), st_sho_r);
+    //elbow_l = new CustomJoint("elbow_l", *humerus_l, Vec3(0.014421812854093517, -0.31410344120358441, 0.010527791717515771), Vec3(0), *ulna_l, Vec3(0), Vec3(0), st_elb_l);
+    //elbow_r = new CustomJoint("elbow_r", *humerus_r, Vec3(0.014421812854093517, -0.31410344120358441, -0.010527791717515771), Vec3(0), *ulna_r, Vec3(0), Vec3(0), st_elb_r);
+    //radioulnar_l = new CustomJoint("radioulnar_l", *ulna_l, Vec3(-0.0078589566368657427, -0.015195696294888168, -0.030472003264362887), Vec3(0), *radius_l, Vec3(0), Vec3(0),st_radioulnar_l);
+    //radioulnar_r = new CustomJoint("radioulnar_r", *ulna_r, Vec3(-0.0078589566368657427, -0.015195696294888168, 0.030472003264362887), Vec3(0), *radius_r, Vec3(0), Vec3(0),st_radioulnar_r);
+    //radius_hand_l = new WeldJoint("radius_hand_l", *radius_l, Vec3(-0.010277276874462305, -0.27552611746618899, -0.015900163494535866), Vec3(0), *hand_l, Vec3(0), Vec3(0));
+    //radius_hand_r = new WeldJoint("radius_hand_r", *radius_r, Vec3(-0.010277276874462305, -0.27552611746618899, 0.015900163494535866), Vec3(0), *hand_r, Vec3(0), Vec3(0));
     /// Add bodies and joints to model
     model->addBody(pelvis);		    model->addJoint(ground_pelvis);
     model->addBody(femur_l);		model->addJoint(hip_l);
@@ -404,14 +387,14 @@ int F_generic(const T** arg, T** res) {
     model->addBody(toes_l);		    model->addJoint(mtp_l);
     model->addBody(toes_r);		    model->addJoint(mtp_r);
     model->addBody(torso);          model->addJoint(back);
-    model->addBody(humerus_l);      model->addJoint(shoulder_l);
-    model->addBody(humerus_r);      model->addJoint(shoulder_r);
-    model->addBody(ulna_l);         model->addJoint(elbow_l);
-    model->addBody(ulna_r);         model->addJoint(elbow_r);
-    model->addBody(radius_l);       model->addJoint(radioulnar_l);
-    model->addBody(radius_r);       model->addJoint(radioulnar_r);
-    model->addBody(hand_l);         model->addJoint(radius_hand_l);
-    model->addBody(hand_r);         model->addJoint(radius_hand_r);
+    //model->addBody(humerus_l);      model->addJoint(shoulder_l);
+    //model->addBody(humerus_r);      model->addJoint(shoulder_r);
+    //model->addBody(ulna_l);         model->addJoint(elbow_l);
+    //model->addBody(ulna_r);         model->addJoint(elbow_r);
+    //model->addBody(radius_l);       model->addJoint(radioulnar_l);
+    //model->addBody(radius_r);       model->addJoint(radioulnar_r);
+    //model->addBody(hand_l);         model->addJoint(radius_hand_l);
+    //model->addBody(hand_r);         model->addJoint(radius_hand_r);
     /// Contact elements
     /// Parameters
     osim_double_adouble radiusSphere_s1 = 0.03232;
@@ -502,28 +485,18 @@ int F_generic(const T** arg, T** res) {
     std::vector<T> u(arg[1], arg[1] + NU);
 
     // States and controls
-    T ua[NU+2]; /// joint accelerations (Qdotdots) - controls
-    Vector QsUs(NX+4); /// joint positions (Qs) and velocities (Us) - states
+    T ua[NU]; /// joint accelerations (Qdotdots) - controls
+    Vector QsUs(NX); /// joint positions (Qs) and velocities (Us) - states
 
     // Assign inputs to model variables
     /// States
     for (int i = 0; i < NX; ++i) QsUs[i] = x[i];
-    /// pro_sup dofs are locked so Qs and Qdots are hard coded (0)
-    QsUs[NX] = SimTK::Pi/2;
-    QsUs[NX+1] = 0;
-    QsUs[NX+2] = SimTK::Pi/2;
-    QsUs[NX+3] = 0;
     /// Controls
-    T ut[NU+2];
+    T ut[NU];
     for (int i = 0; i < NU; ++i) ut[i] = u[i];
-    /// pro_sup dofs are locked so Qdotdots are hard coded (0)
-    /// Need to have a temporary vector to add 0s to the vector before
-    /// adjusting for the index difference between OpenSim and Simbody.
-    ut[NU] = 0;
-    ut[NU+1] = 0;
     /// OpenSim and Simbody have different state orders so we need to adjust
     auto indicesOSInSimbody = getIndicesOSInSimbody(*model);
-    for (int i = 0; i < ndofr; ++i) ua[i] = ut[indicesOSInSimbody[i]];
+    for (int i = 0; i < ndof; ++i) ua[i] = ut[indicesOSInSimbody[i]];
 
     // Set state variables and realize
     model->setStateVariableValues(*state, QsUs);
@@ -531,7 +504,7 @@ int F_generic(const T** arg, T** res) {
 
     // Compute residual forces
     /// appliedMobilityForces (# mobilities)
-    Vector appliedMobilityForces(ndofr);
+    Vector appliedMobilityForces(ndof);
     appliedMobilityForces.setToZero();
     /// appliedBodyForces (# bodies + ground)
     Vector_<SpatialVec> appliedBodyForces;
@@ -608,11 +581,11 @@ int F_generic(const T** arg, T** res) {
     appliedBodyForces[ncalcn_l] = appliedBodyForces[ncalcn_l] + GRF_1_l + GRF_2_l + GRF_3_l + GRF_4_l;
     appliedBodyForces[ntoes_l] = appliedBodyForces[ntoes_l] + GRF_5_l + GRF_6_l;
     /// knownUdot
-    Vector knownUdot(ndofr);
+    Vector knownUdot(ndof);
     knownUdot.setToZero();
-    for (int i = 0; i < ndofr; ++i) knownUdot[i] = ua[i];
+    for (int i = 0; i < ndof; ++i) knownUdot[i] = ua[i];
     /// Calculate residual forces
-    Vector residualMobilityForces(ndofr);
+    Vector residualMobilityForces(ndof);
     residualMobilityForces.setToZero();
     model->getMatterSubsystem().calcResidualForceIgnoringConstraints(*state,
         appliedMobilityForces, appliedBodyForces, knownUdot,
@@ -636,6 +609,14 @@ int F_generic(const T** arg, T** res) {
     //SimTK::Vec3 angVel_calcn_l_imu_inG  = model->getBodySet().get("calcn_l").getAngularVelocityInGround(*state);
     //SimTK::Vec3 angVel_calcn_r_imu_inG  = model->getBodySet().get("calcn_r").getAngularVelocityInGround(*state);
 
+    //std::cout << (angVel_pelvis_imu_inG) << std::endl;
+    //std::cout << (angVel_torso_imu_inG) << std::endl;
+    //std::cout << (angVel_femur_l_imu_inG) << std::endl;
+    //std::cout << (angVel_femur_r_imu_inG) << std::endl;
+/*
+    std::cout << model->getStateVariableValues(*state) << std::endl;
+    std::cout << model->get*/
+
     Vector_<SpatialVec> A_GB(nbodies);
     model->getMatterSubsystem().calcBodyAccelerationFromUDot(*state, knownUdot, A_GB);
 
@@ -643,30 +624,45 @@ int F_generic(const T** arg, T** res) {
     SimTK::Vec3 linAcc_torso_imu_inG    = getLinearAccelerationIMUInGround(*model, *state, A_GB, "torso",   gravity, translation_torso_imu);
     SimTK::Vec3 linAcc_femur_l_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "femur_l", gravity, translation_femur_l_imu);
     SimTK::Vec3 linAcc_femur_r_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "femur_r", gravity, translation_femur_r_imu);
+
+    SimTK::Vec3 linAcc_pelvis_imu_inG2   = getLinearAccelerationIMUInGround2(*model, *state, A_GB, "pelvis",  gravity, translation_pelvis_imu);
+    SimTK::Vec3 linAcc_torso_imu_inG2    = getLinearAccelerationIMUInGround2(*model, *state, A_GB, "torso",   gravity, translation_torso_imu);
+    SimTK::Vec3 linAcc_femur_l_imu_inG2  = getLinearAccelerationIMUInGround2(*model, *state, A_GB, "femur_l", gravity, translation_femur_l_imu);
+    SimTK::Vec3 linAcc_femur_r_imu_inG2  = getLinearAccelerationIMUInGround2(*model, *state, A_GB, "femur_r", gravity, translation_femur_r_imu);
+
+    std::cout << (linAcc_pelvis_imu_inG) << std::endl;
+    std::cout << (linAcc_pelvis_imu_inG2) << std::endl;
+    std::cout << (linAcc_torso_imu_inG) << std::endl;
+    std::cout << (linAcc_torso_imu_inG2) << std::endl;
+    std::cout << (linAcc_femur_l_imu_inG) << std::endl;
+    std::cout << (linAcc_femur_l_imu_inG2) << std::endl;
+    std::cout << (linAcc_femur_r_imu_inG) << std::endl;
+    std::cout << (linAcc_femur_r_imu_inG2) << std::endl;
+
     //SimTK::Vec3 linAcc_tibia_l_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "tibia_l", gravity, translation_tibia_l_imu);
     //SimTK::Vec3 linAcc_tibia_r_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "tibia_r", gravity, translation_tibia_r_imu);
     //SimTK::Vec3 linAcc_calcn_l_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "calcn_l", gravity, translation_calcn_l_imu);
     //SimTK::Vec3 linAcc_calcn_r_imu_inG  = getLinearAccelerationIMUInGround(*model, *state, A_GB, "calcn_r", gravity, translation_calcn_r_imu);
 
     // Residual forces in OpenSim order
-    T res_os[ndofr];
+    T res_os[ndof];
     /// OpenSim and Simbody have different state orders so we need to adjust
     auto indicesSimbodyInOS = getIndicesSimbodyInOS(*model);
-    for (int i = 0; i < ndofr; ++i) res_os[i] =
+    for (int i = 0; i < ndof; ++i) res_os[i] =
             value<T>(residualMobilityForces[indicesSimbodyInOS[i]]);
     // Extract results
     int nc = 3;
     /// Residual forces
     /// We do want to extract the pro_sup torques (last two -> until NU)
     for (int i = 0; i < NU; ++i) res[0][i] = res_os[i];
-    for (int i = 0; i < nc; ++i) res[0][i + NU + 0*nc] = (angVel_pelvis_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + NU + 1*nc] = (angVel_torso_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + NU + 2*nc] = (angVel_femur_l_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + NU + 3*nc] = (angVel_femur_r_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + NU + 4*nc] = (linAcc_pelvis_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + NU + 5*nc] = (linAcc_torso_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + NU + 6*nc] = (linAcc_femur_l_imu_inG[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + NU + 7*nc] = (linAcc_femur_r_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 0*nc] = value<T>(angVel_pelvis_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 1*nc] = value<T>(angVel_torso_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 2*nc] = value<T>(angVel_femur_l_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 3*nc] = value<T>(angVel_femur_r_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 4*nc] = value<T>(linAcc_pelvis_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 5*nc] = value<T>(linAcc_torso_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 6*nc] = value<T>(linAcc_femur_l_imu_inG[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 7*nc] = value<T>(linAcc_femur_r_imu_inG[i]);
 
     return 0;
 
@@ -684,12 +680,21 @@ int main() {
     Recorder u[NU];
     Recorder tau[NR];
 
+    /*x[0] <<= 0;
+    x[1] <<= 0;
+    x[2] <<= 0;
+    x[3] <<= 0;
+    x[4] <<= 0;
+    x[5] <<= 0;
+    x[12] <<= 1;
+    x[13] <<= 1;
+    x[14] <<= 0;
+    x[15] <<= 1;
+    x[16] <<= 0;
+    x[17] <<= 1;
+    for (int i = 6; i < 12; ++i) x[i] <<= 0;
+    for (int i = 18; i < NX; ++i) x[i] <<= 0;*/
     for (int i = 0; i < NX; ++i) x[i] <<= -1;
-    //for (int i = 0; i < 24; ++i) x[i] <<= -1;
-    //for (int i = 27; i < NX; ++i) x[i] <<= -1;
-    //x[24] <<= -1;
-    //x[25] <<= -1;
-    //x[26] <<= -1;
     for (int i = 0; i < NU; ++i) u[i] <<= -1;
 
     const Recorder* Recorder_arg[n_in] = { x,u };
@@ -700,7 +705,7 @@ int main() {
     double res[NR];
     for (int i = 0; i < NR; ++i) {
         Recorder_res[0][i] >>= res[i];
-        std::cout << res[i] << std::endl;
+        //std::cout << res[i] << std::endl;
     }
 
     Recorder::stop_recording();

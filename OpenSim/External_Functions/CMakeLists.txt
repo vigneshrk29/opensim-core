@@ -54,6 +54,11 @@ if(BUILD_TESTING)
     add_subdirectory(subject1_2D_3cs_ss3)
     add_subdirectory(Giacomo_IMU_0)
     add_subdirectory(testSpline)
+    add_subdirectory(subject1_2D_3cs_ss3_FK)
+    add_subdirectory(subject1_2D_3cs_ss3_FK_pp)
+    add_subdirectory(Giacomo_IMU_0_FK)
+    add_subdirectory(Giacomo_IMU_0_FK_noArms)
+    add_subdirectory(Giacomo_IMU_1_FK_noArms)    
 endif()
 
 
