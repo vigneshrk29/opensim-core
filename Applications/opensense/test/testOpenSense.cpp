@@ -75,7 +75,7 @@ int main()
     ik_hjc.set_results_directory("ik_hjc_" + facingNegX.getName());
     ik_hjc.run(false);
 
-    Storage ik_X("ik_hjc_" + facingX.getName() + 
+    Storage ik_X("ik_hjc_" + facingX.getName() +
         "/ik_MT_012005D6_009-quaternions_RHJCSwinger.mot");
 
     Storage ik_negX("ik_hjc_" + facingNegX.getName() +
@@ -83,13 +83,37 @@ int main()
 
     int nc = ik_X.getColumnLabels().size();
 
-    // calibration should only result in errors due to smallish (<10degs) 
+    // calibration should only result in errors due to smallish (<10degs)
     // differences in static pose an should be unaffected by the large
     // (90+ degs) change in heading
     CHECK_STORAGE_AGAINST_STANDARD(ik_X, ik_negX,
         std::vector<double>(nc, 10.0), __FILE__, __LINE__,
         "testOpenSense::IK solutions differed due to heading.");
 
+    // Test a case where model pelvis rotation is non-zero so pelvis-x is different from ground-x
+    IMUPlacer imuPlacer_rot("calibrate_rotated.xml");
+    imuPlacer_rot.run();
+    Model model_rotated = imuPlacer_rot.getCalibratedModel();
+    // This has been validated visually
+    Model std_model_rotated{"std_calibrated_pelvis_rot.osim"};
+    ASSERT(model_rotated == std_model_rotated);
+
+    const SimTK::State& rotatedModelState = model_rotated.initSystem();
+    // Verify pelvis_imu z-axis and pelvis x-axis are aligned when projected to x-z plane
+    const Body& pelvis = model_rotated.getBodySet().get("pelvis");
+    const PhysicalOffsetFrame* pelvis_imu =
+            model_rotated.findComponent<PhysicalOffsetFrame>("pelvis_imu");
+    auto pelvisXInGround = pelvis.expressVectorInGround(
+            rotatedModelState, SimTK::Vec3{1, 0, 0});
+    pelvisXInGround.set(1, 0);
+    pelvisXInGround.normalize();
+    auto pelvisIMUZInGround = pelvis_imu->expressVectorInGround(
+            rotatedModelState, SimTK::Vec3{0, 0, 1});
+    pelvisIMUZInGround.set(1, 0);
+    pelvisIMUZInGround.normalize();
+    SimTK::Real angularDifference = acos(~pelvisXInGround * pelvisIMUZInGround);
+    // Angle less than 30 would be reasonable goal to maintain
+    assert(angularDifference < SimTK::Pi/6);
     std::cout << "Done. All testOpensense cases passed." << endl;
     return 0;
 }
