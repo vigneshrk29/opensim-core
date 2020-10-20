@@ -191,6 +191,8 @@ bool IMUPlacer::run(bool visualizeResults) {
             SimTK::Rotation R_FB =
                     ~imuBodiesInGround[imuName] * rotations[int(imuix)];
             log_info("Offset is {}", R_FB);
+            SimTK::Quaternion orientation_quat_pelvis_imu_G(rotations[int(imuix)]);
+            log_info("R_1st is {}", orientation_quat_pelvis_imu_G);
             PhysicalOffsetFrame* imuOffset = nullptr;
             const PhysicalOffsetFrame* mo = nullptr;
             if ((mo = _model->findComponent<PhysicalOffsetFrame>(imuName))) {
