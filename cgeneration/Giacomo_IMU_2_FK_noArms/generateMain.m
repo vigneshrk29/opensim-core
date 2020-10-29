@@ -3,10 +3,10 @@
 % function F and its Jacobian in a format that can be exploited by CasADi.
 % Authors: Joris Gillis and Antoine Falisse
 import casadi.*
-cg = CodeGenerator('foo_jac_1');
+cg = CodeGenerator('foo_jac');
 % arg should have the dimensions of the combined inputs of F, i.e. NX + NU
-arg = SX.sym('arg',93); 
-[y,a] = foo_1(arg);
+arg = SX.sym('arg',69); 
+[y,a] = foo(arg);
 F = Function('F',{arg},{y});
 cg.add(F);
 cg.add(F.jacobian())

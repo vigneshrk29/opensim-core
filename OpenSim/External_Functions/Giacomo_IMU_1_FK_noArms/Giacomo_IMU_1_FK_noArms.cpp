@@ -14,6 +14,7 @@
 #include <OpenSim/Common/MultiplierFunction.h>
 #include <OpenSim/Simulation/Model/HuntCrossleyForce_smooth.h>
 #include "SimTKcommon/internal/recorder.h"
+#include <OpenSim/Simulation/Model/PhysicalOffsetFrame.h>
 
 #include <iostream>
 #include <iterator>
@@ -674,22 +675,8 @@ int main() {
     Recorder u[NU];
     Recorder tau[NR];
 
-    /*x[0] <<= 0;
-    x[1] <<= 0;
-    x[2] <<= 0;
-    x[3] <<= 0;
-    x[4] <<= 0;
-    x[5] <<= 0;
-    x[12] <<= 1;
-    x[13] <<= 1;
-    x[14] <<= 0;
-    x[15] <<= 1;
-    x[16] <<= 0;
-    x[17] <<= 1;
-    for (int i = 6; i < 12; ++i) x[i] <<= 0;
-    for (int i = 18; i < NX; ++i) x[i] <<= 0;*/
-    for (int i = 0; i < NX; ++i) x[i] <<= -1;
-    for (int i = 0; i < NU; ++i) u[i] <<= -1;
+    for (int i = 0; i < NX; ++i) x[i] <<= 0;
+    for (int i = 0; i < NU; ++i) u[i] <<= 0;
 
     const Recorder* Recorder_arg[n_in] = { x,u };
     Recorder* Recorder_res[n_out] = { tau };
