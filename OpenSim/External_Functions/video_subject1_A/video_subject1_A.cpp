@@ -365,12 +365,12 @@ int F_generic(const T** arg, T** res) {
     osim_double_adouble transitionVelocity = 0.2;
     Vec3 normal = Vec3(0, 1, 0);
     osim_double_adouble offset = 0;
-    Vec3 locSphere_1_r(-0.000460642, 0, -0.00564225);
-    Vec3 locSphere_2_r(0.0655687, 0, 0.0225828);
-    Vec3 locSphere_3_r(0.180314, 0, 0.0239173);
-    Vec3 locSphere_4_r(0.180314, 0, -0.0112908);
-    Vec3 locSphere_5_r(0.0580873, 0, -0.00385841);
-    Vec3 locSphere_6_r(1.89942e-06, 0, 0.0251717);
+    Vec3 locSphere_1_r(-0.000460642, -0.01, -0.00564225);
+    Vec3 locSphere_2_r(0.0655687, -0.01, 0.0225828);
+    Vec3 locSphere_3_r(0.180314, -0.01, 0.0239173);
+    Vec3 locSphere_4_r(0.180314, -0.01, -0.0112908);
+    Vec3 locSphere_5_r(0.0580873, -0.01, -0.00385841);
+    Vec3 locSphere_6_r(1.89942e-06, -0.01, 0.0251717);
     Vec3 locSphere_1_l(locSphere_1_r[0],locSphere_1_r[1],-locSphere_1_r[2]);
     Vec3 locSphere_2_l(locSphere_2_r[0],locSphere_2_r[1],-locSphere_2_r[2]);
     Vec3 locSphere_3_l(locSphere_3_r[0],locSphere_3_r[1],-locSphere_3_r[2]);

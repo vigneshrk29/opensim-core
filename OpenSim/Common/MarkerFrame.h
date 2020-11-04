@@ -29,8 +29,6 @@
 //#include "Object.h"
 //#include "Units.h"
 //
-//#include "osim_adouble.h"
-//
 //namespace OpenSim {
 //
 ////=============================================================================

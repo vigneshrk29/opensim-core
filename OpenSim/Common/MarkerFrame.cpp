@@ -56,7 +56,7 @@
 // * @param aTime the time of the frame
 // * @param aUnits the units of the XYZ marker coordinates
 // */
-//MarkerFrame::MarkerFrame(int aNumMarkers, int aFrameNumber, double aTime, Units& aUnits) :
+//MarkerFrame::MarkerFrame(int aNumMarkers, int aFrameNumber, osim_double_adouble aTime, Units& aUnits) :
 //    _numMarkers(aNumMarkers),
 //    _frameNumber(aFrameNumber),
 //    _frameTime(aTime),
@@ -124,7 +124,7 @@
 // *
 // * @param aScaleFactor the scale factor
 // */
-//void MarkerFrame::scale(double aScaleFactor)
+//void MarkerFrame::scale(osim_double_adouble aScaleFactor)
 //{
 //    for (int i = 0; i < _numMarkers; i++)
 //    {

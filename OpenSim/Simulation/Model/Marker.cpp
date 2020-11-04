@@ -104,7 +104,7 @@
 ////_____________________________________________________________________________
 ///**
 // * Change the PhysicalFrame that this marker is attached to. It assumes that the frame is
-// * already set, so that extendConnectToModel() needs to be called to update 
+// * already set, so that extendConnectToModel() needs to be called to update
 // * dependent information.
 // *
 // * @param aFrame Reference to the PhysicalFrame.
@@ -123,7 +123,7 @@
 ////_____________________________________________________________________________
 ///**
 // * Change the PhysicalFrame that this marker is attached to. It assumes that the body is
-// * already set, so that extendConnectToModel() needs to be called to update 
+// * already set, so that extendConnectToModel() needs to be called to update
 // * dependent information.
 // *
 // * @param s State.
@@ -165,29 +165,29 @@
 //* underneath the Marker to match current version
 //*/
 ///*virtual*/
-//void Marker::updateFromXMLNode(SimTK::Xml::Element& aNode, int versionNumber)
-//{
-//
-//    if (versionNumber < XMLDocument::getLatestVersion()){
-//        if (versionNumber < 30501) {
-//            // Parse name of Body under <body>node
-//            SimTK::Xml::element_iterator bIter = aNode.element_begin("body");
-//            SimTK::String bName = bIter->getValue();
-//            // Create nodes for new layout
-//            SimTK::Xml::Element connectorsElement("connectors");
-//            SimTK::Xml::Element frameElement("Connector_PhysicalFrame_");
-//            connectorsElement.insertNodeAfter(connectorsElement.node_end(), frameElement);
-//            frameElement.setAttributeValue("name", "parent_frame");
-//            SimTK::Xml::Element connecteeElement("connectee_name");
-//            connecteeElement.setValue(bName);
-//            frameElement.insertNodeAfter(frameElement.node_end(), connecteeElement);
-//            aNode.insertNodeAfter(bIter, connectorsElement);
-//            aNode.eraseNode(bIter);
-//        }
-//    }
-//    // Call base class now assuming _node has been corrected for current version
-//    Super::updateFromXMLNode(aNode, versionNumber);
-//}
+////void Marker::updateFromXMLNode(SimTK::Xml::Element& aNode, int versionNumber)
+////{
+////
+////    if (versionNumber < XMLDocument::getLatestVersion()){
+////        if (versionNumber < 30501) {
+////            // Parse name of Body under <body>node
+////            SimTK::Xml::element_iterator bIter = aNode.element_begin("body");
+////            SimTK::String bName = bIter->getValue();
+////            // Create nodes for new layout
+////            SimTK::Xml::Element connectorsElement("connectors");
+////            SimTK::Xml::Element frameElement("Connector_PhysicalFrame_");
+////            connectorsElement.insertNodeAfter(connectorsElement.node_end(), frameElement);
+////            frameElement.setAttributeValue("name", "parent_frame");
+////            SimTK::Xml::Element connecteeElement("connectee_name");
+////            connecteeElement.setValue(bName);
+////            frameElement.insertNodeAfter(frameElement.node_end(), connecteeElement);
+////            aNode.insertNodeAfter(bIter, connectorsElement);
+////            aNode.eraseNode(bIter);
+////        }
+////    }
+////    // Call base class now assuming _node has been corrected for current version
+////    Super::updateFromXMLNode(aNode, versionNumber);
+////}
 //
 //void Marker::generateDecorations(bool fixed, const ModelDisplayHints& hints, const SimTK::State& state,
 //    SimTK::Array_<SimTK::DecorativeGeometry>& appendToThis) const
@@ -195,7 +195,7 @@
 //    Super::generateDecorations(fixed, hints, state, appendToThis);
 //    if (!fixed) return;
 //    if (!hints.get_show_markers()) return;
-//    
+//
 //    // @TODO default color, size, shape should be obtained from hints
 //    const Vec3 color = hints.get_marker_color();
 //    const OpenSim::PhysicalFrame& frame = getParentFrame();
@@ -206,5 +206,5 @@
 //        SimTK::DecorativeSphere(.005).setBodyId(frame.getMobilizedBodyIndex())
 //        .setColor(color).setOpacity(1.0)
 //        .setTransform(get_location()));
-//    
+//
 //}

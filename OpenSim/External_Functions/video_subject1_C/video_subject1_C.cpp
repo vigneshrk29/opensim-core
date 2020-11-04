@@ -43,7 +43,7 @@ constexpr int n_out = 1;
 constexpr int ndof = 23;        // # degrees of freedom
 constexpr int NX = ndof*2;      // # states
 constexpr int NU = ndof;        // # controls
-constexpr int NR = ndof + 12*3; // # residual torques
+constexpr int NR = ndof + 16*3; // # residual torques
 
 // Helper function value
 template<typename T>
@@ -170,10 +170,10 @@ int F_generic(const T** arg, T** res) {
     OpenSim::Station* LAnkle;
     OpenSim::Station* RHeel;
     OpenSim::Station* LHeel;
-    //OpenSim::Station* RBigToe;
-    //OpenSim::Station* LBigToe;
-    //OpenSim::Station* RSmallToe;
-    //OpenSim::Station* LSmallToe;
+    OpenSim::Station* RBigToe;
+    OpenSim::Station* LBigToe;
+    OpenSim::Station* RSmallToe;
+    OpenSim::Station* LSmallToe;
 
     // OpenSim model: initialize components
     /// Model
@@ -461,10 +461,10 @@ int F_generic(const T** arg, T** res) {
     LAnkle = new Station(*tibia_l, Vec3(0.019268688221482477, -0.41172659838098302, 0.0092228736827546509));
     RHeel = new Station(*calcn_r, Vec3(0.0032027230293412146, 0.028165419411338655, -0.0036159145431496897));
     LHeel = new Station(*calcn_l, Vec3(0.0047636780068757156, 0.035314361919311733, 0.0011655514384873999));
-    //RBigToe = new Station(*toes_r, Vec3(0.041732378213962917, -0.0029887608662524934, -0.023036242341002988));
-    //LBigToe = new Station(*toes_l, Vec3(0.041717404102602162, 0.0048129334313149197, 0.019597273711784879));
-    //RSmallToe = new Station(*toes_r, Vec3(-0.0051850627462585175, 0.010042883134173064, 0.057501473092942068));
-    //LSmallToe = new Station(*toes_l, Vec3(-5.6850859683432731e-05, 0.0036303328102300914, -0.057883223802813522));
+    RBigToe = new Station(*toes_r, Vec3(0.041732378213962917, -0.0029887608662524934, -0.023036242341002988));
+    LBigToe = new Station(*toes_l, Vec3(0.041717404102602162, 0.0048129334313149197, 0.019597273711784879));
+    RSmallToe = new Station(*toes_r, Vec3(-0.0051850627462585175, 0.010042883134173064, 0.057501473092942068));
+    LSmallToe = new Station(*toes_l, Vec3(-5.6850859683432731e-05, 0.0036303328102300914, -0.057883223802813522));
 
     model->addComponent(Neck);
     model->addComponent(RShoulder);
@@ -478,10 +478,10 @@ int F_generic(const T** arg, T** res) {
     model->addComponent(LAnkle);
     model->addComponent(RHeel);
     model->addComponent(LHeel);
-    //model->addComponent(RBigToe);
-    //model->addComponent(LBigToe);
-    //model->addComponent(RSmallToe);
-    //model->addComponent(LSmallToe);
+    model->addComponent(RBigToe);
+    model->addComponent(LBigToe);
+    model->addComponent(RSmallToe);
+    model->addComponent(LSmallToe);
 
     // Initialize system and state
     SimTK::State* state;
@@ -611,10 +611,10 @@ int F_generic(const T** arg, T** res) {
     Vec3 LAnkle_location = LAnkle->getLocationInGround(*state);
     Vec3 RHeel_location = RHeel->getLocationInGround(*state);
     Vec3 LHeel_location = LHeel->getLocationInGround(*state);
-    //Vec3 RBigToe_location = RBigToe->getLocationInGround(*state);
-    //Vec3 LBigToe_location = LBigToe->getLocationInGround(*state);
-    //Vec3 RSmallToe_location = RSmallToe->getLocationInGround(*state);
-    //Vec3 LSmallToe_location = LSmallToe->getLocationInGround(*state);
+    Vec3 RBigToe_location = RBigToe->getLocationInGround(*state);
+    Vec3 LBigToe_location = LBigToe->getLocationInGround(*state);
+    Vec3 RSmallToe_location = RSmallToe->getLocationInGround(*state);
+    Vec3 LSmallToe_location = LSmallToe->getLocationInGround(*state);
 
     // Residual forces in OpenSim order
     T res_os[ndof];
@@ -637,6 +637,10 @@ int F_generic(const T** arg, T** res) {
     for (int i = 0; i < nc; ++i) res[0][i + NU + 9*nc] = value<T>(LAnkle_location[i]);
     for (int i = 0; i < nc; ++i) res[0][i + NU + 10*nc] = value<T>(RHeel_location[i]);
     for (int i = 0; i < nc; ++i) res[0][i + NU + 11*nc] = value<T>(LHeel_location[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 12*nc] = value<T>(RBigToe_location[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 13*nc] = value<T>(LBigToe_location[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 14*nc] = value<T>(RSmallToe_location[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 15*nc] = value<T>(LSmallToe_location[i]);
 
     return 0;
 
