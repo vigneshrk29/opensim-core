@@ -72,7 +72,7 @@ namespace OpenSim {
 
         if( 0 == os.compare("Windows")) {
             switch( atoi(GET_COMPILER_INFO) ) {
-            case 1910:
+            case 1916:
                 str = "Visual Studio 2017";
                 break;
             case 1900:
