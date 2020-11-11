@@ -43,7 +43,7 @@ constexpr int n_out = 1;
 constexpr int ndof = 23;        // # degrees of freedom
 constexpr int NX = ndof*2;      // # states
 constexpr int NU = ndof;        // # controls
-constexpr int NR = ndof + 20*3; // # residual torques
+constexpr int NR = ndof + 44*3; // # residual torques
 
 // Helper function value
 template<typename T>
@@ -616,8 +616,11 @@ int F_generic(const T** arg, T** res) {
     Vec3 RSmallToe_location = RSmallToe->getLocationInGround(*state);
     Vec3 LSmallToe_location = LSmallToe->getLocationInGround(*state);
 
-    /// Extract ground reaction forces and moments
-    Vec3 calcn_or_l = calcn_l->getPositionInGround(*state);
+    SpatialVec GRF_r = GRF_1_r + GRF_2_r + GRF_3_r + GRF_4_r + GRF_5_r + GRF_6_r;
+	SpatialVec GRF_l = GRF_1_l + GRF_2_l + GRF_3_l + GRF_4_l + GRF_5_l + GRF_6_l;
+
+    /// Extract ground reaction forces and moments: method 1.
+    /*Vec3 calcn_or_l = calcn_l->getPositionInGround(*state);
 	Vec3 calcn_or_r = calcn_r->getPositionInGround(*state);
     Vec3 toes_or_l = toes_l->getPositionInGround(*state);
 	Vec3 toes_or_r = toes_r->getPositionInGround(*state);
@@ -636,112 +639,94 @@ int F_generic(const T** arg, T** res) {
 	Vec3 GRM_toes_r = GRF_toes_r[0] + cross(toes_or_r, GRF_toes_r[1]);
 
     Vec3 GRM_l = GRM_calcn_l + GRM_toes_l;
-	Vec3 GRM_r = GRM_calcn_r + GRM_toes_r;
+	Vec3 GRM_r = GRM_calcn_r + GRM_toes_r;*/
 
-    ///// Other option
-    ///// Compute contact point positions in body frames
-    ///// sphere 1 left
-    //Vec3 pos_InGround_HC_s1_l = calcn_l->findStationLocationInGround(*state, locSphere_1_l);
-    //Vec3 contactPointpos_InGround_HC_s1_l = pos_InGround_HC_s1_l - radiusSphere_s1*normal;
-    //Vec3 contactPointpos_InGround_HC_s1_l_adj = contactPointpos_InGround_HC_s1_l - 0.5*contactPointpos_InGround_HC_s1_l[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s1_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s1_l_adj, *calcn_l);
-    ///// sphere 2 left
-    //Vec3 pos_InGround_HC_s2_l = calcn_l->findStationLocationInGround(*state, locSphere_2_l);
-    //Vec3 contactPointpos_InGround_HC_s2_l = pos_InGround_HC_s2_l - radiusSphere_s2*normal;
-    //Vec3 contactPointpos_InGround_HC_s2_l_adj = contactPointpos_InGround_HC_s2_l - 0.5*contactPointpos_InGround_HC_s2_l[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s2_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s2_l_adj, *calcn_l);
-    ///// sphere 3 left
-    //Vec3 pos_InGround_HC_s3_l = calcn_l->findStationLocationInGround(*state, locSphere_3_l);
-    //Vec3 contactPointpos_InGround_HC_s3_l = pos_InGround_HC_s3_l - radiusSphere_s3*normal;
-    //Vec3 contactPointpos_InGround_HC_s3_l_adj = contactPointpos_InGround_HC_s3_l - 0.5*contactPointpos_InGround_HC_s3_l[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s3_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s3_l_adj, *calcn_l);
-    ///// sphere 4 left
-    //Vec3 pos_InGround_HC_s4_l = calcn_l->findStationLocationInGround(*state, locSphere_4_l);
-    //Vec3 contactPointpos_InGround_HC_s4_l = pos_InGround_HC_s4_l - radiusSphere_s4*normal;
-    //Vec3 contactPointpos_InGround_HC_s4_l_adj = contactPointpos_InGround_HC_s4_l - 0.5*contactPointpos_InGround_HC_s4_l[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s4_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s4_l_adj, *calcn_l);
-    ///// sphere 5 left
-    //Vec3 pos_InGround_HC_s5_l = toes_l->findStationLocationInGround(*state, locSphere_5_l);
-    //Vec3 contactPointpos_InGround_HC_s5_l = pos_InGround_HC_s5_l - radiusSphere_s5*normal;
-    //Vec3 contactPointpos_InGround_HC_s5_l_adj = contactPointpos_InGround_HC_s5_l - 0.5*contactPointpos_InGround_HC_s5_l[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s5_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s5_l_adj, *toes_l);
-    ///// sphere 6 left
-    //Vec3 pos_InGround_HC_s6_l = toes_l->findStationLocationInGround(*state, locSphere_6_l);
-    //Vec3 contactPointpos_InGround_HC_s6_l = pos_InGround_HC_s6_l - radiusSphere_s6*normal;
-    //Vec3 contactPointpos_InGround_HC_s6_l_adj = contactPointpos_InGround_HC_s6_l - 0.5*contactPointpos_InGround_HC_s6_l[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s6_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s6_l_adj, *toes_l);
-    ///// sphere 1 right
-    //Vec3 pos_InGround_HC_s1_r = calcn_r->findStationLocationInGround(*state, locSphere_1_r);
-    //Vec3 contactPointpos_InGround_HC_s1_r = pos_InGround_HC_s1_r - radiusSphere_s1*normal;
-    //Vec3 contactPointpos_InGround_HC_s1_r_adj = contactPointpos_InGround_HC_s1_r - 0.5*contactPointpos_InGround_HC_s1_r[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s1_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s1_r_adj, *calcn_r);
-    ///// sphere 2 right
-    //Vec3 pos_InGround_HC_s2_r = calcn_r->findStationLocationInGround(*state, locSphere_2_r);
-    //Vec3 contactPointpos_InGround_HC_s2_r = pos_InGround_HC_s2_r - radiusSphere_s2*normal;
-    //Vec3 contactPointpos_InGround_HC_s2_r_adj = contactPointpos_InGround_HC_s2_r - 0.5*contactPointpos_InGround_HC_s2_r[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s2_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s2_r_adj, *calcn_r);
-    ///// sphere 3 right
-    //Vec3 pos_InGround_HC_s3_r = calcn_r->findStationLocationInGround(*state, locSphere_3_r);
-    //Vec3 contactPointpos_InGround_HC_s3_r = pos_InGround_HC_s3_r - radiusSphere_s3*normal;
-    //Vec3 contactPointpos_InGround_HC_s3_r_adj = contactPointpos_InGround_HC_s3_r - 0.5*contactPointpos_InGround_HC_s3_r[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s3_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s3_r_adj, *calcn_r);
-    ///// sphere 4 right
-    //Vec3 pos_InGround_HC_s4_r = calcn_r->findStationLocationInGround(*state, locSphere_4_r);
-    //Vec3 contactPointpos_InGround_HC_s4_r = pos_InGround_HC_s4_r - radiusSphere_s4*normal;
-    //Vec3 contactPointpos_InGround_HC_s4_r_adj = contactPointpos_InGround_HC_s4_r - 0.5*contactPointpos_InGround_HC_s4_r[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s4_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s4_r_adj, *calcn_r);
-    ///// sphere 5 right
-    //Vec3 pos_InGround_HC_s5_r = toes_r->findStationLocationInGround(*state, locSphere_5_r);
-    //Vec3 contactPointpos_InGround_HC_s5_r = pos_InGround_HC_s5_r - radiusSphere_s5*normal;
-    //Vec3 contactPointpos_InGround_HC_s5_r_adj = contactPointpos_InGround_HC_s5_r - 0.5*contactPointpos_InGround_HC_s5_r[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s5_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s5_r_adj, *toes_r);
-    ///// sphere 6 right
-    //Vec3 pos_InGround_HC_s6_r = toes_r->findStationLocationInGround(*state, locSphere_6_r);
-    //Vec3 contactPointpos_InGround_HC_s6_r = pos_InGround_HC_s6_r - radiusSphere_s6*normal;
-    //Vec3 contactPointpos_InGround_HC_s6_r_adj = contactPointpos_InGround_HC_s6_r - 0.5*contactPointpos_InGround_HC_s6_r[1]*normal;
-    //Vec3 contactPointPos_InBody_HC_s6_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s6_r_adj, *toes_r);
-
-    //SimTK::Transform TR_GB_calcn_l = calcn_l->getMobilizedBody().getBodyTransform(*state);
-    //SimTK::Transform TR_GB_calcn_r = calcn_r->getMobilizedBody().getBodyTransform(*state);
-    //SimTK::Transform TR_GB_toes_l = toes_l->getMobilizedBody().getBodyTransform(*state);
-    //SimTK::Transform TR_GB_toes_r = toes_r->getMobilizedBody().getBodyTransform(*state);
-    ///// Calculate torques
-    //Vec3 AppliedPointForce_s1_r = GRF_1_r[1];
-    //Vec3 AppliedPointForce_s2_r = GRF_2_r[1];
-    //Vec3 AppliedPointForce_s3_r = GRF_3_r[1];
-    //Vec3 AppliedPointForce_s4_r = GRF_4_r[1];
-    //Vec3 AppliedPointForce_s5_r = GRF_5_r[1];
-    //Vec3 AppliedPointForce_s6_r = GRF_6_r[1];
-    //Vec3 AppliedPointForce_s1_l = GRF_1_l[1];
-    //Vec3 AppliedPointForce_s2_l = GRF_2_l[1];
-    //Vec3 AppliedPointForce_s3_l = GRF_3_l[1];
-    //Vec3 AppliedPointForce_s4_l = GRF_4_l[1];
-    //Vec3 AppliedPointForce_s5_l = GRF_5_l[1];
-    //Vec3 AppliedPointForce_s6_l = GRF_6_l[1];
-    //Vec3 AppliedPointTorque_s1_l, AppliedPointTorque_s2_l, AppliedPointTorque_s3_l, AppliedPointTorque_s4_l, AppliedPointTorque_s5_l, AppliedPointTorque_s6_l;
-    //Vec3 AppliedPointTorque_s1_r, AppliedPointTorque_s2_r, AppliedPointTorque_s3_r, AppliedPointTorque_s4_r, AppliedPointTorque_s5_r, AppliedPointTorque_s6_r;
-    //AppliedPointTorque_s1_l = (TR_GB_calcn_l*contactPointPos_InBody_HC_s1_l) % AppliedPointForce_s1_l;
-    //AppliedPointTorque_s2_l = (TR_GB_calcn_l*contactPointPos_InBody_HC_s2_l) % AppliedPointForce_s2_l;
-    //AppliedPointTorque_s3_l = (TR_GB_calcn_l*contactPointPos_InBody_HC_s3_l) % AppliedPointForce_s3_l;
-    //AppliedPointTorque_s4_l = (TR_GB_calcn_l*contactPointPos_InBody_HC_s4_l) % AppliedPointForce_s4_l;
-    //AppliedPointTorque_s5_l = (TR_GB_toes_l*contactPointPos_InBody_HC_s5_l) % AppliedPointForce_s5_l;
-    //AppliedPointTorque_s6_l = (TR_GB_toes_l*contactPointPos_InBody_HC_s6_l) % AppliedPointForce_s6_l;
-    //AppliedPointTorque_s1_r = (TR_GB_calcn_r*contactPointPos_InBody_HC_s1_r) % AppliedPointForce_s1_r;
-    //AppliedPointTorque_s2_r = (TR_GB_calcn_r*contactPointPos_InBody_HC_s2_r) % AppliedPointForce_s2_r;
-    //AppliedPointTorque_s3_r = (TR_GB_calcn_r*contactPointPos_InBody_HC_s3_r) % AppliedPointForce_s3_r;
-    //AppliedPointTorque_s4_r = (TR_GB_calcn_r*contactPointPos_InBody_HC_s4_r) % AppliedPointForce_s4_r;
-    //AppliedPointTorque_s5_r = (TR_GB_toes_r*contactPointPos_InBody_HC_s5_r) % AppliedPointForce_s5_r;
-    //AppliedPointTorque_s6_r = (TR_GB_toes_r*contactPointPos_InBody_HC_s6_r) % AppliedPointForce_s6_r;
-
-    //Vec3 MOM_l, MOM_r;
-    //MOM_l = AppliedPointTorque_s1_l + AppliedPointTorque_s2_l + AppliedPointTorque_s3_l + AppliedPointTorque_s4_l + AppliedPointTorque_s5_l + AppliedPointTorque_s6_l;
-    //MOM_r = AppliedPointTorque_s1_r + AppliedPointTorque_s2_r + AppliedPointTorque_s3_r + AppliedPointTorque_s4_r + AppliedPointTorque_s5_r + AppliedPointTorque_s6_r;
-
-    //std::cout << GRM_r << std::endl;
-    //std::cout << MOM_r << std::endl;
-    //std::cout << GRM_l << std::endl;
-    //std::cout << MOM_l << std::endl;
-
+    /// Extract ground reaction forces and moments: method 2.
+    /// Compute contact point positions in body frames.
+    /// sphere 1 left
+    Vec3 pos_InGround_HC_s1_l = calcn_l->findStationLocationInGround(*state, locSphere_1_l);
+    Vec3 contactPointpos_InGround_HC_s1_l = pos_InGround_HC_s1_l - radiusSphere_s1*normal;
+    Vec3 contactPointpos_InGround_HC_s1_l_adj = contactPointpos_InGround_HC_s1_l - 0.5*contactPointpos_InGround_HC_s1_l[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s1_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s1_l_adj, *calcn_l);
+    /// sphere 2 left
+    Vec3 pos_InGround_HC_s2_l = calcn_l->findStationLocationInGround(*state, locSphere_2_l);
+    Vec3 contactPointpos_InGround_HC_s2_l = pos_InGround_HC_s2_l - radiusSphere_s2*normal;
+    Vec3 contactPointpos_InGround_HC_s2_l_adj = contactPointpos_InGround_HC_s2_l - 0.5*contactPointpos_InGround_HC_s2_l[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s2_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s2_l_adj, *calcn_l);
+    /// sphere 3 left
+    Vec3 pos_InGround_HC_s3_l = calcn_l->findStationLocationInGround(*state, locSphere_3_l);
+    Vec3 contactPointpos_InGround_HC_s3_l = pos_InGround_HC_s3_l - radiusSphere_s3*normal;
+    Vec3 contactPointpos_InGround_HC_s3_l_adj = contactPointpos_InGround_HC_s3_l - 0.5*contactPointpos_InGround_HC_s3_l[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s3_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s3_l_adj, *calcn_l);
+    /// sphere 4 left
+    Vec3 pos_InGround_HC_s4_l = calcn_l->findStationLocationInGround(*state, locSphere_4_l);
+    Vec3 contactPointpos_InGround_HC_s4_l = pos_InGround_HC_s4_l - radiusSphere_s4*normal;
+    Vec3 contactPointpos_InGround_HC_s4_l_adj = contactPointpos_InGround_HC_s4_l - 0.5*contactPointpos_InGround_HC_s4_l[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s4_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s4_l_adj, *calcn_l);
+    /// sphere 5 left
+    Vec3 pos_InGround_HC_s5_l = toes_l->findStationLocationInGround(*state, locSphere_5_l);
+    Vec3 contactPointpos_InGround_HC_s5_l = pos_InGround_HC_s5_l - radiusSphere_s5*normal;
+    Vec3 contactPointpos_InGround_HC_s5_l_adj = contactPointpos_InGround_HC_s5_l - 0.5*contactPointpos_InGround_HC_s5_l[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s5_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s5_l_adj, *toes_l);
+    /// sphere 6 left
+    Vec3 pos_InGround_HC_s6_l = toes_l->findStationLocationInGround(*state, locSphere_6_l);
+    Vec3 contactPointpos_InGround_HC_s6_l = pos_InGround_HC_s6_l - radiusSphere_s6*normal;
+    Vec3 contactPointpos_InGround_HC_s6_l_adj = contactPointpos_InGround_HC_s6_l - 0.5*contactPointpos_InGround_HC_s6_l[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s6_l = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s6_l_adj, *toes_l);
+    /// sphere 1 right
+    Vec3 pos_InGround_HC_s1_r = calcn_r->findStationLocationInGround(*state, locSphere_1_r);
+    Vec3 contactPointpos_InGround_HC_s1_r = pos_InGround_HC_s1_r - radiusSphere_s1*normal;
+    Vec3 contactPointpos_InGround_HC_s1_r_adj = contactPointpos_InGround_HC_s1_r - 0.5*contactPointpos_InGround_HC_s1_r[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s1_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s1_r_adj, *calcn_r);
+    /// sphere 2 right
+    Vec3 pos_InGround_HC_s2_r = calcn_r->findStationLocationInGround(*state, locSphere_2_r);
+    Vec3 contactPointpos_InGround_HC_s2_r = pos_InGround_HC_s2_r - radiusSphere_s2*normal;
+    Vec3 contactPointpos_InGround_HC_s2_r_adj = contactPointpos_InGround_HC_s2_r - 0.5*contactPointpos_InGround_HC_s2_r[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s2_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s2_r_adj, *calcn_r);
+    /// sphere 3 right
+    Vec3 pos_InGround_HC_s3_r = calcn_r->findStationLocationInGround(*state, locSphere_3_r);
+    Vec3 contactPointpos_InGround_HC_s3_r = pos_InGround_HC_s3_r - radiusSphere_s3*normal;
+    Vec3 contactPointpos_InGround_HC_s3_r_adj = contactPointpos_InGround_HC_s3_r - 0.5*contactPointpos_InGround_HC_s3_r[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s3_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s3_r_adj, *calcn_r);
+    /// sphere 4 right
+    Vec3 pos_InGround_HC_s4_r = calcn_r->findStationLocationInGround(*state, locSphere_4_r);
+    Vec3 contactPointpos_InGround_HC_s4_r = pos_InGround_HC_s4_r - radiusSphere_s4*normal;
+    Vec3 contactPointpos_InGround_HC_s4_r_adj = contactPointpos_InGround_HC_s4_r - 0.5*contactPointpos_InGround_HC_s4_r[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s4_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s4_r_adj, *calcn_r);
+    /// sphere 5 right
+    Vec3 pos_InGround_HC_s5_r = toes_r->findStationLocationInGround(*state, locSphere_5_r);
+    Vec3 contactPointpos_InGround_HC_s5_r = pos_InGround_HC_s5_r - radiusSphere_s5*normal;
+    Vec3 contactPointpos_InGround_HC_s5_r_adj = contactPointpos_InGround_HC_s5_r - 0.5*contactPointpos_InGround_HC_s5_r[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s5_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s5_r_adj, *toes_r);
+    /// sphere 6 right
+    Vec3 pos_InGround_HC_s6_r = toes_r->findStationLocationInGround(*state, locSphere_6_r);
+    Vec3 contactPointpos_InGround_HC_s6_r = pos_InGround_HC_s6_r - radiusSphere_s6*normal;
+    Vec3 contactPointpos_InGround_HC_s6_r_adj = contactPointpos_InGround_HC_s6_r - 0.5*contactPointpos_InGround_HC_s6_r[1]*normal;
+    Vec3 contactPointPos_InBody_HC_s6_r = model->getGround().findStationLocationInAnotherFrame(*state, contactPointpos_InGround_HC_s6_r_adj, *toes_r);
+    /// Get transforms
+    SimTK::Transform TR_GB_calcn_l = calcn_l->getMobilizedBody().getBodyTransform(*state);
+    SimTK::Transform TR_GB_calcn_r = calcn_r->getMobilizedBody().getBodyTransform(*state);
+    SimTK::Transform TR_GB_toes_l = toes_l->getMobilizedBody().getBodyTransform(*state);
+    SimTK::Transform TR_GB_toes_r = toes_r->getMobilizedBody().getBodyTransform(*state);
+    /// Calculate torques about ground origin
+    Vec3 AppliedPointTorque_s1_l, AppliedPointTorque_s2_l, AppliedPointTorque_s3_l, AppliedPointTorque_s4_l, AppliedPointTorque_s5_l, AppliedPointTorque_s6_l;
+    Vec3 AppliedPointTorque_s1_r, AppliedPointTorque_s2_r, AppliedPointTorque_s3_r, AppliedPointTorque_s4_r, AppliedPointTorque_s5_r, AppliedPointTorque_s6_r;
+    AppliedPointTorque_s1_l = (TR_GB_calcn_l*contactPointPos_InBody_HC_s1_l) % GRF_1_l[1];
+    AppliedPointTorque_s2_l = (TR_GB_calcn_l*contactPointPos_InBody_HC_s2_l) % GRF_2_l[1];
+    AppliedPointTorque_s3_l = (TR_GB_calcn_l*contactPointPos_InBody_HC_s3_l) % GRF_3_l[1];
+    AppliedPointTorque_s4_l = (TR_GB_calcn_l*contactPointPos_InBody_HC_s4_l) % GRF_4_l[1];
+    AppliedPointTorque_s5_l = (TR_GB_toes_l*contactPointPos_InBody_HC_s5_l) % GRF_5_l[1];
+    AppliedPointTorque_s6_l = (TR_GB_toes_l*contactPointPos_InBody_HC_s6_l) % GRF_6_l[1];
+    AppliedPointTorque_s1_r = (TR_GB_calcn_r*contactPointPos_InBody_HC_s1_r) % GRF_1_r[1];
+    AppliedPointTorque_s2_r = (TR_GB_calcn_r*contactPointPos_InBody_HC_s2_r) % GRF_2_r[1];
+    AppliedPointTorque_s3_r = (TR_GB_calcn_r*contactPointPos_InBody_HC_s3_r) % GRF_3_r[1];
+    AppliedPointTorque_s4_r = (TR_GB_calcn_r*contactPointPos_InBody_HC_s4_r) % GRF_4_r[1];
+    AppliedPointTorque_s5_r = (TR_GB_toes_r*contactPointPos_InBody_HC_s5_r) % GRF_5_r[1];
+    AppliedPointTorque_s6_r = (TR_GB_toes_r*contactPointPos_InBody_HC_s6_r) % GRF_6_r[1];
+    /// Sum up torques
+    Vec3 GRM2_l, GRM2_r;
+    GRM2_l = AppliedPointTorque_s1_l + AppliedPointTorque_s2_l + AppliedPointTorque_s3_l + AppliedPointTorque_s4_l + AppliedPointTorque_s5_l + AppliedPointTorque_s6_l;
+    GRM2_r = AppliedPointTorque_s1_r + AppliedPointTorque_s2_r + AppliedPointTorque_s3_r + AppliedPointTorque_s4_r + AppliedPointTorque_s5_r + AppliedPointTorque_s6_r;
 
     // Residual forces in OpenSim order
     T res_os[ndof];
@@ -771,8 +756,38 @@ int F_generic(const T** arg, T** res) {
 
     for (int i = 0; i < nc; ++i) res[0][i + NU + 16*nc] = value<T>(GRF_r[1][i]);
     for (int i = 0; i < nc; ++i) res[0][i + NU + 17*nc] = value<T>(GRF_l[1][i]);
-    for (int i = 0; i < nc; ++i) res[0][i + NU + 18*nc] = value<T>(GRM_r[i]);
-    for (int i = 0; i < nc; ++i) res[0][i + NU + 19*nc] = value<T>(GRM_l[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 18*nc] = value<T>(GRM2_r[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 19*nc] = value<T>(GRM2_l[i]);
+
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 20*nc] = value<T>(GRF_1_r[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 21*nc] = value<T>(contactPointpos_InGround_HC_s1_r_adj[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 22*nc] = value<T>(GRF_1_l[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 23*nc] = value<T>(contactPointpos_InGround_HC_s1_l_adj[i]);
+
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 24*nc] = value<T>(GRF_2_r[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 25*nc] = value<T>(contactPointpos_InGround_HC_s2_r_adj[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 26*nc] = value<T>(GRF_2_l[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 27*nc] = value<T>(contactPointpos_InGround_HC_s2_l_adj[i]);
+
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 28*nc] = value<T>(GRF_3_r[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 29*nc] = value<T>(contactPointpos_InGround_HC_s3_r_adj[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 30*nc] = value<T>(GRF_3_l[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 31*nc] = value<T>(contactPointpos_InGround_HC_s3_l_adj[i]);
+
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 32*nc] = value<T>(GRF_4_r[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 33*nc] = value<T>(contactPointpos_InGround_HC_s4_r_adj[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 34*nc] = value<T>(GRF_4_l[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 35*nc] = value<T>(contactPointpos_InGround_HC_s4_l_adj[i]);
+
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 36*nc] = value<T>(GRF_5_r[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 37*nc] = value<T>(contactPointpos_InGround_HC_s5_r_adj[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 38*nc] = value<T>(GRF_5_l[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 39*nc] = value<T>(contactPointpos_InGround_HC_s5_l_adj[i]);
+
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 40*nc] = value<T>(GRF_6_r[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 41*nc] = value<T>(contactPointpos_InGround_HC_s6_r_adj[i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 42*nc] = value<T>(GRF_6_l[1][i]);
+    for (int i = 0; i < nc; ++i) res[0][i + NU + 43*nc] = value<T>(contactPointpos_InGround_HC_s6_l_adj[i]);
 
     return 0;
 
@@ -790,8 +805,8 @@ int main() {
     Recorder u[NU];
     Recorder tau[NR];
 
-    for (int i = 0; i < NX; ++i) x[i] <<= -1;
-    for (int i = 0; i < NU; ++i) u[i] <<= -1;
+    for (int i = 0; i < NX; ++i) x[i] <<= 0;
+    for (int i = 0; i < NU; ++i) u[i] <<= 0;
 
     const Recorder* Recorder_arg[n_in] = { x,u };
     Recorder* Recorder_res[n_out] = { tau };
