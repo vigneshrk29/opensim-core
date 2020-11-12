@@ -588,13 +588,15 @@ int F_generic(const T** arg, T** res) {
     // Assign inputs to model variables
     /// States
     for (int i = 0; i < NX; ++i) QsUs[i] = x[i];
-	// TODO: check if treadmill is last
+	// Warning: we impose the treadmill coordinate value and speed.
+	// We know that treadmill is last in the state vector.
 	QsUs[NX] = 0;
-	QsUs[NX+1] = 0;
+	QsUs[NX+1] = -1.25; // Treadmill speed.
     /// Controls
     T ut[NU+1];
     for (int i = 0; i < NU; ++i) ut[i] = u[i];
-	// TODO: check if treadmill is last
+	// Warning: we impose the treadmill coordinate speed derivative.
+	// We know that treadmill is last in the state vector.
 	ut[NU] = 0;
     /// OpenSim and Simbody have different state orders so we need to adjust
     auto indicesOSInSimbody = getIndicesOSInSimbody(*model);
@@ -728,6 +730,7 @@ int main() {
     double res[NR];
     for (int i = 0; i < NR; ++i) {
         Recorder_res[0][i] >>= res[i];
+		//std::cout << Recorder_res[0][i] << std::endl;
     }
 
     Recorder::stop_recording();
