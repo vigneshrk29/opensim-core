@@ -5,5 +5,6 @@ option(BUILD_EXTERNAL_FUNCTIONS
     "Build external functions" ON)
 					
 if(BUILD_EXTERNAL_FUNCTIONS)
-    add_subdirectory(PredSim_v2)      
+    add_subdirectory(PredSim_v2)
+    add_subdirectory(video_subject1_A_tread)    
 endif()

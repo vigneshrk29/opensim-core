@@ -510,8 +510,8 @@ int F_generic(const T** arg, T** res) {
     osim_double_adouble dynamicFriction = 0.8;
     osim_double_adouble viscousFriction = 0.5;
     osim_double_adouble transitionVelocity = 0.2;
-    Vec3 halfSpaceLocation(0.);
-    Vec3 halfSpaceOrientation(0.,0.,-0.5*SimTK::Pi);
+    Vec3 halfSpaceLocation(0);
+    Vec3 halfSpaceOrientation(0,0,-0.5*SimTK::Pi);
     Vec3 locSphere_1_r(0.00190115788407966, -0.021859, -0.00382630379623308);
     Vec3 locSphere_2_r(0.148386399942063, -0.021859, -0.028713422052654);
     Vec3 locSphere_3_r(0.133001170607051, -0.021859, 0.0516362473449566);
