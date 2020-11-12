@@ -135,13 +135,14 @@ public:
             const PhysicalFrame& contactSphereBodyFrame,
             const PhysicalFrame& contactHalfSpaceBodyFrame);
 
-    SmoothSphereHalfSpaceForce(const std::string& name,
-            const PhysicalFrame& contactSphereBodyFrame,
-            SimTK::Vec3 contactSphereLocation,
-            osim_double_adouble contactSphereRadius,
-            const PhysicalFrame& contactHalfSpaceBodyFrame,
-            SimTK::Vec3 contactHalfSpaceLocation,
-            SimTK::Vec3 contactHalfSpaceOrientation);
+	// TODO: unclear why it does not work
+    //SmoothSphereHalfSpaceForce(const std::string& name,
+    //        const PhysicalFrame& contactSphereBodyFrame,
+    //        SimTK::Vec3 contactSphereLocation,
+    //        osim_double_adouble contactSphereRadius,
+    //        const PhysicalFrame& contactHalfSpaceBodyFrame,
+    //        SimTK::Vec3 contactHalfSpaceLocation,
+    //        SimTK::Vec3 contactHalfSpaceOrientation);
 
     //=========================================================================
     // REPORTING

@@ -5,5 +5,5 @@ option(BUILD_EXTERNAL_FUNCTIONS
     "Build external functions" ON)
 					
 if(BUILD_EXTERNAL_FUNCTIONS)
-    add_subdirectory(PredSim_v2_contact)      
+    add_subdirectory(PredSim_v2)      
 endif()

@@ -47,24 +47,25 @@ SmoothSphereHalfSpaceForce::SmoothSphereHalfSpaceForce(const std::string& name,
     constructProperties();
 }
 
-SmoothSphereHalfSpaceForce::SmoothSphereHalfSpaceForce(const std::string& name,
-        const PhysicalFrame& contactSphereBodyFrame,
-        SimTK::Vec3 contactSphereLocation,
-        osim_double_adouble contactSphereRadius,
-        const PhysicalFrame& contactHalfSpaceBodyFrame,
-        SimTK::Vec3 contactHalfSpaceLocation,
-        SimTK::Vec3 contactHalfSpaceOrientation) {
-    setName(name);
-    connectSocket_sphere_frame(contactSphereBodyFrame);
-    connectSocket_half_space_frame(contactHalfSpaceBodyFrame);
-
-    set_contact_sphere_location(contactSphereLocation);
-    set_contact_sphere_radius(contactSphereRadius);
-    set_contact_half_space_location(contactHalfSpaceLocation);
-    set_contact_half_space_orientation(contactHalfSpaceOrientation);
-
-    constructProperties();
-}
+// TODO: unclear why it does not work
+//SmoothSphereHalfSpaceForce::SmoothSphereHalfSpaceForce(const std::string& name,
+//        const PhysicalFrame& contactSphereBodyFrame,
+//        SimTK::Vec3 contactSphereLocation,
+//        osim_double_adouble contactSphereRadius,
+//        const PhysicalFrame& contactHalfSpaceBodyFrame,
+//        SimTK::Vec3 contactHalfSpaceLocation,
+//        SimTK::Vec3 contactHalfSpaceOrientation) {
+//    setName(name);
+//	set_contact_sphere_location(contactSphereLocation);
+//	set_contact_sphere_radius(contactSphereRadius);
+//	set_contact_half_space_location(contactHalfSpaceLocation);
+//	set_contact_half_space_orientation(contactHalfSpaceOrientation);
+//
+//    connectSocket_sphere_frame(contactSphereBodyFrame);
+//    connectSocket_half_space_frame(contactHalfSpaceBodyFrame);  
+//
+//    constructProperties();
+//}
 
 void SmoothSphereHalfSpaceForce::extendAddToSystem(
         SimTK::MultibodySystem& system) const {
