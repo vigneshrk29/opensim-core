@@ -6,5 +6,6 @@ option(BUILD_EXTERNAL_FUNCTIONS
 					
 if(BUILD_EXTERNAL_FUNCTIONS)
     add_subdirectory(PredSim_v2)
-    add_subdirectory(video_subject1_A_tread)    
+    add_subdirectory(video_subject1_A_tread)
+    add_subdirectory(video_subject1_tread_pp)    
 endif()
