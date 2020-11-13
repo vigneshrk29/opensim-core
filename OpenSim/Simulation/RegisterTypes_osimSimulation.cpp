@@ -117,6 +117,7 @@
 #include "SimbodyEngine/FreeJoint.h"
 #include "SimbodyEngine/CustomJoint.h"
 #include "SimbodyEngine/WeldJoint.h"
+#include "SimbodyEngine/ScapulothoracicJoint.h"
 #include "SimbodyEngine/TransformAxis.h"
 #include "SimbodyEngine/Coordinate.h"
 #include "SimbodyEngine/SpatialTransform.h"
@@ -209,6 +210,7 @@ OSIMSIMULATION_API void RegisterTypes_osimSimulation()
     Object::registerType( PinJoint() );
     Object::registerType( SliderJoint() );
     Object::registerType( PlanarJoint() );
+    Object::registerType( ScapulothoracicJoint() );
     Object::registerType( TransformAxis() );
     Object::registerType( Coordinate() );
     Object::registerType( SpatialTransform() );

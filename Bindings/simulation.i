@@ -82,6 +82,7 @@
 %include <OpenSim/Simulation/SimbodyEngine/GimbalJoint.h>
 %include <OpenSim/Simulation/SimbodyEngine/UniversalJoint.h>
 %include <OpenSim/Simulation/SimbodyEngine/PlanarJoint.h>
+%include <OpenSim/Simulation/SimbodyEngine/ScapulothoracicJoint.h>
 
 %include <OpenSim/Simulation/SimbodyEngine/WeldConstraint.h>
 %include <OpenSim/Simulation/SimbodyEngine/PointConstraint.h>
