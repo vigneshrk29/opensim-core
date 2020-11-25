@@ -44,7 +44,7 @@ constexpr int ndof = 23;        // # degrees of freedom
 constexpr int ndof_treadmill = ndof+1;  // # degrees of freedom including treadmill
 constexpr int NX = ndof*2;      // # states
 constexpr int NU = ndof;        // # controls
-constexpr int NR = ndof;        // # residual torques
+constexpr int NR = ndof + 12*3;        // # residual torques
 
 // Helper function value
 template<typename T>
@@ -162,6 +162,24 @@ int F_generic(const T** arg, T** res) {
     OpenSim::SmoothSphereHalfSpaceForce* HC_4_l;
     OpenSim::SmoothSphereHalfSpaceForce* HC_5_l;
     OpenSim::SmoothSphereHalfSpaceForce* HC_6_l;
+
+	/// OpenPose markers
+	OpenSim::Station* Neck;
+	OpenSim::Station* RShoulder;
+	OpenSim::Station* LShoulder;
+	OpenSim::Station* MidHip;
+	OpenSim::Station* RHip;
+	OpenSim::Station* LHip;
+	OpenSim::Station* RKnee;
+	OpenSim::Station* LKnee;
+	OpenSim::Station* RAnkle;
+	OpenSim::Station* LAnkle;
+	OpenSim::Station* RHeel;
+	OpenSim::Station* LHeel;
+	//OpenSim::Station* RBigToe;
+	//OpenSim::Station* LBigToe;
+	//OpenSim::Station* RSmallToe;
+	//OpenSim::Station* LSmallToe;
 
     // OpenSim model: initialize components
     /// Model
@@ -573,6 +591,42 @@ int F_generic(const T** arg, T** res) {
     model->addComponent(HC_5_r);
     model->addComponent(HC_6_r);
 
+	/// OpenPose markers
+	Neck = new Station(*torso, Vec3(0.0032925873626634683, 0.33154224015512557, 0.0030862732634675538));
+	RShoulder = new Station(*torso, Vec3(0.0036590587612567171, 0.34172524342436539, 0.15221053672121387));
+	LShoulder = new Station(*torso, Vec3(0.0029260590487432125, 0.32135920356193792, -0.14603793557074141));
+	MidHip = new Station(*pelvis, Vec3(-0.068983007808594787, -0.059890551290884941, -0.0026719473665435256));
+	RHip = new Station(*femur_r, Vec3(0.01039116651321681, -0.00077433106334712232, 0.012761629729853174));
+	LHip = new Station(*femur_l, Vec3(-0.0030674684341940317, -7.894472308711542e-05, -0.023379526614267787));
+	RKnee = new Station(*femur_r, Vec3(-0.0057001608129239045, -0.41931702376120189, 0.008422639264188847));
+	LKnee = new Station(*femur_l, Vec3(-0.0078508632082388563, -0.41903451190434715, -0.0018849402006098082));
+	RAnkle = new Station(*tibia_r, Vec3(0.017612693078604913, -0.41042511166146645, -0.015892845800358768));
+	LAnkle = new Station(*tibia_l, Vec3(0.019268688221482477, -0.41172659838098302, 0.0092228736827546509));
+	RHeel = new Station(*calcn_r, Vec3(0.0032027230293412146, 0.028165419411338655, -0.0036159145431496897));
+	LHeel = new Station(*calcn_l, Vec3(0.0047636780068757156, 0.035314361919311733, 0.0011655514384873999));
+	//RBigToe = new Station(*toes_r, Vec3(0.041732378213962917, -0.0029887608662524934, -0.023036242341002988));
+	//LBigToe = new Station(*toes_l, Vec3(0.041717404102602162, 0.0048129334313149197, 0.019597273711784879));
+	//RSmallToe = new Station(*toes_r, Vec3(-0.0051850627462585175, 0.010042883134173064, 0.057501473092942068));
+	//LSmallToe = new Station(*toes_l, Vec3(-5.6850859683432731e-05, 0.0036303328102300914, -0.057883223802813522));
+
+	/// Add markers to model
+	model->addComponent(Neck);
+	model->addComponent(RShoulder);
+	model->addComponent(LShoulder);
+	model->addComponent(MidHip);
+	model->addComponent(RHip);
+	model->addComponent(LHip);
+	model->addComponent(RKnee);
+	model->addComponent(LKnee);
+	model->addComponent(RAnkle);
+	model->addComponent(LAnkle);
+	model->addComponent(RHeel);
+	model->addComponent(LHeel);
+	//model->addComponent(RBigToe);
+	//model->addComponent(LBigToe);
+	//model->addComponent(RSmallToe);
+	//model->addComponent(LSmallToe);
+
     // Initialize system and state
     SimTK::State* state;
     state = new State(model->initSystem());
@@ -695,6 +749,24 @@ int F_generic(const T** arg, T** res) {
         appliedMobilityForces, appliedBodyForces, knownUdot,
         residualMobilityForces);
 
+	/// Get location OpenPose markers
+	Vec3 Neck_location = Neck->getLocationInGround(*state);
+	Vec3 RShoulder_location = RShoulder->getLocationInGround(*state);
+	Vec3 LShoulder_location = LShoulder->getLocationInGround(*state);
+	Vec3 MidHip_location = MidHip->getLocationInGround(*state);
+	Vec3 RHip_location = RHip->getLocationInGround(*state);
+	Vec3 LHip_location = LHip->getLocationInGround(*state);
+	Vec3 RKnee_location = RKnee->getLocationInGround(*state);
+	Vec3 LKnee_location = LKnee->getLocationInGround(*state);
+	Vec3 RAnkle_location = RAnkle->getLocationInGround(*state);
+	Vec3 LAnkle_location = LAnkle->getLocationInGround(*state);
+	Vec3 RHeel_location = RHeel->getLocationInGround(*state);
+	Vec3 LHeel_location = LHeel->getLocationInGround(*state);
+	//Vec3 RBigToe_location = RBigToe->getLocationInGround(*state);
+	//Vec3 LBigToe_location = LBigToe->getLocationInGround(*state);
+	//Vec3 RSmallToe_location = RSmallToe->getLocationInGround(*state);
+	//Vec3 LSmallToe_location = LSmallToe->getLocationInGround(*state);
+
     // Residual forces in OpenSim order
     T res_os[ndof_treadmill];
     /// OpenSim and Simbody have different state orders so we need to adjust
@@ -702,6 +774,24 @@ int F_generic(const T** arg, T** res) {
     for (int i = 0; i < NU; ++i) res_os[i] =
             value<T>(residualMobilityForces[indicesSimbodyInOS[i]]);
     for (int i = 0; i < NU; ++i) res[0][i] = res_os[i];
+
+	int nc = 3;
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 0 * nc] = value<T>(Neck_location[i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 1 * nc] = value<T>(RShoulder_location[i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 2 * nc] = value<T>(LShoulder_location[i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 3 * nc] = value<T>(MidHip_location[i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 4 * nc] = value<T>(RHip_location[i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 5 * nc] = value<T>(LHip_location[i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 6 * nc] = value<T>(RKnee_location[i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 7 * nc] = value<T>(LKnee_location[i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 8 * nc] = value<T>(RAnkle_location[i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 9 * nc] = value<T>(LAnkle_location[i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 10 * nc] = value<T>(RHeel_location[i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 11 * nc] = value<T>(LHeel_location[i]);
+	//for (int i = 0; i < nc; ++i) res[0][i + NU + 12 * nc] = value<T>(RBigToe_location[i]);
+	//for (int i = 0; i < nc; ++i) res[0][i + NU + 13 * nc] = value<T>(LBigToe_location[i]);
+	//for (int i = 0; i < nc; ++i) res[0][i + NU + 14 * nc] = value<T>(RSmallToe_location[i]);
+	//for (int i = 0; i < nc; ++i) res[0][i + NU + 15 * nc] = value<T>(LSmallToe_location[i]);
 
     return 0;
 
@@ -719,57 +809,8 @@ int main() {
     Recorder u[NU];
     Recorder tau[NR];
 
-    //for (int i = 0; i < NX; ++i) x[i] <<= 0;
-	for (int i = 0; i < NX; i += 2) x[i] <<= -1;
-	for (int i = 1; i < NX; i += 2) x[i] <<= 0;
+    for (int i = 0; i < NX; ++i) x[i] <<= 0;
     for (int i = 0; i < NU; ++i) u[i] <<= 0;
-
-	/*x[0] <<= -0.115958;
-	x[1] <<= 0;
-	x[2] <<= -0.0536337;
-	x[3] <<= 0;
-	x[4] <<= -0.0335909;
-	x[5] <<= 0;
-	x[6] <<= 0.958542;
-	x[7] <<= 0;
-	x[8] <<= 0.95448;
-	x[9] <<= 0;
-	x[10] <<= -0.499708;
-	x[11] <<= 0;
-	x[12] <<= -0.20782;
-	x[13] <<= 0;
-	x[14] <<= -0.0721077;
-	x[15] <<= 0;
-	x[16] <<= -0.25974;
-	x[17] <<= 0;
-	x[18] <<= 0.580118;
-	x[19] <<= 0;
-	x[20] <<= -0.0278758;
-	x[21] <<= 0;
-	x[22] <<= -0.330468;
-	x[23] <<= 0;
-	x[24] <<= -0.3804;
-	x[25] <<= 0;
-	x[26] <<= -0.42077;
-	x[27] <<= 0;
-	x[28] <<= 0.264153;
-	x[29] <<= 0;
-	x[30] <<= 0.09572;
-	x[31] <<= 0;
-	x[32] <<= 0.305188;
-	x[33] <<= 0;
-	x[34] <<= 0.464516;
-	x[35] <<= 0;
-	x[36] <<= 0;
-	x[37] <<= 0;
-	x[38] <<= 0;
-	x[39] <<= 0;
-	x[40] <<= 0.0842198;
-	x[41] <<= 0;
-	x[42] <<= 0.144792;
-	x[43] <<= 0;
-	x[44] <<= -0.0953699;
-	x[45] <<= 0;*/
 
     const Recorder* Recorder_arg[n_in] = { x,u };
     Recorder* Recorder_res[n_out] = { tau };
@@ -779,7 +820,7 @@ int main() {
     double res[NR];
     for (int i = 0; i < NR; ++i) {
         Recorder_res[0][i] >>= res[i];
-		std::cout << Recorder_res[0][i] << std::endl;
+		//std::cout << Recorder_res[0][i] << std::endl;
     }
 
     Recorder::stop_recording();
