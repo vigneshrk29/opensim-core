@@ -1,5 +1,1 @@
-"C:\Program Files\MATLAB\R2017b\bin\matlab.exe" -nosplash -nodesktop -r "generateMain; exit
-
-"C:\Program Files\MATLAB\R2020b\bin\matlab.exe" -nosplash -nodesktop -r "generateMain; exit
-
-"C:\GBW_MyPrograms\MATLAB\bin\matlab.exe" -nosplash -nodesktop -r "generateMain; exit
+Run generate_dll.ps1 with Powershell to build the library (dll) corresponding to the external function F described in your .cpp file. You might need to adjust a few things in the Powershell script depending on how many inputs the function F has and on how things are organized on your computer (paths). You can edit the Powershell script with Notepad++.

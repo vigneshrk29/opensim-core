@@ -338,8 +338,8 @@ void Model::constructProperties()
     //ControllerSet controllerSet;
     //constructProperty_ControllerSet(controllerSet);
 
-    //ConstraintSet constraintSet;
-    //constructProperty_ConstraintSet(constraintSet);
+    ConstraintSet constraintSet;
+    constructProperty_ConstraintSet(constraintSet);
 
     ForceSet forceSet;
     constructProperty_ForceSet(forceSet);
@@ -985,13 +985,13 @@ void Model::addJoint(Joint* joint)
 /**
  * Add a constraint to the Model.
  */
-//void Model::addConstraint(OpenSim::Constraint *constraint)
-//{
-//    if(constraint){
-//        updConstraintSet().adoptAndAppend(constraint);
-//        finalizeFromProperties();
-//    }
-//}
+void Model::addConstraint(OpenSim::Constraint *constraint)
+{
+    if(constraint){
+        updConstraintSet().adoptAndAppend(constraint);
+        finalizeFromProperties();
+    }
+}
 
 //_____________________________________________________________________________
 /**

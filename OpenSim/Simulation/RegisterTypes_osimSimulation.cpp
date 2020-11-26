@@ -99,9 +99,9 @@
 
 #include "SimbodyEngine/SimbodyEngine.h"
 #include "SimbodyEngine/Body.h"
-//#include "SimbodyEngine/Constraint.h"
+#include "SimbodyEngine/Constraint.h"
 #include "SimbodyEngine/WeldConstraint.h"
-//#include "SimbodyEngine/PointConstraint.h"
+#include "SimbodyEngine/PointConstraint.h"
 //#include "SimbodyEngine/ConstantDistanceConstraint.h"
 //#include "SimbodyEngine/CoordinateCouplerConstraint.h"
 //#include "SimbodyEngine/PointOnLineConstraint.h"
@@ -216,7 +216,7 @@ OSIMSIMULATION_API void RegisterTypes_osimSimulation()
     Object::registerType( SpatialTransform() );
 
     //Object::registerType(WeldConstraint());
-    //Object::registerType(PointConstraint());
+    Object::registerType(PointConstraint());
     //Object::registerType(ConstantDistanceConstraint());
     //Object::registerType(CoordinateCouplerConstraint());
     //Object::registerType(PointOnLineConstraint());

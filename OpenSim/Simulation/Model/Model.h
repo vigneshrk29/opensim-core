@@ -55,7 +55,7 @@ class Actuator;
 //class Analysis;
 class Body;
 //class Constraint;
-//class ConstraintSet;
+class ConstraintSet;
 //class ContactGeometry;
 //class Controller;
 class CoordinateSet;
@@ -173,8 +173,8 @@ public:
     //OpenSim_DECLARE_UNNAMED_PROPERTY(ControllerSet, 
     //    "Controllers that provide the control inputs for Actuators.");  
 
-    //OpenSim_DECLARE_UNNAMED_PROPERTY(ConstraintSet,
-    //    "Constraints in the model.");
+    OpenSim_DECLARE_UNNAMED_PROPERTY(ConstraintSet,
+        "Constraints in the model.");
 
     OpenSim_DECLARE_UNNAMED_PROPERTY(ForceSet,
         "Forces in the model (includes Actuators).");
@@ -411,7 +411,7 @@ public:
     /**
      * Update the AssemblySolver to the latest coordinate locking/constraints
      */
-    void updateAssemblyConditions(SimTK::State& s);
+    //void updateAssemblyConditions(SimTK::State& s);
     /**
      * Find the kinematic state of the model that satisfies constraints and coordinate goals
      * If assemble is being called due to a coordinate set value, provide the option
@@ -538,7 +538,7 @@ public:
     void addModelComponent(ModelComponent* adoptee);
     void addBody(Body *adoptee);
     void addJoint(Joint *adoptee);
-    //void addConstraint(Constraint *adoptee);
+    void addConstraint(Constraint *adoptee);
     void addForce(Force *adoptee);
     //void addProbe(Probe *adoptee);
     //void addContactGeometry(ContactGeometry *adoptee);
@@ -881,8 +881,8 @@ public:
     //--------------------------------------------------------------------------
     // CONSTRAINTS
     //--------------------------------------------------------------------------
-    //ConstraintSet& updConstraintSet() { return upd_ConstraintSet(); }
-    //const ConstraintSet& getConstraintSet() const { return get_ConstraintSet(); }
+    ConstraintSet& updConstraintSet() { return upd_ConstraintSet(); }
+    const ConstraintSet& getConstraintSet() const { return get_ConstraintSet(); }
 
     //--------------------------------------------------------------------------
     // MARKERS
