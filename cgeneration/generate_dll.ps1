@@ -1,9 +1,21 @@
 # Number of inputs for the different cases. Please adjust $NInputs_F accordingly.
 # ShoulderModel_consB: 42
+# Sh_s0_t0: 48
+# Sh_s0_t1: 48
+# Sh_s0_t2: 48
+# Sh_s0_t3: 45
+# Sh_s0_t4: 45
+# Sh_s0_t5: 45
+# Sh_s0_pp: 48
+# Sh_s0_t1_IMU: 48
+# Sh_GT_s0_t1: 39
+# Sh_GT_s0_t1_IMUB: 39
+# Sh_GT_s0_pp: 39
+# Sh_GT_s0_t1_IMUG: 39
 
 # User settings
-$filename = "ShoulderModel_consB"
-$NInputs_F = 42
+$filename = "Sh_GT_s0_pp"
+$NInputs_F = 39
 $path_core_external = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-scapula\core-build\OpenSim\External_Functions"
 $path_external_build = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-scapula\External_Functions"
 $path_cgeneration = "C:\Users\u0101727\Documents\MyRepositories\opensim-recorder-github-scapula\cgeneration"

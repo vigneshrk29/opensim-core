@@ -40,7 +40,6 @@ constexpr int ndof = 14;        // # coordinates (DoFs) in OpenSim model
 constexpr int NX = ndof*2;      // # states (generalized positions and velocities)
 constexpr int NU = ndof;        // # slack controls (generalized accelerations)
 constexpr int NLambda = 3;		// # Lagrange multipliers (1 per constraint)
-constexpr int NGamma = 3;		// # Velocity correctors (1 per constraint)
 constexpr int NR = ndof + 3*NLambda + 6; // # outputs
 
 // Helper function value
@@ -124,13 +123,13 @@ int F_generic(const T** arg, T** res) {
     model = new OpenSim::Model();
 
     /// Bodies
-	thorax = new OpenSim::Body("thorax", 20.45504587680885, Vec3(-0.059099856018640096, -0.14860100703035389, 0), Inertia(1.1470502930519131, 0.488082083684654, 1.1470502930519131, 0, 0, 0));
-	clavicle = new OpenSim::Body("clavicle", 0.18977290868104679, Vec3(-0.011100639351336325, 0.0063717609081909501, 0.054170293336786662), Inertia(0.00026767372964065194, 0.00026767372964065194, 4.901323980777646e-05, -2.0942636311609564e-05, -7.7172309095742937e-05, 5.9260645548665655e-05));  
-	scapula = new OpenSim::Body("scapula", 0.50159886749985216, Vec3(-0.054689731740849026, -0.035031350908916951, -0.043714611940415045), Inertia(0.00088566933551532175, 0.00081934037957356279, 0.00088566933551532175, 0.00032020007191396071, 0.0002915426512417284, 0.00017179294437008979));
-	humerus = new OpenSim::Body("humerus", 1.8801022951697861, Vec3(0.018059994846920106, -0.14010038452973017, -0.012749884499947897), Inertia(0.011547622408340414, 0.0024009598165791765, 0.011547622408340414, -0.00032695733374650814, -0.00021882518867171686, 0.00011566680670100846));
-	ulna = new OpenSim::Body("ulna", 0.97977194064209672, Vec3(0.0097179999999999992, -0.095949999999999994, 0.024289999999999999), Inertia(0.004798249809730995, 0.0010220546888268683, 0.0043816273433401652, 0.00028090991404096664, -6.7501703863110161e-05, 0.00096798241127401597)); 
-	radius = new OpenSim::Body("radius", 0.20707023010403855, Vec3(0.03363, -0.18156, 0.015599999999999999), Inertia(0.00038878853991280527, 7.8528902760773868e-05, 3.5687703184882663e-05, 2.6717023695786481e-05, -3.7584665053130287e-06, 5.68911274318373e-05));
-	hand = new OpenSim::Body("hand", 0.46537615926635378, Vec3(0.00059999999999999995, -0.090499999999999997, -0.036499999999999998), Inertia(0.00056616333890175264, 0.00016877642042726428, 0.00056616333890175264, 0, 0, 0));
+	thorax = new OpenSim::Body("thorax", 20.866630055554726, Vec3(-0.062718835701941519, -0.15165074549763785, 0), Inertia(1.0142312761589201, 0.43156618119044199, 1.0142312761589201, 0, 0, 0));
+	clavicle = new OpenSim::Body("clavicle", 0.23027421524576702, Vec3(-0.014383542433100529, 0.0059574690139403749, 0.061361724799005118), Inertia(0.00023667930695988186, 0.00023667930695988186, 4.3337908599160701e-05, -1.8517650778800334e-05, -6.8236388598144618e-05, 5.2398748794970591e-05));
+	scapula = new OpenSim::Body("scapula", 0.35591058418327082, Vec3(-0.047672109433058503, -0.033763145943312339, -0.041755323033245646), Inertia(0.00078311608990092778, 0.00072446748308865937, 0.00078311608990092778, 0.00028312352957027363, 0.00025778440319030612, 0.00015190073029839582));
+	humerus = new OpenSim::Body("humerus", 1.7650184258291826, Vec3(0.021950117736946696, -0.11878719323199137, -0.013136206000296318), Inertia(0.010210502436341196, 0.0021229483602644233, 0.010210502436341196, -0.00028909835589940511, -0.00019348702642473181, 0.00010227353907687952));
+	ulna = new OpenSim::Body("ulna", 0.86632238509629322, Vec3(0.0097179999999999992, -0.095949999999999994, 0.024289999999999999), Inertia(0.004242651832557889, 0.0009037091378051444, 0.0038742708310241366, 0.00024838284975754575, -5.968556014211773e-05, 0.00085589798654225316));
+	radius = new OpenSim::Body("radius", 0.18309319565592519, Vec3(0.03363, -0.18156, 0.015599999999999999), Inertia(0.00034377001547383903, 6.9435899842287734e-05, 3.1555359833508332e-05, 2.3623411460058158e-05, -3.323266907453437e-06, 5.0303601443481501e-05));
+	hand = new OpenSim::Body("hand", 0.41148941660685245, Vec3(0.00059999999999999995, -0.090499999999999997, -0.036499999999999998), Inertia(0.00050060626740342222, 0.00014923349508941846, 0.00050060626740342222, 0, 0, 0));
 	
     /// Add bodies to model
     model->addBody(thorax);
@@ -186,12 +185,12 @@ int F_generic(const T** arg, T** res) {
 	st_radioulnar[1].setAxis(Vec3(-0.017160990000000001, 0.99266564000000002, -0.11966796));
     /// Joint specifications
 	ground_thorax = new CustomJoint("ground_thorax", model->getGround(), Vec3(0), Vec3(0), *thorax, Vec3(0), Vec3(0), st_ground_thorax);
-	sternoclavicular = new CustomJoint("sternoclavicular", *thorax, Vec3(0.006324976528009351, 0.0069300434097705312, 0.025464431687451307), Vec3(0), *clavicle, Vec3(0), Vec3(0), st_clavicle);
-	scapulothoracic = new ScapulothoracicJoint("scapulothoracic", *thorax, Vec3(-0.029422884944949112, -0.017300088530082611, 0.070285568667052628), Vec3(0, -0.87, 0),
-		*scapula, Vec3(-0.059819622317908099, -0.039041599498770452, -0.055980238178321401), Vec3(-0.5181, -1.1415999999999999, -0.28539999999999999),
+	sternoclavicular = new CustomJoint("sternoclavicular", *thorax, Vec3(0.0067122864657020035, 0.0070722686906692523, 0.027126698859144753), Vec3(0), *clavicle, Vec3(0), Vec3(0), st_clavicle);
+	scapulothoracic = new ScapulothoracicJoint("scapulothoracic", *thorax, Vec3(-0.031224595304553068, -0.017655138246985499, 0.074873670018500482), Vec3(0, -1.0700000000000001, 0),
+		*scapula, Vec3(-0.052143747840941085, -0.037628215513715965, -0.053471203903169034), Vec3(-0.5181, -1.1415999999999999, -0.28539999999999999),
 		Vec3(0.082997500000000002, 0.199991, 0.083001000000000005), Vec2(0), 0);
-	GlenoHumeral = new CustomJoint("GlenoHumeral", *scapula, Vec3(-0.0095499447834722345, -0.034001364113029092, 0.008996821850851211), Vec3(0), *humerus, Vec3(0), Vec3(0), st_glenoHumeral);
-	elbow = new CustomJoint("elbow", *humerus, Vec3(0.0061000044831427585, -0.29040116109488806, -0.01229988504701285), Vec3(0), *ulna, Vec3(0), Vec3(0), st_elbow);
+	GlenoHumeral = new CustomJoint("GlenoHumeral", *scapula, Vec3(-0.0083245245186914282, -0.032770446729409215, 0.0085935842954960595), Vec3(0), *humerus, Vec3(0), Vec3(0), st_glenoHumeral);
+	elbow = new CustomJoint("elbow", *humerus, Vec3(0.0074139454488117091, -0.24622301325984491, -0.01267257156393734), Vec3(0), *ulna, Vec3(0), Vec3(0), st_elbow);
 	radioulnar = new CustomJoint("radioulnar", *ulna, Vec3(0.00040000000000000002, -0.011502999999999999, 0.019998999999999999), Vec3(0), *radius, Vec3(0), Vec3(0), st_radioulnar);
 	rc = new WeldJoint("rc", *radius, Vec3(0.017999999999999999, -0.24199999999999999, 0.025000000000000001), Vec3(0), *hand, Vec3(0), Vec3(0));
 
@@ -205,7 +204,7 @@ int F_generic(const T** arg, T** res) {
     model->addJoint(rc);
 
 	/// Constraints
-	ac = new PointConstraint(*clavicle, Vec3(-0.029239999999999999, 0.020240000000000001, 0.12005), *scapula, Vec3(-0.01357, 0.00011, -0.01523));
+	ac = new PointConstraint(*clavicle, Vec3(-0.037887400000000002, 0.018924, 0.135987), *scapula, Vec3(-0.011828699999999999, 0.000106018, -0.0145474));
 	model->addConstraint(ac);
 
     // Initialize system and state
@@ -216,13 +215,13 @@ int F_generic(const T** arg, T** res) {
 	std::vector<T> x(arg[0], arg[0] + NX);
     std::vector<T> u(arg[1], arg[1] + NU);
 	std::vector<T> lambda(arg[2], arg[2] + NLambda);
-    std::vector<T> gamma(arg[3], arg[3] + NGamma);
+    std::vector<T> gamma(arg[3], arg[3] + NLambda);
 
     // States and controls
     T ua[NU]; /// joint accelerations (Qdotdots) - controls
     Vector QsUs(NX); /// joint positions (Qs) and velocities (Us) - states
 	Vector multipliers(NLambda); /// Lagrange multipliers
-    Vector vel_corrs(NGamma); /// Velocity correctors
+    Vector vel_corrs(NLambda); /// Velocity correctors
 
     // Assign inputs to model variables
     /// States
@@ -236,7 +235,7 @@ int F_generic(const T** arg, T** res) {
 	/// Lagrange multipliers
 	for (int i = 0; i < NLambda; ++i) multipliers[i] = lambda[i];
     /// Velocity correctors
-    for (int i = 0; i < NGamma; ++i) vel_corrs[i] = gamma[i];
+    for (int i = 0; i < NLambda; ++i) vel_corrs[i] = gamma[i];
 
     // Set state variables and realize
     model->setStateVariableValues(*state, QsUs);
@@ -288,10 +287,6 @@ int F_generic(const T** arg, T** res) {
     residualMobilityForces.setToZero();
     model->getMatterSubsystem().calcResidualForce(*state, appliedMobilityForces,
         appliedBodyForces, knownUdot, multipliers, residualMobilityForces);
-
-    
-
-    //std::cout << model->getComponent("sternoclavicular/clav_prot").getStateIndex("/value") << std::endl;
 
     // Constraint errors
 	/// Position-level constraint errors.
@@ -348,11 +343,11 @@ int main() {
     Recorder x[NX];
     Recorder u[NU];
 	Recorder lambda[NLambda];
-    Recorder gamma[NGamma];
+    Recorder gamma[NLambda];
     Recorder tau[NR];
 
-	for (int i = 0; i < NX; ++i) x[i] <<= -1;
-	for (int i = 0; i < NU; ++i) u[i] <<= -1;
+	for (int i = 0; i < NX; ++i) x[i] <<= 0;
+	for (int i = 0; i < NU; ++i) u[i] <<= 0;
 
 	//for (int i = 1; i < NX; i += 2) x[i] <<= 0;
 	//// ground_thorax/ground_thorax_rot_x/value
@@ -384,8 +379,8 @@ int main() {
 	//// radioulnar/pro_sup/value
 	//x[26] <<= 34.320 * SimTK::Pi.getValue() / 180;
 
-	for (int i = 0; i < NLambda; ++i) lambda[i] <<= 1;
-    for (int i = 0; i < NGamma; ++i) gamma[i] <<= 1;
+	for (int i = 0; i < NLambda; ++i) lambda[i] <<= 0;
+    for (int i = 0; i < NLambda; ++i) gamma[i] <<= 0;
 
     const Recorder* Recorder_arg[n_in] = { x,u,lambda,gamma };
     Recorder* Recorder_res[n_out] = { tau };
@@ -395,7 +390,7 @@ int main() {
     double res[NR];
     for (int i = 0; i < NR; ++i) {
         Recorder_res[0][i] >>= res[i];
-        std::cout << res[i] << std::endl;
+        //std::cout << res[i] << std::endl;
     }
 
     Recorder::stop_recording();
@@ -403,9 +398,3 @@ int main() {
     return 0;
 
 }
-
-//int clavicle_idx = model->getBodySet().get("clavicle").getMobilizedBodyIndex();
-//int scapula_idx = model->getBodySet().get("scapula").getMobilizedBodyIndex();
-//
-//std::cout << clavicle_idx << std::endl;
-//std::cout << scapula_idx << std::endl;
