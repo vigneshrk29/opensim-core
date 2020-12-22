@@ -3,6 +3,7 @@
     Contributor: Joris Gillis, Gil Serrancoli, Chris Dembia
 */
 #include <OpenSim/Simulation/Model/Model.h>
+#include <OpenSim/Simulation/SimbodyEngine/PinJoint.h>
 #include <OpenSim/Simulation/SimbodyEngine/WeldJoint.h>
 #include <OpenSim/Simulation/SimbodyEngine/Joint.h>
 #include <OpenSim/Simulation/SimbodyEngine/SpatialTransform.h>

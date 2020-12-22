@@ -9,7 +9,7 @@ import casadi.*
 cg = CodeGenerator('foo_jac');
 % arg should have the dimensions of the combined inputs of F, i.e. NX + NU
 arg = SX.sym('arg',dim); 
-[y,~] = foo(arg);
+[y,~,~] = foo(arg);
 F = Function('F',{arg},{y});
 cg.add(F);
 cg.add(F.jacobian())

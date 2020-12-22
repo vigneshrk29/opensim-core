@@ -3,18 +3,13 @@
     Contributor: Joris Gillis, Gil Serrancoli, Chris Dembia
 */
 #include <OpenSim/Simulation/Model/Model.h>
-#include <OpenSim/Simulation/SimbodyEngine/PlanarJoint.h>
 #include <OpenSim/Simulation/SimbodyEngine/PinJoint.h>
 #include <OpenSim/Simulation/SimbodyEngine/WeldJoint.h>
 #include <OpenSim/Simulation/SimbodyEngine/Joint.h>
 #include <OpenSim/Simulation/SimbodyEngine/SpatialTransform.h>
 #include <OpenSim/Simulation/SimbodyEngine/CustomJoint.h>
 #include <OpenSim/Common/LinearFunction.h>
-#include <OpenSim/Common/Constant.h>
-#include <OpenSim/Common/SimmSpline.h>
-#include <OpenSim/Simulation/Model/ConditionalPathPoint.h>
-#include <OpenSim/Simulation/Model/MovingPathPoint.h>
-#include <OpenSim/Simulation/Model/HuntCrossleyForce_smooth.h>
+#include <OpenSim/Simulation/Model/SmoothSphereHalfSpaceForce.h>
 #include "SimTKcommon/internal/recorder.h"
 
 #include <iostream>
@@ -40,11 +35,11 @@ using namespace OpenSim;
 constexpr int n_in = 2;
 constexpr int n_out = 1;
 /// number of elements in input/output vectors of function F
-constexpr int ndof = 29;       // # degrees of freedom (excluding locked)
-constexpr int ndofr = 31;      // # degrees of freedom (including locked)
-constexpr int NX = ndof*2;     // # states
-constexpr int NU = ndof;       // # controls
-constexpr int NR = ndof+6+6;   // # residual torques + # GRFs + # joint origins
+constexpr int ndof = 29;        // # degrees of freedom (excluding locked)
+constexpr int ndofr = 31;       // # degrees of freedom (including locked)
+constexpr int NX = ndof * 2;      // # states
+constexpr int NU = ndof;        // # controls
+constexpr int NR = ndof + 6 + 6;    // # residual torques + # joint origins
 
 // Helper function value
 template<typename T>
@@ -102,18 +97,18 @@ int F_generic(const T** arg, T** res) {
     OpenSim::WeldJoint* radius_hand_r;
     OpenSim::WeldJoint* radius_hand_l;
     /// Contact elements
-    OpenSim::HuntCrossleyForce_smooth* HC_1_r;
-    OpenSim::HuntCrossleyForce_smooth* HC_2_r;
-    OpenSim::HuntCrossleyForce_smooth* HC_3_r;
-    OpenSim::HuntCrossleyForce_smooth* HC_4_r;
-    OpenSim::HuntCrossleyForce_smooth* HC_5_r;
-    OpenSim::HuntCrossleyForce_smooth* HC_6_r;
-    OpenSim::HuntCrossleyForce_smooth* HC_1_l;
-    OpenSim::HuntCrossleyForce_smooth* HC_2_l;
-    OpenSim::HuntCrossleyForce_smooth* HC_3_l;
-    OpenSim::HuntCrossleyForce_smooth* HC_4_l;
-    OpenSim::HuntCrossleyForce_smooth* HC_5_l;
-    OpenSim::HuntCrossleyForce_smooth* HC_6_l;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_1_r;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_2_r;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_3_r;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_4_r;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_5_r;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_6_r;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_1_l;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_2_l;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_3_l;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_4_l;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_5_l;
+    OpenSim::SmoothSphereHalfSpaceForce* HC_6_l;
 
     // OpenSim model: initialize components
     /// Model
@@ -273,8 +268,8 @@ int F_generic(const T** arg, T** res) {
     knee_r = new CustomJoint("knee_r", *femur_r, Vec3(-0.00451221232146798, -0.396907245921447, 0), Vec3(0), *tibia_r, Vec3(0), Vec3(0), st_knee_r);
     ankle_l = new CustomJoint("ankle_l", *tibia_l, Vec3(0, -0.415694825374905, 0), Vec3(0), *talus_l, Vec3(0), Vec3(0), st_ankle_l);
     ankle_r = new CustomJoint("ankle_r", *tibia_r, Vec3(0, -0.415694825374905, 0), Vec3(0), *talus_r, Vec3(0), Vec3(0), st_ankle_r);
-    subtalar_l = new CustomJoint("subtalar_l", *talus_l, Vec3(-0.0445720919117321, -0.0383391276542374, -0.00723828107321956), Vec3(0), *calcn_l, Vec3(0), Vec3(0),st_subtalar_l);
-    subtalar_r = new CustomJoint("subtalar_r", *talus_r, Vec3(-0.0445720919117321, -0.0383391276542374, 0.00723828107321956), Vec3(0), *calcn_r, Vec3(0), Vec3(0),st_subtalar_r);
+    subtalar_l = new CustomJoint("subtalar_l", *talus_l, Vec3(-0.0445720919117321, -0.0383391276542374, -0.00723828107321956), Vec3(0), *calcn_l, Vec3(0), Vec3(0), st_subtalar_l);
+    subtalar_r = new CustomJoint("subtalar_r", *talus_r, Vec3(-0.0445720919117321, -0.0383391276542374, 0.00723828107321956), Vec3(0), *calcn_r, Vec3(0), Vec3(0), st_subtalar_r);
     mtp_l = new WeldJoint("mtp_l", *calcn_l, Vec3(0.163409678774199, -0.00182784875586352, -0.000987038328166303), Vec3(0), *toes_l, Vec3(0), Vec3(0));
     mtp_r = new WeldJoint("mtp_r", *calcn_r, Vec3(0.163409678774199, -0.00182784875586352, 0.000987038328166303), Vec3(0), *toes_r, Vec3(0), Vec3(0));
     back = new CustomJoint("back", *pelvis, Vec3(-0.0972499926058214, 0.0787077894476112, 0), Vec3(0), *torso, Vec3(0), Vec3(0), st_back);
@@ -282,8 +277,8 @@ int F_generic(const T** arg, T** res) {
     shoulder_r = new CustomJoint("shoulder_r", *torso, Vec3(0.0028142880546385, 0.35583331053375, 0.151641511660395), Vec3(0), *humerus_r, Vec3(0), Vec3(0), st_sho_r);
     elbow_l = new CustomJoint("elbow_l", *humerus_l, Vec3(0.0135060695814636, -0.294158784030305, 0.00985930748890318), Vec3(0), *ulna_l, Vec3(0), Vec3(0), st_elb_l);
     elbow_r = new CustomJoint("elbow_r", *humerus_r, Vec3(0.0135060695814636, -0.294158784030305, -0.00985930748890318), Vec3(0), *ulna_r, Vec3(0), Vec3(0), st_elb_r);
-    radioulnar_l = new CustomJoint("radioulnar_l", *ulna_l, Vec3(-0.00660142656498441, -0.0127641973139218, -0.0255961065994483), Vec3(0), *radius_l, Vec3(0), Vec3(0),st_radioulnar_l);
-    radioulnar_r = new CustomJoint("radioulnar_r", *ulna_r, Vec3(-0.00660142656498441, -0.0127641973139218, 0.0255961065994483), Vec3(0), *radius_r, Vec3(0), Vec3(0),st_radioulnar_r);
+    radioulnar_l = new CustomJoint("radioulnar_l", *ulna_l, Vec3(-0.00660142656498441, -0.0127641973139218, -0.0255961065994483), Vec3(0), *radius_l, Vec3(0), Vec3(0), st_radioulnar_l);
+    radioulnar_r = new CustomJoint("radioulnar_r", *ulna_r, Vec3(-0.00660142656498441, -0.0127641973139218, 0.0255961065994483), Vec3(0), *radius_r, Vec3(0), Vec3(0), st_radioulnar_r);
     radius_hand_l = new WeldJoint("radius_hand_l", *radius_l, Vec3(-0.00863278571312143, -0.231438537611489, -0.0133559410657705), Vec3(0), *hand_l, Vec3(0), Vec3(0));
     radius_hand_r = new WeldJoint("radius_hand_r", *radius_r, Vec3(-0.00863278571312143, -0.231438537611489, 0.0133559410657705), Vec3(0), *hand_r, Vec3(0), Vec3(0));
     /// Add bodies and joints to model
@@ -321,8 +316,8 @@ int F_generic(const T** arg, T** res) {
     osim_double_adouble dynamicFriction = 0.8;
     osim_double_adouble viscousFriction = 0.5;
     osim_double_adouble transitionVelocity = 0.2;
-    Vec3 normal = Vec3(0, 1, 0);
-    osim_double_adouble offset = 0;
+    Vec3 halfSpaceLocation(0);
+    Vec3 halfSpaceOrientation(0, 0, -0.5*SimTK::Pi);
     Vec3 locSphere_1_r(0.0035613, -0.021859, 0.012288);
     Vec3 locSphere_2_r(0.17339, -0.021859, -0.0037135);
     Vec3 locSphere_3_r(0.11755, -0.021859, 0.026721);
@@ -336,57 +331,190 @@ int F_generic(const T** arg, T** res) {
     Vec3 locSphere_5_l(0.041235, -0.021859, -0.0015407);
     Vec3 locSphere_6_l(0.03191, -0.021448, -0.036857);
     /// Left foot contact shere specifications
-    HC_1_l = new HuntCrossleyForce_smooth("sphere_1_l", "calcn_l", locSphere_1_l, radiusSphere_s1,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_2_l = new HuntCrossleyForce_smooth("sphere_2_l", "calcn_l", locSphere_2_l, radiusSphere_s2,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_3_l = new HuntCrossleyForce_smooth("sphere_3_l", "calcn_l", locSphere_3_l, radiusSphere_s3,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_4_l = new HuntCrossleyForce_smooth("sphere_4_l", "toes_l", locSphere_4_l, radiusSphere_s4,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_5_l = new HuntCrossleyForce_smooth("sphere_5_l", "calcn_l", locSphere_5_l, radiusSphere_s5,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_6_l = new HuntCrossleyForce_smooth("sphere_6_l", "toes_l", locSphere_6_l, radiusSphere_s6,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
+    HC_1_l = new SmoothSphereHalfSpaceForce("sphere_1_l", *calcn_l, model->getGround());
+    HC_1_l->set_contact_sphere_location(locSphere_1_l);
+    HC_1_l->set_contact_sphere_radius(radiusSphere_s1);
+    HC_1_l->set_contact_half_space_location(halfSpaceLocation);
+    HC_1_l->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_1_l->set_stiffness(stiffness);
+    HC_1_l->set_dissipation(dissipation);
+    HC_1_l->set_static_friction(staticFriction);
+    HC_1_l->set_dynamic_friction(dynamicFriction);
+    HC_1_l->set_viscous_friction(viscousFriction);
+    HC_1_l->set_transition_velocity(transitionVelocity);
+    HC_1_l->connectSocket_sphere_frame(*calcn_l);
+    HC_1_l->connectSocket_half_space_frame(model->getGround());
+
+    HC_2_l = new SmoothSphereHalfSpaceForce("sphere_2_l", *calcn_l, model->getGround());
+    HC_2_l->set_contact_sphere_location(locSphere_2_l);
+    HC_2_l->set_contact_sphere_radius(radiusSphere_s2);
+    HC_2_l->set_contact_half_space_location(halfSpaceLocation);
+    HC_2_l->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_2_l->set_stiffness(stiffness);
+    HC_2_l->set_dissipation(dissipation);
+    HC_2_l->set_static_friction(staticFriction);
+    HC_2_l->set_dynamic_friction(dynamicFriction);
+    HC_2_l->set_viscous_friction(viscousFriction);
+    HC_2_l->set_transition_velocity(transitionVelocity);
+    HC_2_l->connectSocket_sphere_frame(*calcn_l);
+    HC_2_l->connectSocket_half_space_frame(model->getGround());
+
+    HC_3_l = new SmoothSphereHalfSpaceForce("sphere_3_l", *calcn_l, model->getGround());
+    HC_3_l->set_contact_sphere_location(locSphere_3_l);
+    HC_3_l->set_contact_sphere_radius(radiusSphere_s3);
+    HC_3_l->set_contact_half_space_location(halfSpaceLocation);
+    HC_3_l->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_3_l->set_stiffness(stiffness);
+    HC_3_l->set_dissipation(dissipation);
+    HC_3_l->set_static_friction(staticFriction);
+    HC_3_l->set_dynamic_friction(dynamicFriction);
+    HC_3_l->set_viscous_friction(viscousFriction);
+    HC_3_l->set_transition_velocity(transitionVelocity);
+    HC_3_l->connectSocket_sphere_frame(*calcn_l);
+    HC_3_l->connectSocket_half_space_frame(model->getGround());
+
+    HC_4_l = new SmoothSphereHalfSpaceForce("sphere_4_l", *toes_l, model->getGround());
+    HC_4_l->set_contact_sphere_location(locSphere_4_l);
+    HC_4_l->set_contact_sphere_radius(radiusSphere_s4);
+    HC_4_l->set_contact_half_space_location(halfSpaceLocation);
+    HC_4_l->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_4_l->set_stiffness(stiffness);
+    HC_4_l->set_dissipation(dissipation);
+    HC_4_l->set_static_friction(staticFriction);
+    HC_4_l->set_dynamic_friction(dynamicFriction);
+    HC_4_l->set_viscous_friction(viscousFriction);
+    HC_4_l->set_transition_velocity(transitionVelocity);
+    HC_4_l->connectSocket_sphere_frame(*toes_l);
+    HC_4_l->connectSocket_half_space_frame(model->getGround());
+
+    HC_5_l = new SmoothSphereHalfSpaceForce("sphere_5_l", *calcn_l, model->getGround());
+    HC_5_l->set_contact_sphere_location(locSphere_5_l);
+    HC_5_l->set_contact_sphere_radius(radiusSphere_s5);
+    HC_5_l->set_contact_half_space_location(halfSpaceLocation);
+    HC_5_l->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_5_l->set_stiffness(stiffness);
+    HC_5_l->set_dissipation(dissipation);
+    HC_5_l->set_static_friction(staticFriction);
+    HC_5_l->set_dynamic_friction(dynamicFriction);
+    HC_5_l->set_viscous_friction(viscousFriction);
+    HC_5_l->set_transition_velocity(transitionVelocity);
+    HC_5_l->connectSocket_sphere_frame(*calcn_l);
+    HC_5_l->connectSocket_half_space_frame(model->getGround());
+
+    HC_6_l = new SmoothSphereHalfSpaceForce("sphere_6_l", *toes_l, model->getGround());
+    HC_6_l->set_contact_sphere_location(locSphere_6_l);
+    HC_6_l->set_contact_sphere_radius(radiusSphere_s6);
+    HC_6_l->set_contact_half_space_location(halfSpaceLocation);
+    HC_6_l->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_6_l->set_stiffness(stiffness);
+    HC_6_l->set_dissipation(dissipation);
+    HC_6_l->set_static_friction(staticFriction);
+    HC_6_l->set_dynamic_friction(dynamicFriction);
+    HC_6_l->set_viscous_friction(viscousFriction);
+    HC_6_l->set_transition_velocity(transitionVelocity);
+    HC_6_l->connectSocket_sphere_frame(*toes_l);
+    HC_6_l->connectSocket_half_space_frame(model->getGround());
+
     /// Add left foot contact spheres to model
     model->addComponent(HC_1_l);
-    HC_1_l->connectSocket_body_sphere(*calcn_l);
     model->addComponent(HC_2_l);
-    HC_2_l->connectSocket_body_sphere(*calcn_l);
     model->addComponent(HC_3_l);
-    HC_3_l->connectSocket_body_sphere(*calcn_l);
     model->addComponent(HC_4_l);
-    HC_4_l->connectSocket_body_sphere(*toes_l);
     model->addComponent(HC_5_l);
-    HC_5_l->connectSocket_body_sphere(*calcn_l);
     model->addComponent(HC_6_l);
-    HC_6_l->connectSocket_body_sphere(*toes_l);
+
     /// Right foot contact shere specifications
-    HC_1_r = new HuntCrossleyForce_smooth("sphere_1_r", "calcn_r", locSphere_1_r, radiusSphere_s1,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_2_r = new HuntCrossleyForce_smooth("sphere_2_r", "calcn_r", locSphere_2_r, radiusSphere_s2,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_3_r = new HuntCrossleyForce_smooth("sphere_3_r", "calcn_r", locSphere_3_r, radiusSphere_s3,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_4_r = new HuntCrossleyForce_smooth("sphere_4_r", "toes_r", locSphere_4_r, radiusSphere_s4,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_5_r = new HuntCrossleyForce_smooth("sphere_5_r", "calcn_r", locSphere_5_r, radiusSphere_s5,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
-    HC_6_r = new HuntCrossleyForce_smooth("sphere_6_r", "toes_r", locSphere_6_r, radiusSphere_s6,
-        stiffness, dissipation, staticFriction, dynamicFriction, viscousFriction, transitionVelocity, normal, offset);
+    HC_1_r = new SmoothSphereHalfSpaceForce("sphere_1_r", *calcn_r, model->getGround());
+    HC_1_r->set_contact_sphere_location(locSphere_1_r);
+    HC_1_r->set_contact_sphere_radius(radiusSphere_s1);
+    HC_1_r->set_contact_half_space_location(halfSpaceLocation);
+    HC_1_r->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_1_r->set_stiffness(stiffness);
+    HC_1_r->set_dissipation(dissipation);
+    HC_1_r->set_static_friction(staticFriction);
+    HC_1_r->set_dynamic_friction(dynamicFriction);
+    HC_1_r->set_viscous_friction(viscousFriction);
+    HC_1_r->set_transition_velocity(transitionVelocity);
+    HC_1_r->connectSocket_sphere_frame(*calcn_r);
+    HC_1_r->connectSocket_half_space_frame(model->getGround());
+
+    HC_2_r = new SmoothSphereHalfSpaceForce("sphere_2_r", *calcn_r, model->getGround());
+    HC_2_r->set_contact_sphere_location(locSphere_2_r);
+    HC_2_r->set_contact_sphere_radius(radiusSphere_s2);
+    HC_2_r->set_contact_half_space_location(halfSpaceLocation);
+    HC_2_r->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_2_r->set_stiffness(stiffness);
+    HC_2_r->set_dissipation(dissipation);
+    HC_2_r->set_static_friction(staticFriction);
+    HC_2_r->set_dynamic_friction(dynamicFriction);
+    HC_2_r->set_viscous_friction(viscousFriction);
+    HC_2_r->set_transition_velocity(transitionVelocity);
+    HC_2_r->connectSocket_sphere_frame(*calcn_r);
+    HC_2_r->connectSocket_half_space_frame(model->getGround());
+
+    HC_3_r = new SmoothSphereHalfSpaceForce("sphere_3_r", *calcn_r, model->getGround());
+    HC_3_r->set_contact_sphere_location(locSphere_3_r);
+    HC_3_r->set_contact_sphere_radius(radiusSphere_s3);
+    HC_3_r->set_contact_half_space_location(halfSpaceLocation);
+    HC_3_r->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_3_r->set_stiffness(stiffness);
+    HC_3_r->set_dissipation(dissipation);
+    HC_3_r->set_static_friction(staticFriction);
+    HC_3_r->set_dynamic_friction(dynamicFriction);
+    HC_3_r->set_viscous_friction(viscousFriction);
+    HC_3_r->set_transition_velocity(transitionVelocity);
+    HC_3_r->connectSocket_sphere_frame(*calcn_r);
+    HC_3_r->connectSocket_half_space_frame(model->getGround());
+
+    HC_4_r = new SmoothSphereHalfSpaceForce("sphere_4_r", *toes_r, model->getGround());
+    HC_4_r->set_contact_sphere_location(locSphere_4_r);
+    HC_4_r->set_contact_sphere_radius(radiusSphere_s4);
+    HC_4_r->set_contact_half_space_location(halfSpaceLocation);
+    HC_4_r->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_4_r->set_stiffness(stiffness);
+    HC_4_r->set_dissipation(dissipation);
+    HC_4_r->set_static_friction(staticFriction);
+    HC_4_r->set_dynamic_friction(dynamicFriction);
+    HC_4_r->set_viscous_friction(viscousFriction);
+    HC_4_r->set_transition_velocity(transitionVelocity);
+    HC_4_r->connectSocket_sphere_frame(*toes_r);
+    HC_4_r->connectSocket_half_space_frame(model->getGround());
+
+    HC_5_r = new SmoothSphereHalfSpaceForce("sphere_5_r", *calcn_r, model->getGround());
+    HC_5_r->set_contact_sphere_location(locSphere_5_r);
+    HC_5_r->set_contact_sphere_radius(radiusSphere_s5);
+    HC_5_r->set_contact_half_space_location(halfSpaceLocation);
+    HC_5_r->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_5_r->set_stiffness(stiffness);
+    HC_5_r->set_dissipation(dissipation);
+    HC_5_r->set_static_friction(staticFriction);
+    HC_5_r->set_dynamic_friction(dynamicFriction);
+    HC_5_r->set_viscous_friction(viscousFriction);
+    HC_5_r->set_transition_velocity(transitionVelocity);
+    HC_5_r->connectSocket_sphere_frame(*calcn_r);
+    HC_5_r->connectSocket_half_space_frame(model->getGround());
+
+    HC_6_r = new SmoothSphereHalfSpaceForce("sphere_6_r", *toes_r, model->getGround());
+    HC_6_r->set_contact_sphere_location(locSphere_6_r);
+    HC_6_r->set_contact_sphere_radius(radiusSphere_s6);
+    HC_6_r->set_contact_half_space_location(halfSpaceLocation);
+    HC_6_r->set_contact_half_space_orientation(halfSpaceOrientation);
+    HC_6_r->set_stiffness(stiffness);
+    HC_6_r->set_dissipation(dissipation);
+    HC_6_r->set_static_friction(staticFriction);
+    HC_6_r->set_dynamic_friction(dynamicFriction);
+    HC_6_r->set_viscous_friction(viscousFriction);
+    HC_6_r->set_transition_velocity(transitionVelocity);
+    HC_6_r->connectSocket_sphere_frame(*toes_r);
+    HC_6_r->connectSocket_half_space_frame(model->getGround());
+
     /// Add right foot contact spheres to model
     model->addComponent(HC_1_r);
-    HC_1_r->connectSocket_body_sphere(*calcn_r);
     model->addComponent(HC_2_r);
-    HC_2_r->connectSocket_body_sphere(*calcn_r);
     model->addComponent(HC_3_r);
-    HC_3_r->connectSocket_body_sphere(*calcn_r);
     model->addComponent(HC_4_r);
-    HC_4_r->connectSocket_body_sphere(*toes_r);
     model->addComponent(HC_5_r);
-    HC_5_r->connectSocket_body_sphere(*calcn_r);
     model->addComponent(HC_6_r);
-    HC_6_r->connectSocket_body_sphere(*toes_r);
 
     // Initialize system and state
     SimTK::State* state;
@@ -397,17 +525,17 @@ int F_generic(const T** arg, T** res) {
     std::vector<T> u(arg[1], arg[1] + NU);
 
     // States and controls
-    T ua[NU+2]; /// joint accelerations (Qdotdots) - controls
-    Vector QsUs(NX+4); /// joint positions (Qs) and velocities (Us) - states
+    T ua[NU + 2]; /// joint accelerations (Qdotdots) - controls
+    Vector QsUs(NX + 4); /// joint positions (Qs) and velocities (Us) - states
 
     // Assign inputs to model variables
     /// States
     for (int i = 0; i < NX; ++i) QsUs[i] = x[i];
     /// pro_sup dofs are locked so Qs and Qdots are hard coded
     QsUs[NX] = 1.51;
-    QsUs[NX+1] = 0;
-    QsUs[NX+2] = 1.51;
-    QsUs[NX+3] = 0;
+    QsUs[NX + 1] = 0;
+    QsUs[NX + 2] = 1.51;
+    QsUs[NX + 3] = 0;
     /// Controls
     for (int i = 0; i < 12; ++i) ua[i] = u[i];
     /// OpenSim and Simbody have different state orders so we adjust manually
@@ -464,23 +592,23 @@ int F_generic(const T** arg, T** res) {
     Array<osim_double_adouble> Force_values_5_r = HC_5_r->getRecordValues(*state);
     Array<osim_double_adouble> Force_values_6_r = HC_6_r->getRecordValues(*state);
     SpatialVec GRF_1_r;
-    GRF_1_r[0] = Vec3(Force_values_1_r[9], Force_values_1_r[10], Force_values_1_r[11]);
-    GRF_1_r[1] = Vec3(Force_values_1_r[6], Force_values_1_r[7], Force_values_1_r[8]);
+    GRF_1_r[0] = Vec3(Force_values_1_r[3], Force_values_1_r[4], Force_values_1_r[5]);
+    GRF_1_r[1] = Vec3(Force_values_1_r[0], Force_values_1_r[1], Force_values_1_r[2]);
     SpatialVec GRF_2_r;
-    GRF_2_r[0] = Vec3(Force_values_2_r[9], Force_values_2_r[10], Force_values_2_r[11]);
-    GRF_2_r[1] = Vec3(Force_values_2_r[6], Force_values_2_r[7], Force_values_2_r[8]);
+    GRF_2_r[0] = Vec3(Force_values_2_r[3], Force_values_2_r[4], Force_values_2_r[5]);
+    GRF_2_r[1] = Vec3(Force_values_2_r[0], Force_values_2_r[1], Force_values_2_r[2]);
     SpatialVec GRF_3_r;
-    GRF_3_r[0] = Vec3(Force_values_3_r[9], Force_values_3_r[10], Force_values_3_r[11]);
-    GRF_3_r[1] = Vec3(Force_values_3_r[6], Force_values_3_r[7], Force_values_3_r[8]);
+    GRF_3_r[0] = Vec3(Force_values_3_r[3], Force_values_3_r[4], Force_values_3_r[5]);
+    GRF_3_r[1] = Vec3(Force_values_3_r[0], Force_values_3_r[1], Force_values_3_r[2]);
     SpatialVec GRF_4_r;
-    GRF_4_r[0] = Vec3(Force_values_4_r[9], Force_values_4_r[10], Force_values_4_r[11]);
-    GRF_4_r[1] = Vec3(Force_values_4_r[6], Force_values_4_r[7], Force_values_4_r[8]);
+    GRF_4_r[0] = Vec3(Force_values_4_r[3], Force_values_4_r[4], Force_values_4_r[5]);
+    GRF_4_r[1] = Vec3(Force_values_4_r[0], Force_values_4_r[1], Force_values_4_r[2]);
     SpatialVec GRF_5_r;
-    GRF_5_r[0] = Vec3(Force_values_5_r[9], Force_values_5_r[10], Force_values_5_r[11]);
-    GRF_5_r[1] = Vec3(Force_values_5_r[6], Force_values_5_r[7], Force_values_5_r[8]);
+    GRF_5_r[0] = Vec3(Force_values_5_r[3], Force_values_5_r[4], Force_values_5_r[5]);
+    GRF_5_r[1] = Vec3(Force_values_5_r[0], Force_values_5_r[1], Force_values_5_r[2]);
     SpatialVec GRF_6_r;
-    GRF_6_r[0] = Vec3(Force_values_6_r[9], Force_values_6_r[10], Force_values_6_r[11]);
-    GRF_6_r[1] = Vec3(Force_values_6_r[6], Force_values_6_r[7], Force_values_6_r[8]);
+    GRF_6_r[0] = Vec3(Force_values_6_r[3], Force_values_6_r[4], Force_values_6_r[5]);
+    GRF_6_r[1] = Vec3(Force_values_6_r[0], Force_values_6_r[1], Force_values_6_r[2]);
     int ncalcn_r = model->getBodySet().get("calcn_r").getMobilizedBodyIndex();
     int ntoes_r = model->getBodySet().get("toes_r").getMobilizedBodyIndex();
     appliedBodyForces[ncalcn_r] = appliedBodyForces[ncalcn_r] + GRF_1_r + GRF_2_r + GRF_3_r + GRF_5_r;
@@ -493,23 +621,23 @@ int F_generic(const T** arg, T** res) {
     Array<osim_double_adouble> Force_values_5_l = HC_5_l->getRecordValues(*state);
     Array<osim_double_adouble> Force_values_6_l = HC_6_l->getRecordValues(*state);
     SpatialVec GRF_1_l;
-    GRF_1_l[0] = Vec3(Force_values_1_l[9], Force_values_1_l[10], Force_values_1_l[11]);
-    GRF_1_l[1] = Vec3(Force_values_1_l[6], Force_values_1_l[7], Force_values_1_l[8]);
+    GRF_1_l[0] = Vec3(Force_values_1_l[3], Force_values_1_l[4], Force_values_1_l[5]);
+    GRF_1_l[1] = Vec3(Force_values_1_l[0], Force_values_1_l[1], Force_values_1_l[2]);
     SpatialVec GRF_2_l;
-    GRF_2_l[0] = Vec3(Force_values_2_l[9], Force_values_2_l[10], Force_values_2_l[11]);
-    GRF_2_l[1] = Vec3(Force_values_2_l[6], Force_values_2_l[7], Force_values_2_l[8]);
+    GRF_2_l[0] = Vec3(Force_values_2_l[3], Force_values_2_l[4], Force_values_2_l[5]);
+    GRF_2_l[1] = Vec3(Force_values_2_l[0], Force_values_2_l[1], Force_values_2_l[2]);
     SpatialVec GRF_3_l;
-    GRF_3_l[0] = Vec3(Force_values_3_l[9], Force_values_3_l[10], Force_values_3_l[11]);
-    GRF_3_l[1] = Vec3(Force_values_3_l[6], Force_values_3_l[7], Force_values_3_l[8]);
+    GRF_3_l[0] = Vec3(Force_values_3_l[3], Force_values_3_l[4], Force_values_3_l[5]);
+    GRF_3_l[1] = Vec3(Force_values_3_l[0], Force_values_3_l[1], Force_values_3_l[2]);
     SpatialVec GRF_4_l;
-    GRF_4_l[0] = Vec3(Force_values_4_l[9], Force_values_4_l[10], Force_values_4_l[11]);
-    GRF_4_l[1] = Vec3(Force_values_4_l[6], Force_values_4_l[7], Force_values_4_l[8]);
+    GRF_4_l[0] = Vec3(Force_values_4_l[3], Force_values_4_l[4], Force_values_4_l[5]);
+    GRF_4_l[1] = Vec3(Force_values_4_l[0], Force_values_4_l[1], Force_values_4_l[2]);
     SpatialVec GRF_5_l;
-    GRF_5_l[0] = Vec3(Force_values_5_l[9], Force_values_5_l[10], Force_values_5_l[11]);
-    GRF_5_l[1] = Vec3(Force_values_5_l[6], Force_values_5_l[7], Force_values_5_l[8]);
+    GRF_5_l[0] = Vec3(Force_values_5_l[3], Force_values_5_l[4], Force_values_5_l[5]);
+    GRF_5_l[1] = Vec3(Force_values_5_l[0], Force_values_5_l[1], Force_values_5_l[2]);
     SpatialVec GRF_6_l;
-    GRF_6_l[0] = Vec3(Force_values_6_l[9], Force_values_6_l[10], Force_values_6_l[11]);
-    GRF_6_l[1] = Vec3(Force_values_6_l[6], Force_values_6_l[7], Force_values_6_l[8]);
+    GRF_6_l[0] = Vec3(Force_values_6_l[3], Force_values_6_l[4], Force_values_6_l[5]);
+    GRF_6_l[1] = Vec3(Force_values_6_l[0], Force_values_6_l[1], Force_values_6_l[2]);
     int ncalcn_l = model->getBodySet().get("calcn_l").getMobilizedBodyIndex();
     int ntoes_l = model->getBodySet().get("toes_l").getMobilizedBodyIndex();
     appliedBodyForces[ncalcn_l] = appliedBodyForces[ncalcn_l] + GRF_1_l + GRF_2_l + GRF_3_l + GRF_5_l;
@@ -526,14 +654,14 @@ int F_generic(const T** arg, T** res) {
         residualMobilityForces);
 
     // Extract several joint origins to set constraints in problem
-    Vec3 calcn_or_l  = calcn_l->getPositionInGround(*state);
-    Vec3 calcn_or_r  = calcn_r->getPositionInGround(*state);
-    Vec3 femur_or_l  = femur_l->getPositionInGround(*state);
-    Vec3 femur_or_r  = femur_r->getPositionInGround(*state);
-    Vec3 hand_or_l   = hand_l->getPositionInGround(*state);
-    Vec3 hand_or_r   = hand_r->getPositionInGround(*state);
-    Vec3 tibia_or_l  = tibia_l->getPositionInGround(*state);
-    Vec3 tibia_or_r  = tibia_r->getPositionInGround(*state);
+    Vec3 calcn_or_l = calcn_l->getPositionInGround(*state);
+    Vec3 calcn_or_r = calcn_r->getPositionInGround(*state);
+    Vec3 femur_or_l = femur_l->getPositionInGround(*state);
+    Vec3 femur_or_r = femur_r->getPositionInGround(*state);
+    Vec3 hand_or_l = hand_l->getPositionInGround(*state);
+    Vec3 hand_or_r = hand_r->getPositionInGround(*state);
+    Vec3 tibia_or_l = tibia_l->getPositionInGround(*state);
+    Vec3 tibia_or_r = tibia_r->getPositionInGround(*state);
 
     // Extract ground reaction forces
     SpatialVec GRF_r = GRF_1_r + GRF_2_r + GRF_3_r + GRF_4_r + GRF_5_r + GRF_6_r;
