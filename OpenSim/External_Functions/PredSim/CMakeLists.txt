@@ -1,6 +1,6 @@
-set(TEST_TARGET PredSim)
-add_executable(${TEST_TARGET} ${TEST_TARGET}.cpp)
-target_link_libraries(${TEST_TARGET} osimSimulation)
-set_target_properties(${TEST_TARGET} PROPERTIES
+set(TARGET_NAME PredSim)
+add_executable(${TARGET_NAME} ${TARGET_NAME}.cpp)
+target_link_libraries(${TARGET_NAME} osimSimulation)
+set_target_properties(${TARGET_NAME} PROPERTIES
     FOLDER "External_Functions")
 		
