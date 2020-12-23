@@ -239,7 +239,7 @@ Clone the [3dpredictsim git repository](https://github.com/antoinefalisse/3dpred
 In `C:/3dpredictsim/ExternalFunctions`, you can see that you already have the libraries `PredSim_v2.dll` and `PredSim_v2_pp.dll`. If you want to make
 sure that you performed all the steps above correctly, delete those libraries and copy the ones you created before.
 
-Run the script `C:/3dpredictsim/OCP/PredSim_v2_all.m`. It should converge in 689 iterations (Windows 10, MATLAB2017b) and take about 45 minutes (depending on your machine).
+Run the script `C:/3dpredictsim/OCP/PredSim_v2_all.m`. It should converge in 680 iterations (Windows 10, MATLAB2019b) and less than one hour (depending on your machine).
 Open the OpenSim GUI, select the model `C:/3dpredictsim/OpenSimModel/subject1/subject1_v2.osim` and load the motion file `C:/3dpredictsim/Results/PredSim_all_v2/IK_c22.mot` (this file has been generated after solving the optimization problem and processing the results).
 
 Congrats, you generated a three-dimensional muscle-driven predictive simulation of walking!
