@@ -18,6 +18,8 @@
 #           PredSimProsthesis_pp: 87
 #           TrackSim_1: 58
 #           TrackSim_2: 141
+#           PredSim_2D: 30
+#           PredSim_2D_pp: 30
 # 3. $path_opensim_build_external_functions is the path to the External_Functions folder located in the OpenSim build folder.
 # 4. $path_external_functions is the path to an existing folder, eg. external_functions, in which a folder <filename> will be created with the build and install folders of each external function. 
 # 5. $path_cgeneration is the path the folder containing this PowerShell script.
