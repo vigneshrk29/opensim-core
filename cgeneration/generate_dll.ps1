@@ -20,12 +20,23 @@
 #           TrackSim_2: 141
 #           PredSim_2D: 30
 #           PredSim_2D_pp: 30
+#           video_s1_A_tread: 69
+#           video_s1_B_tread: 69
+#           video_s1_C_tread: 69
+#           video_s1_A_tread_KA: 75
+#           video_s1_C_tread_KA: 75
+#           video_s1_tread_pp: 69
+#           video_s1_tread_KA_pp: 75
+#           video_s2_C_tread_KA: 75
+#           video_s2_tread_KA_pp: 75
+#           video_s2_C_KA: 75
+#           video_s2_KA_pp: 75
 # 3. $path_opensim_build_external_functions is the path to the External_Functions folder located in the OpenSim build folder.
 # 4. $path_external_functions is the path to an existing folder, eg. external_functions, in which a folder <filename> will be created with the build and install folders of each external function. 
 # 5. $path_cgeneration is the path the folder containing this PowerShell script.
 # 6. $compiler is by default set to Visual Studio 2017. For Visual Studio 2015, change to "Visual Studio 14 2015 Win64".
-$filename = "PredSim"
-$nInputs_F = 87
+$filename = "video_s2_KA_pp"
+$nInputs_F = 75
 $path_opensim_build_external_functions = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-contact\core\build\OpenSim\External_Functions"
 $path_external_functions = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-contact\external_functions"
 $path_cgeneration = "C:\Users\u0101727\Documents\MyRepositories\opensim-recorder-github-contact\cgeneration"
