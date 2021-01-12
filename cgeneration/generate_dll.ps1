@@ -12,9 +12,10 @@
 # Sh_GT_s0_t1_IMUB: 39
 # Sh_GT_s0_pp: 39
 # Sh_GT_s0_t1_IMUG: 39
+# Sh_GT_s0_t1_IMUG_R: 39
 
 # User settings
-$filename = "Sh_GT_s0_pp"
+$filename = "Sh_GT_s0_t0"
 $NInputs_F = 39
 $path_core_external = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-scapula\core-build\OpenSim\External_Functions"
 $path_external_build = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-scapula\External_Functions"
