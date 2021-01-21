@@ -727,8 +727,8 @@ int main() {
     Recorder u[NU];
     Recorder tau[NR];
 
-    for (int i = 0; i < NX; ++i) x[i] <<= -1;
-    for (int i = 0; i < NU; ++i) u[i] <<= -1;
+    for (int i = 0; i < NX; ++i) x[i] <<= 0;
+    for (int i = 0; i < NU; ++i) u[i] <<= 0;
 
     const Recorder* Recorder_arg[n_in] = { x,u };
     Recorder* Recorder_res[n_out] = { tau };
@@ -737,6 +737,7 @@ int main() {
 
     double res[NR];
     for (int i = 0; i < NR; ++i) Recorder_res[0][i] >>= res[i];
+    for (int i = 0; i < NU; ++i) std::cout << res[i] << std::endl;
 
     Recorder::stop_recording();
 
