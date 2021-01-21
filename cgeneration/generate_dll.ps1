@@ -13,13 +13,16 @@
 # Sh_GT_s0_pp: 39
 # Sh_GT_s0_t1_IMUG: 39
 # Sh_GT_s0_t1_IMUG_R: 39
+# Sh_GT_s0_t0_IMUB: 39
+# Sh_GT_s0_t0_IMUG: 39
+# Sh_GT_s0_t0_IMUG_R: 39
 
 # User settings
-$filename = "Sh_GT_s0_t0"
+$filename = "Sh_GT_s0_t0_IMUG_R"
 $NInputs_F = 39
-$path_core_external = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-scapula\core-build\OpenSim\External_Functions"
-$path_external_build = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-scapula\External_Functions"
-$path_cgeneration = "C:\Users\u0101727\Documents\MyRepositories\opensim-recorder-github-scapula\cgeneration"
+$path_core_external = "C:\Users\antoi\Documents\VS2017\os-ad\scapula\core\build\OpenSim\External_Functions"
+$path_external_build = "C:\Users\antoi\Documents\VS2017\os-ad\scapula\external-functions"
+$path_cgeneration = "C:\Users\antoi\Documents\MyRepositories\opensim-ad\scapula\opensim-core\cgeneration"
 
 # Fixed settings (except if you want things to be organized differently)
 $foo = "foo.m"
