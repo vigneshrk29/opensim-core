@@ -31,6 +31,8 @@
 #           video_s2_tread_KA_pp: 75
 #           video_s2_C_KA: 75
 #           video_s2_KA_pp: 75
+# 			PredSim_mtpPin_cm7: 93
+# 			PredSim_mtpPin_pp_cm7: 93
 # 3. $path_opensim_build_external_functions is the path to the External_Functions folder located in the OpenSim build folder.
 # 4. $path_external_functions is the path to an existing folder, eg. external_functions, in which a folder <filename> will be created with the build and install folders of each external function. 
 # 5. $path_cgeneration is the path the folder containing this PowerShell script.

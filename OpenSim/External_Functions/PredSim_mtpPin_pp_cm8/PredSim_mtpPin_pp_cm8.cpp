@@ -378,7 +378,7 @@ int F_generic(const T** arg, T** res) {
     /// Contact elements    
     /// Parameters
     osim_double_adouble radiusSphere = 0.005;
-    osim_double_adouble stiffness = 200000;
+    osim_double_adouble stiffness = 500000;
     osim_double_adouble dissipation = 2.0;
     osim_double_adouble staticFriction = 0.8;
     osim_double_adouble dynamicFriction = 0.8;

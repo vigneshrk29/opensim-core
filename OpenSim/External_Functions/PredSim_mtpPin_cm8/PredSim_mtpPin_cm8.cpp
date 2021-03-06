@@ -41,10 +41,10 @@ constexpr int n_in = 2;
 constexpr int n_out = 1;
 /// number of elements in input/output vectors of function F
 constexpr int ndof = 31;        // # degrees of freedom (excluding locked)
-constexpr int ndofr = ndof + 2;   // # degrees of freedom (including locked)
-constexpr int NX = ndof * 2;      // # states
+constexpr int ndofr = ndof+2;   // # degrees of freedom (including locked)
+constexpr int NX = ndof*2;      // # states
 constexpr int NU = ndof;        // # controls
-constexpr int NR = ndof + 6+6;    // # residual torques + # joint origins
+constexpr int NR = ndof+5*4;    // # residual torques + # joint origins
 
 // Helper function value
 template<typename T>
@@ -72,7 +72,7 @@ SimTK::Array_<int> getIndicesOSInSimbody(const Model& model) {
         for (int isv = 0; isv < svNames.size(); ++isv) {
             if (SimTK::isNaN(svValues[isv])) {
                 s.updQ()[iy] = 0;
-                idxOSInSimbody[iy] = isv / 2;
+                idxOSInSimbody[iy] = isv/2;
                 break;
             }
         }
@@ -85,14 +85,14 @@ SimTK::Array_<int> getIndicesSimbodyInOS(const Model& model) {
     auto idxOSInSimbody = getIndicesOSInSimbody(model);
     auto s = model.getWorkingState();
     SimTK::Array_<int> idxSimbodyInOS(s.getNQ());
-    for (int iy = 0; iy < s.getNQ(); ++iy) {
-        for (int iyy = 0; iyy < s.getNQ(); ++iyy) {
-            if (idxOSInSimbody[iyy] == iy) {
-                idxSimbodyInOS[iy] = iyy;
-                break;
-            }
-        }
-    }
+	for (int iy = 0; iy < s.getNQ(); ++iy) {
+		for (int iyy = 0; iyy < s.getNQ(); ++iyy) {
+			if (idxOSInSimbody[iyy] == iy) {
+				idxSimbodyInOS[iy] = iyy;
+				break;
+			}
+		}
+	}
     return idxSimbodyInOS;
 }
 
@@ -341,17 +341,17 @@ int F_generic(const T** arg, T** res) {
     knee_r = new CustomJoint("knee_r", *femur_r, Vec3(-0.00451221, -0.39690700000000001, 0), Vec3(0), *tibia_r, Vec3(0), Vec3(0), st_knee_r);
     ankle_l = new CustomJoint("ankle_l", *tibia_l, Vec3(0, -0.41569499999999998, 0), Vec3(0), *talus_l, Vec3(0), Vec3(0), st_ankle_l);
     ankle_r = new CustomJoint("ankle_r", *tibia_r, Vec3(0, -0.41569499999999998, 0), Vec3(0), *talus_r, Vec3(0), Vec3(0), st_ankle_r);
-    subtalar_l = new CustomJoint("subtalar_l", *talus_l, Vec3(-0.044572100000000003, -0.038339100000000001, -0.0072382799999999997), Vec3(0), *calcn_l, Vec3(0), Vec3(0), st_subtalar_l);
-    subtalar_r = new CustomJoint("subtalar_r", *talus_r, Vec3(-0.044572100000000003, -0.038339100000000001, 0.0072382799999999997), Vec3(0), *calcn_r, Vec3(0), Vec3(0), st_subtalar_r);
-    mtp_l = new PinJoint("mtp_l", *calcn_l, Vec3(0.16341, -0.00182785, -0.00098703799999999998), Vec3(0), *toes_l, Vec3(0), Vec3(0));
+    subtalar_l = new CustomJoint("subtalar_l", *talus_l, Vec3(-0.044572100000000003, -0.038339100000000001, -0.0072382799999999997), Vec3(0), *calcn_l, Vec3(0), Vec3(0),st_subtalar_l);
+    subtalar_r = new CustomJoint("subtalar_r", *talus_r, Vec3(-0.044572100000000003, -0.038339100000000001, 0.0072382799999999997), Vec3(0), *calcn_r, Vec3(0), Vec3(0),st_subtalar_r);
+    mtp_l = new PinJoint("mtp_l", *calcn_l, Vec3(0.16341, -0.00182785 ,-0.00098703799999999998), Vec3(0), *toes_l, Vec3(0), Vec3(0));
     mtp_r = new PinJoint("mtp_r", *calcn_r, Vec3(0.16341, -0.00182785, 0.00098703799999999998), Vec3(0), *toes_r, Vec3(0), Vec3(0));
     back = new CustomJoint("back", *pelvis, Vec3(-0.097250000000000003, 0.078707799999999994, 0), Vec3(0), *torso, Vec3(0), Vec3(0), st_back);
     shoulder_l = new CustomJoint("shoulder_l", *torso, Vec3(0.0028142900000000001, 0.35583300000000001, -0.151642), Vec3(0), *humerus_l, Vec3(0), Vec3(0), st_sho_l);
     shoulder_r = new CustomJoint("shoulder_r", *torso, Vec3(0.0028142900000000001, 0.35583300000000001, 0.151642), Vec3(0), *humerus_r, Vec3(0), Vec3(0), st_sho_r);
     elbow_l = new CustomJoint("elbow_l", *humerus_l, Vec3(0.0135061, -0.294159, 0.0098593099999999996), Vec3(0), *ulna_l, Vec3(0), Vec3(0), st_elb_l);
     elbow_r = new CustomJoint("elbow_r", *humerus_r, Vec3(0.0135061, -0.294159, -0.0098593099999999996), Vec3(0), *ulna_r, Vec3(0), Vec3(0), st_elb_r);
-    radioulnar_l = new CustomJoint("radioulnar_l", *ulna_l, Vec3(-0.0066014300000000001, -0.0127642, -0.0255961), Vec3(0), *radius_l, Vec3(0), Vec3(0), st_radioulnar_l);
-    radioulnar_r = new CustomJoint("radioulnar_r", *ulna_r, Vec3(-0.0066014300000000001, -0.0127642, 0.0255961), Vec3(0), *radius_r, Vec3(0), Vec3(0), st_radioulnar_r);
+    radioulnar_l = new CustomJoint("radioulnar_l", *ulna_l, Vec3(-0.0066014300000000001, -0.0127642, -0.0255961), Vec3(0), *radius_l, Vec3(0), Vec3(0),st_radioulnar_l);
+    radioulnar_r = new CustomJoint("radioulnar_r", *ulna_r, Vec3(-0.0066014300000000001, -0.0127642, 0.0255961), Vec3(0), *radius_r, Vec3(0), Vec3(0),st_radioulnar_r);
     radius_hand_l = new WeldJoint("radius_hand_l", *radius_l, Vec3(-0.0086327899999999996, -0.23143900000000001, -0.0133559), Vec3(0), *hand_l, Vec3(0), Vec3(0));
     radius_hand_r = new WeldJoint("radius_hand_r", *radius_r, Vec3(-0.0086327899999999996, -0.23143900000000001, 0.0133559), Vec3(0), *hand_r, Vec3(0), Vec3(0));
     /// Add bodies and joints to model
@@ -378,7 +378,7 @@ int F_generic(const T** arg, T** res) {
     /// Contact elements    
     /// Parameters
     osim_double_adouble radiusSphere = 0.005;
-    osim_double_adouble stiffness = 200000;
+    osim_double_adouble stiffness = 500000;
     osim_double_adouble dissipation = 2.0;
     osim_double_adouble staticFriction = 0.8;
     osim_double_adouble dynamicFriction = 0.8;
@@ -386,24 +386,24 @@ int F_generic(const T** arg, T** res) {
     osim_double_adouble transitionVelocity = 0.2;
     Vec3 halfSpaceLocation(0);
     Vec3 halfSpaceOrientation(0, 0, -0.5*SimTK::Pi);
-    Vec3 locSphere_1_r(0.005, -0.015, -0.005);
-    Vec3 locSphere_2_r(0.02, -0.015, 0.005);
-    Vec3 locSphere_3_r(0.035, -0.015, 0.01);
-    Vec3 locSphere_4_r(0.02, -0.015, -0.015);
-    Vec3 locSphere_5_r(0.04, -0.015, -0.015);
-    Vec3 locSphere_6_r(0.05, -0.015, 0);
-    Vec3 locSphere_7_r(0.06, -0.015, 0.02);
-    Vec3 locSphere_8_r(0.09, -0.015, -0.01);
-    Vec3 locSphere_9_r(0.11, -0.015, 0.03);
-    Vec3 locSphere_10_r(0.14, -0.015, -0.02);
-    Vec3 locSphere_11_r(-0.02, -0.01, 0.04);
-    Vec3 locSphere_12_r(-0.01, -0.01, 0.025);
-    Vec3 locSphere_13_r(-0.005, -0.01, 0.015);
-    Vec3 locSphere_14_r(0, -0.01, 0);
-    Vec3 locSphere_15_r(0.015, -0.01, -0.02);
-    Vec3 locSphere_16_r(0.005, -0.01, 0.045);
-    Vec3 locSphere_17_r(0.035, -0.01, 0.025);
-    Vec3 locSphere_18_r(0.05, -0.01, -0.015);
+    Vec3 locSphere_1_r(0.005  , -0.015, -0.005);
+    Vec3 locSphere_2_r(0.02   , -0.015, 0.005 );
+    Vec3 locSphere_3_r(0.035  , -0.015, 0.01  );
+    Vec3 locSphere_4_r(0.02   , -0.015, -0.015);
+    Vec3 locSphere_5_r(0.04   , -0.015, -0.015);
+    Vec3 locSphere_6_r(0.05   , -0.015, 0     );
+    Vec3 locSphere_7_r(0.06   , -0.015, 0.02  );
+    Vec3 locSphere_8_r(0.09   , -0.015, -0.01 );
+    Vec3 locSphere_9_r(0.11   , -0.015, 0.03  );
+    Vec3 locSphere_10_r(0.14  , -0.015, -0.02 );
+    Vec3 locSphere_11_r(-0.02 , -0.01, 0.04   );
+    Vec3 locSphere_12_r(-0.01 , -0.01, 0.025  );
+    Vec3 locSphere_13_r(-0.005, -0.01, 0.015  );
+    Vec3 locSphere_14_r(0     , -0.01, 0      );
+    Vec3 locSphere_15_r(0.015 , -0.01, -0.02  );
+    Vec3 locSphere_16_r(0.005 , -0.01, 0.045  );
+    Vec3 locSphere_17_r(0.035 , -0.01, 0.025  );
+    Vec3 locSphere_18_r(0.05  , -0.01, -0.015 );
     Vec3 locSphere_1_l(locSphere_1_r[0], locSphere_1_r[1], -locSphere_1_r[2]);
     Vec3 locSphere_2_l(locSphere_2_r[0], locSphere_2_r[1], -locSphere_2_r[2]);
     Vec3 locSphere_3_l(locSphere_3_r[0], locSphere_3_r[1], -locSphere_3_r[2]);
@@ -979,25 +979,25 @@ int F_generic(const T** arg, T** res) {
     std::vector<T> u(arg[1], arg[1] + NU);
 
     // States and controls
-    T ua[NU + 2]; /// joint accelerations (Qdotdots) - controls
-    Vector QsUs(NX + 4); /// joint positions (Qs) and velocities (Us) - states
+    T ua[NU+2]; /// joint accelerations (Qdotdots) - controls
+    Vector QsUs(NX+4); /// joint positions (Qs) and velocities (Us) - states
 
     // Assign inputs to model variables
     /// States
     for (int i = 0; i < NX; ++i) QsUs[i] = x[i];
     /// pro_sup dofs are locked so Qs and Qdots are hard coded (0)
     QsUs[NX] = 1.51;
-    QsUs[NX + 1] = 0;
-    QsUs[NX + 2] = 1.51;
-    QsUs[NX + 3] = 0;
+    QsUs[NX+1] = 0;
+    QsUs[NX+2] = 1.51;
+    QsUs[NX+3] = 0;
     /// Controls
-    T ut[NU + 2];
+    T ut[NU+2];
     for (int i = 0; i < NU; ++i) ut[i] = u[i];
     /// pro_sup dofs are locked so Qdotdots are hard coded (0)
     /// Need to have a temporary vector to add 0s to the vector before
     /// adjusting for the index difference between OpenSim and Simbody.
     ut[NU] = 0;
-    ut[NU + 1] = 0;
+    ut[NU+1] = 0;
     /// OpenSim and Simbody have different state orders so we need to adjust
     auto indicesOSInSimbody = getIndicesOSInSimbody(*model);
     for (int i = 0; i < ndofr; ++i) ua[i] = ut[indicesOSInSimbody[i]];
@@ -1192,44 +1192,49 @@ int F_generic(const T** arg, T** res) {
         residualMobilityForces);
 
     // Extract several joint origins to set constraints in problem
-    Vec3 calcn_or_l = calcn_l->getPositionInGround(*state);
-    Vec3 calcn_or_r = calcn_r->getPositionInGround(*state);
-    Vec3 femur_or_l = femur_l->getPositionInGround(*state);
-    Vec3 femur_or_r = femur_r->getPositionInGround(*state);
-    Vec3 hand_or_l = hand_l->getPositionInGround(*state);
-    Vec3 hand_or_r = hand_r->getPositionInGround(*state);
-    Vec3 tibia_or_l = tibia_l->getPositionInGround(*state);
-    Vec3 tibia_or_r = tibia_r->getPositionInGround(*state);
-
-    // Extract ground reaction forces
-    SpatialVec GRF_r = GRF_1_r + GRF_2_r + GRF_3_r + GRF_4_r + GRF_5_r + GRF_6_r + GRF_7_r + GRF_8_r + GRF_9_r + GRF_10_r + GRF_11_r + GRF_12_r + GRF_13_r + GRF_14_r + GRF_15_r + GRF_16_r + GRF_17_r + GRF_18_r;
-    SpatialVec GRF_l = GRF_1_l + GRF_2_l + GRF_3_l + GRF_4_l + GRF_5_l + GRF_6_l + GRF_7_l + GRF_8_l + GRF_9_l + GRF_10_l + GRF_11_l + GRF_12_l + GRF_13_l + GRF_14_l + GRF_15_l + GRF_16_l + GRF_17_l + GRF_18_l;
+    Vec3 calcn_or_l  = calcn_l->getPositionInGround(*state);
+    Vec3 calcn_or_r  = calcn_r->getPositionInGround(*state);
+    Vec3 femur_or_l  = femur_l->getPositionInGround(*state);
+    Vec3 femur_or_r  = femur_r->getPositionInGround(*state);
+    Vec3 hand_or_l   = hand_l->getPositionInGround(*state);
+    Vec3 hand_or_r   = hand_r->getPositionInGround(*state);
+    Vec3 tibia_or_l  = tibia_l->getPositionInGround(*state);
+    Vec3 tibia_or_r  = tibia_r->getPositionInGround(*state);
+    Vec3 toes_or_l  = toes_l->getPositionInGround(*state);
+    Vec3 toes_or_r  = toes_r->getPositionInGround(*state);
 
     // Residual forces in OpenSim order
     T res_os[ndofr];
     /// OpenSim and Simbody have different state orders so we need to adjust
     auto indicesSimbodyInOS = getIndicesSimbodyInOS(*model);
     for (int i = 0; i < ndofr; ++i) res_os[i] =
-        value<T>(residualMobilityForces[indicesSimbodyInOS[i]]);
+            value<T>(residualMobilityForces[indicesSimbodyInOS[i]]);
     // Extract results
     int nc = 3;
     /// Residual forces
     /// We do want to extract the pro_sup torques (last two -> till NU)
     for (int i = 0; i < NU; ++i) res[0][i] = res_os[i];
-    /// ground reaction forces
-    for (int i = 0; i < nc; ++i) {
-        res[0][i + NU] = value<T>(GRF_r[1][i]);       /// GRF_r
-    }
-    for (int i = 0; i < nc; ++i) {
-        res[0][i + NU + nc] = value<T>(GRF_l[1][i]);  /// GRF_l
-    }
     /// Joint origins
-    for (int i = 0; i < nc; ++i) {
-        res[0][i + NU + nc + nc] = value<T>(calcn_or_r[i]);      /// calcn_or_r
-    }
-    for (int i = 0; i < nc; ++i) {
-        res[0][i + NU + nc + nc + nc] = value<T>(calcn_or_l[i]); /// calcn_or_l
-    }
+    res[0][NU]     = value<T>(calcn_or_r[0]);   /// calcn_or_r_x
+    res[0][NU + 1] = value<T>(calcn_or_r[2]);   /// calcn_or_r_z
+    res[0][NU + 2] = value<T>(calcn_or_l[0]);   /// calcn_or_l_x
+    res[0][NU + 3] = value<T>(calcn_or_l[2]);   /// calcn_or_l_x
+    res[0][NU + 4] = value<T>(femur_or_r[0]);   /// femur_or_r_x
+    res[0][NU + 5] = value<T>(femur_or_r[2]);   /// femur_or_r_z
+    res[0][NU + 6] = value<T>(femur_or_l[0]);   /// femur_or_l_x
+    res[0][NU + 7] = value<T>(femur_or_l[2]);   /// femur_or_l_z
+    res[0][NU + 8] = value<T>(hand_or_r[0]);    /// hand_or_r_x
+    res[0][NU + 9] = value<T>(hand_or_r[2]);    /// hand_or_r_z
+    res[0][NU + 10] = value<T>(hand_or_l[0]);   /// hand_or_l_x
+    res[0][NU + 11] = value<T>(hand_or_l[2]);   /// hand_or_l_z
+    res[0][NU + 12] = value<T>(tibia_or_r[0]);  /// tibia_or_r_x
+    res[0][NU + 13] = value<T>(tibia_or_r[2]);  /// tibia_or_r_z
+    res[0][NU + 14] = value<T>(tibia_or_l[0]);  /// tibia_or_l_x
+    res[0][NU + 15] = value<T>(tibia_or_l[2]);  /// tibia_or_l_z
+    res[0][NU + 16] = value<T>(toes_or_r[0]);  /// tibia_or_r_x
+    res[0][NU + 17] = value<T>(toes_or_r[2]);  /// tibia_or_r_z
+    res[0][NU + 18] = value<T>(toes_or_l[0]);  /// tibia_or_l_x
+    res[0][NU + 19] = value<T>(toes_or_l[2]);  /// tibia_or_l_z
 
     return 0;
 
