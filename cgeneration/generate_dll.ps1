@@ -35,8 +35,8 @@
 # 4. $path_external_functions is the path to an existing folder, eg. external_functions, in which a folder <filename> will be created with the build and install folders of each external function. 
 # 5. $path_cgeneration is the path the folder containing this PowerShell script.
 # 6. $compiler is by default set to Visual Studio 2017. For Visual Studio 2015, change to "Visual Studio 14 2015 Win64".
-$filename = "video_s2_KA_pp"
-$nInputs_F = 75
+$filename = "mobilecap"
+$nInputs_F = 69
 $path_opensim_build_external_functions = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-contact\core\build\OpenSim\External_Functions"
 $path_external_functions = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-contact\external_functions"
 $path_cgeneration = "C:\Users\u0101727\Documents\MyRepositories\opensim-recorder-github-contact\cgeneration"
