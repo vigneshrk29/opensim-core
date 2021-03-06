@@ -45,7 +45,7 @@ $path_cgeneration = "C:\Users\u0101727\Documents\MyRepositories\opensim-recorder
 $compiler = "Visual Studio 15 2017 Win64"
 
 # The remaining setting should not be changed except if you want things to be organized differently.
-$foo = "foo.m"
+$foo = "foo.py"
 $path_external_filename = Join-Path $path_opensim_build_external_functions $filename
 $path_external_filename_foo = Join-Path $path_external_filename $foo
 $path_external_functions_filename = Join-Path $path_external_functions $filename

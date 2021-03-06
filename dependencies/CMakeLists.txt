@@ -152,7 +152,7 @@ AddDependency(NAME       simbody
               # # simbody-3.6 branch containing fixes for GCC-8 warnings
               # TAG        45654969ef2cf34555bf388472b78bec08ede84f
               URL        https://github.com/antoinefalisse/simbody.git
-              TAG        284b9f6af270639b4741995f5caebba7ddbe8d0c
+              TAG        49d28cfb89ec06c9de7c16b12bb34c24da969145
               CMAKE_ARGS -DBUILD_EXAMPLES:BOOL=OFF 
                          -DBUILD_TESTING:BOOL=OFF
                          -DBUILD_VISUALIZER:BOOL=OFF
