@@ -46,5 +46,11 @@ if(BUILD_EXTERNAL_FUNCTIONS)
     add_subdirectory(PredSim_no_mtpPin_pp_cm3)
     add_subdirectory(PredSim_no_mtpPin_pp_cm5)
     add_subdirectory(PredSim_no_mtpPin_pp_cm6)
-    add_subdirectory(mobilecap)
+    add_subdirectory(mobilecap_squat_t1)
+    add_subdirectory(mobilecap_squat_t2)
+    add_subdirectory(mobilecap_squat_t2_pp)  
+    add_subdirectory(mobilecap_squat_t3)
+    add_subdirectory(mobilecap_squat_t3_pp)    
 endif()
+
+

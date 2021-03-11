@@ -22,7 +22,7 @@ using namespace OpenSim;
 
 constexpr int n_in = 2; 
 constexpr int n_out = 1; 
-constexpr int nCoordinates = 23; 
+constexpr int nCoordinates = 21; 
 constexpr int NX = nCoordinates*2; 
 constexpr int NU = nCoordinates; 
 constexpr int NR = nCoordinates; 
@@ -73,51 +73,51 @@ int F_generic(const T** arg, T** res) {
 
 	// Definition of bodies
 	OpenSim::Body* pelvis;
-	pelvis = new OpenSim::Body("pelvis", 13.00467241227918790969, Vec3(-0.07961770875650124590, 0.00000000000000000000, 0.00000000000000000000), Inertia(0.11351620310624951915, 0.09617958453846627009, 0.06393568248883119143, 0., 0., 0.));
+	pelvis = new OpenSim::Body("pelvis", 13.00467241227918790969, Vec3(-0.08113058777298358393, 0.00000000000000000000, 0.00000000000000000000), Inertia(0.11351620310624951915, 0.09617958453846627009, 0.06393568248883119143, 0., 0., 0.));
 	model->addBody(pelvis);
 
 	OpenSim::Body* femur_r;
-	femur_r = new OpenSim::Body("femur_r", 10.27100789467382391251, Vec3(0.00000000000000000000, -0.17162135124425934030, 0.00000000000000000000), Inertia(0.15069196985538466094, 0.03950177850578044658, 0.15890743945915100643, 0., 0., 0.));
+	femur_r = new OpenSim::Body("femur_r", 10.27100789467382391251, Vec3(0.00000000000000000000, -0.18055069648473012767, 0.00000000000000000000), Inertia(0.16678070762764371504, 0.04371921462083865062, 0.17587330781944207625, 0., 0., 0.));
 	model->addBody(femur_r);
 
 	OpenSim::Body* tibia_r;
-	tibia_r = new OpenSim::Body("tibia_r", 4.09398174140486492689, Vec3(0.00000000000000000000, -0.17577511451686680943, 0.00000000000000000000), Inertia(0.04933117062746028569, 0.00499184464682633951, 0.05001632577506390231, 0., 0., 0.));
+	tibia_r = new OpenSim::Body("tibia_r", 4.09398174140486492689, Vec3(0.00000000000000000000, -0.19833173204911030973, 0.00000000000000000000), Inertia(0.06280454180687664034, 0.00635522149236251652, 0.06367682710974992277, 0., 0., 0.));
 	model->addBody(tibia_r);
 
 	OpenSim::Body* talus_r;
-	talus_r = new OpenSim::Body("talus_r", 0.11042432208779136282, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Inertia(0.00112872274060075517, 0.00112872274060075517, 0.00112872274060075517, 0., 0., 0.));
+	talus_r = new OpenSim::Body("talus_r", 0.11042432208779136282, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Inertia(0.00099387845296775587, 0.00099387845296775587, 0.00099387845296775587, 0., 0., 0.));
 	model->addBody(talus_r);
 
 	OpenSim::Body* calcn_r;
-	calcn_r = new OpenSim::Body("calcn_r", 1.38030402609739200059, Vec3(0.10110235378438084397, 0.03033070613531425180, 0.00000000000000000000), Inertia(0.00158021183684105694, 0.00440201868834294487, 0.00462776323646309565, 0., 0., 0.));
+	calcn_r = new OpenSim::Body("calcn_r", 1.38030402609739200059, Vec3(0.09487117223476060346, 0.02846135167042817757, 0.00000000000000000000), Inertia(0.00139142983415485827, 0.00387612596657424752, 0.00407490165716779904, 0., 0., 0.));
 	model->addBody(calcn_r);
 
 	OpenSim::Body* toes_r;
-	toes_r = new OpenSim::Body("toes_r", 0.23917908164215606615, Vec3(0.03498141440939576963, 0.00606614122706285001, -0.01769291191226664978), Inertia(0.00011287227406007550, 0.00022574454812015099, 0.00011287227406007550, 0., 0., 0.));
+	toes_r = new OpenSim::Body("toes_r", 0.23917908164215606615, Vec3(0.03282542559322716713, 0.00569227033408563603, -0.01660245514108310561), Inertia(0.00009938784529677558, 0.00019877569059355117, 0.00009938784529677558, 0., 0., 0.));
 	model->addBody(toes_r);
 
 	OpenSim::Body* femur_l;
-	femur_l = new OpenSim::Body("femur_l", 10.27100789467382391251, Vec3(0.00000000000000000000, -0.17162135124425934030, 0.00000000000000000000), Inertia(0.15069196985538466094, 0.03950177850578044658, 0.15890743945915100643, 0., 0., 0.));
+	femur_l = new OpenSim::Body("femur_l", 10.27100789467382391251, Vec3(0.00000000000000000000, -0.18055069648473012767, 0.00000000000000000000), Inertia(0.16678070762764371504, 0.04371921462083865062, 0.17587330781944207625, 0., 0., 0.));
 	model->addBody(femur_l);
 
 	OpenSim::Body* tibia_l;
-	tibia_l = new OpenSim::Body("tibia_l", 4.09398174140486492689, Vec3(0.00000000000000000000, -0.17577511451686680943, 0.00000000000000000000), Inertia(0.04933117062746028569, 0.00499184464682633951, 0.05001632577506390231, 0., 0., 0.));
+	tibia_l = new OpenSim::Body("tibia_l", 4.09398174140486492689, Vec3(0.00000000000000000000, -0.19833173204911030973, 0.00000000000000000000), Inertia(0.06280454180687664034, 0.00635522149236251652, 0.06367682710974992277, 0., 0., 0.));
 	model->addBody(tibia_l);
 
 	OpenSim::Body* talus_l;
-	talus_l = new OpenSim::Body("talus_l", 0.11042432208779136282, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Inertia(0.00112872274060075517, 0.00112872274060075517, 0.00112872274060075517, 0., 0., 0.));
+	talus_l = new OpenSim::Body("talus_l", 0.11042432208779136282, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Inertia(0.00099387845296775587, 0.00099387845296775587, 0.00099387845296775587, 0., 0., 0.));
 	model->addBody(talus_l);
 
 	OpenSim::Body* calcn_l;
-	calcn_l = new OpenSim::Body("calcn_l", 1.38030402609739200059, Vec3(0.10110235378438084397, 0.03033070613531425180, 0.00000000000000000000), Inertia(0.00158021183684105694, 0.00440201868834294487, 0.00462776323646309565, 0., 0., 0.));
+	calcn_l = new OpenSim::Body("calcn_l", 1.38030402609739200059, Vec3(0.09487117223476060346, 0.02846135167042817757, 0.00000000000000000000), Inertia(0.00139142983415485827, 0.00387612596657424752, 0.00407490165716779904, 0., 0., 0.));
 	model->addBody(calcn_l);
 
 	OpenSim::Body* toes_l;
-	toes_l = new OpenSim::Body("toes_l", 0.23917908164215606615, Vec3(0.03498141440939576963, 0.00606614122706285001, 0.01769291191226664978), Inertia(0.00011287227406007550, 0.00022574454812015099, 0.00011287227406007550, 0., 0., 0.));
+	toes_l = new OpenSim::Body("toes_l", 0.23917908164215606615, Vec3(0.03282542559322716713, 0.00569227033408563603, 0.01660245514108310561), Inertia(0.00009938784529677558, 0.00019877569059355117, 0.00009938784529677558, 0., 0., 0.));
 	model->addBody(toes_l);
 
 	OpenSim::Body* torso;
-	torso = new OpenSim::Body("torso", 37.80553345590877967197, Vec3(-0.03268284985676326443, 0.34861706513880819092, 0.00000000000000000000), Inertia(1.62820662918448344492, 0.83425575337326363101, 1.58061374636464546661, 0., 0., 0.));
+	torso = new OpenSim::Body("torso", 37.80553345590877967197, Vec3(-0.03388391944978567244, 0.36142847413104717269, 0.00000000000000000000), Inertia(1.62820662918448344492, 0.83425575337326363101, 1.58061374636464546661, 0., 0., 0.));
 	model->addBody(torso);
 
 	// Definition of joints
@@ -142,7 +142,6 @@ int F_generic(const T** arg, T** res) {
 	st_ground_pelvis[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
 	OpenSim::CustomJoint* ground_pelvis;
 	ground_pelvis = new OpenSim::CustomJoint("ground_pelvis", model->getGround(), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *pelvis, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_ground_pelvis);
-	model->addJoint(ground_pelvis);
 
 	SpatialTransform st_hip_r;
 	st_hip_r[0].setCoordinateNames(OpenSim::Array<std::string>("hip_flexion_r", 1, 1));
@@ -161,8 +160,7 @@ int F_generic(const T** arg, T** res) {
 	st_hip_r[5].setFunction(new Constant(0));
 	st_hip_r[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
 	OpenSim::CustomJoint* hip_r;
-	hip_r = new OpenSim::CustomJoint("hip_r", *pelvis, Vec3(-0.07961770875650124590, -0.07443749008210372164, 0.11055586407868790710), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *femur_r, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_hip_r);
-	model->addJoint(hip_r);
+	hip_r = new OpenSim::CustomJoint("hip_r", *pelvis, Vec3(-0.08113058777298358393, -0.07585193566894223027, 0.11440740125747890510), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *femur_r, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_hip_r);
 
 	SpatialTransform st_knee_r;
 	st_knee_r[0].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
@@ -179,8 +177,7 @@ int F_generic(const T** arg, T** res) {
 	st_knee_r[5].setFunction(new Constant(0));
 	st_knee_r[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
 	OpenSim::CustomJoint* knee_r;
-	knee_r = new OpenSim::CustomJoint("knee_r", *femur_r, Vec3(-0.00454276999999999979, -0.39959578000000001152, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *tibia_r, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_knee_r);
-	model->addJoint(knee_r);
+	knee_r = new OpenSim::CustomJoint("knee_r", *femur_r, Vec3(-0.00477913000000000036, -0.42038648000000000682, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *tibia_r, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_knee_r);
 
 	SpatialTransform st_ankle_r;
 	st_ankle_r[0].setCoordinateNames(OpenSim::Array<std::string>("ankle_angle_r", 1, 1));
@@ -197,8 +194,7 @@ int F_generic(const T** arg, T** res) {
 	st_ankle_r[5].setFunction(new Constant(0));
 	st_ankle_r[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
 	OpenSim::CustomJoint* ankle_r;
-	ankle_r = new OpenSim::CustomJoint("ankle_r", *tibia_r, Vec3(0.00000000000000000000, -0.40483823911222666103, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *talus_r, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_ankle_r);
-	model->addJoint(ankle_r);
+	ankle_r = new OpenSim::CustomJoint("ankle_r", *tibia_r, Vec3(0.00000000000000000000, -0.45678974173067721232, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *talus_r, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_ankle_r);
 
 	SpatialTransform st_subtalar_r;
 	st_subtalar_r[0].setCoordinateNames(OpenSim::Array<std::string>("subtalar_angle_r", 1, 1));
@@ -215,26 +211,10 @@ int F_generic(const T** arg, T** res) {
 	st_subtalar_r[5].setFunction(new Constant(0));
 	st_subtalar_r[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
 	OpenSim::CustomJoint* subtalar_r;
-	subtalar_r = new OpenSim::CustomJoint("subtalar_r", *talus_r, Vec3(-0.04930761794064253412, -0.04241243741254776406, 0.00800730641972296174), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *calcn_r, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_subtalar_r);
-	model->addJoint(subtalar_r);
+	subtalar_r = new OpenSim::CustomJoint("subtalar_r", *talus_r, Vec3(-0.04626867069889274015, -0.03979845675248207260, 0.00751379684099303877), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *calcn_r, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_subtalar_r);
 
-	SpatialTransform st_mtp_r;
-	st_mtp_r[0].setCoordinateNames(OpenSim::Array<std::string>("mtp_angle_r", 1, 1));
-	st_mtp_r[0].setFunction(new LinearFunction());
-	st_mtp_r[0].setAxis(Vec3(-0.58095439999999998193, 0.00000000000000000000, 0.81393610999999999045));
-	st_mtp_r[1].setFunction(new Constant(0));
-	st_mtp_r[1].setAxis(Vec3(0.00000000000000000000, 1.00000000000000000000, 0.00000000000000000000));
-	st_mtp_r[2].setFunction(new Constant(0));
-	st_mtp_r[2].setAxis(Vec3(0.81393610999999999045, -0.00000000000000000000, 0.58095439999999998193));
-	st_mtp_r[3].setFunction(new Constant(0));
-	st_mtp_r[3].setAxis(Vec3(1.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
-	st_mtp_r[4].setFunction(new Constant(0));
-	st_mtp_r[4].setAxis(Vec3(0.00000000000000000000, 1.00000000000000000000, 0.00000000000000000000));
-	st_mtp_r[5].setFunction(new Constant(0));
-	st_mtp_r[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
-	OpenSim::CustomJoint* mtp_r;
-	mtp_r = new OpenSim::CustomJoint("mtp_r", *calcn_r, Vec3(0.18077100856647293492, -0.00202204707568761667, 0.00109190542087131306), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *toes_r, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_mtp_r);
-	model->addJoint(mtp_r);
+	OpenSim::WeldJoint* mtp_r;
+	mtp_r = new OpenSim::WeldJoint("mtp_r", *calcn_r, Vec3(0.16962965595575194011, -0.00189742344469521194, 0.00102460866013541442), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *toes_r, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 
 	SpatialTransform st_hip_l;
 	st_hip_l[0].setCoordinateNames(OpenSim::Array<std::string>("hip_flexion_l", 1, 1));
@@ -253,8 +233,7 @@ int F_generic(const T** arg, T** res) {
 	st_hip_l[5].setFunction(new Constant(0));
 	st_hip_l[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
 	OpenSim::CustomJoint* hip_l;
-	hip_l = new OpenSim::CustomJoint("hip_l", *pelvis, Vec3(-0.07961770875650124590, -0.07443749008210372164, -0.11055586407868790710), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *femur_l, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_hip_l);
-	model->addJoint(hip_l);
+	hip_l = new OpenSim::CustomJoint("hip_l", *pelvis, Vec3(-0.08113058777298358393, -0.07585193566894223027, -0.11440740125747890510), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *femur_l, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_hip_l);
 
 	SpatialTransform st_knee_l;
 	st_knee_l[0].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_l", 1, 1));
@@ -271,8 +250,7 @@ int F_generic(const T** arg, T** res) {
 	st_knee_l[5].setFunction(new Constant(0));
 	st_knee_l[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
 	OpenSim::CustomJoint* knee_l;
-	knee_l = new OpenSim::CustomJoint("knee_l", *femur_l, Vec3(-0.00454276999999999979, -0.39959578000000001152, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *tibia_l, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_knee_l);
-	model->addJoint(knee_l);
+	knee_l = new OpenSim::CustomJoint("knee_l", *femur_l, Vec3(-0.00477913000000000036, -0.42038648000000000682, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *tibia_l, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_knee_l);
 
 	SpatialTransform st_ankle_l;
 	st_ankle_l[0].setCoordinateNames(OpenSim::Array<std::string>("ankle_angle_l", 1, 1));
@@ -289,8 +267,7 @@ int F_generic(const T** arg, T** res) {
 	st_ankle_l[5].setFunction(new Constant(0));
 	st_ankle_l[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
 	OpenSim::CustomJoint* ankle_l;
-	ankle_l = new OpenSim::CustomJoint("ankle_l", *tibia_l, Vec3(0.00000000000000000000, -0.40483823911222666103, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *talus_l, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_ankle_l);
-	model->addJoint(ankle_l);
+	ankle_l = new OpenSim::CustomJoint("ankle_l", *tibia_l, Vec3(0.00000000000000000000, -0.45678974173067721232, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *talus_l, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_ankle_l);
 
 	SpatialTransform st_subtalar_l;
 	st_subtalar_l[0].setCoordinateNames(OpenSim::Array<std::string>("subtalar_angle_l", 1, 1));
@@ -307,26 +284,10 @@ int F_generic(const T** arg, T** res) {
 	st_subtalar_l[5].setFunction(new Constant(0));
 	st_subtalar_l[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
 	OpenSim::CustomJoint* subtalar_l;
-	subtalar_l = new OpenSim::CustomJoint("subtalar_l", *talus_l, Vec3(-0.04930761794064253412, -0.04241243741254776406, -0.00800730641972296174), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *calcn_l, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_subtalar_l);
-	model->addJoint(subtalar_l);
+	subtalar_l = new OpenSim::CustomJoint("subtalar_l", *talus_l, Vec3(-0.04626867069889274015, -0.03979845675248207260, -0.00751379684099303877), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *calcn_l, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_subtalar_l);
 
-	SpatialTransform st_mtp_l;
-	st_mtp_l[0].setCoordinateNames(OpenSim::Array<std::string>("mtp_angle_l", 1, 1));
-	st_mtp_l[0].setFunction(new LinearFunction());
-	st_mtp_l[0].setAxis(Vec3(0.58095439999999998193, 0.00000000000000000000, 0.81393610999999999045));
-	st_mtp_l[1].setFunction(new Constant(0));
-	st_mtp_l[1].setAxis(Vec3(0.00000000000000000000, 1.00000000000000000000, 0.00000000000000000000));
-	st_mtp_l[2].setFunction(new Constant(0));
-	st_mtp_l[2].setAxis(Vec3(0.81393610999999999045, 0.00000000000000000000, -0.58095439999999998193));
-	st_mtp_l[3].setFunction(new Constant(0));
-	st_mtp_l[3].setAxis(Vec3(1.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
-	st_mtp_l[4].setFunction(new Constant(0));
-	st_mtp_l[4].setAxis(Vec3(0.00000000000000000000, 1.00000000000000000000, 0.00000000000000000000));
-	st_mtp_l[5].setFunction(new Constant(0));
-	st_mtp_l[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
-	OpenSim::CustomJoint* mtp_l;
-	mtp_l = new OpenSim::CustomJoint("mtp_l", *calcn_l, Vec3(0.18077100856647293492, -0.00202204707568761667, -0.00109190542087131306), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *toes_l, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_mtp_l);
-	model->addJoint(mtp_l);
+	OpenSim::WeldJoint* mtp_l;
+	mtp_l = new OpenSim::WeldJoint("mtp_l", *calcn_l, Vec3(0.16962965595575194011, -0.00189742344469521194, -0.00102460866013541442), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *toes_l, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 
 	SpatialTransform st_back;
 	st_back[0].setCoordinateNames(OpenSim::Array<std::string>("lumbar_extension", 1, 1));
@@ -345,14 +306,28 @@ int F_generic(const T** arg, T** res) {
 	st_back[5].setFunction(new Constant(0));
 	st_back[5].setAxis(Vec3(0.00000000000000000000, 0.00000000000000000000, 1.00000000000000000000));
 	OpenSim::CustomJoint* back;
-	back = new OpenSim::CustomJoint("back", *pelvis, Vec3(-0.11340174358952866129, 0.09177996129639112710, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *torso, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_back);
+	back = new OpenSim::CustomJoint("back", *pelvis, Vec3(-0.11555657975586204611, 0.09352394488681983753, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), *torso, Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000), st_back);
+
+	model->addJoint(ground_pelvis);
+	model->addJoint(hip_l);
+	model->addJoint(hip_r);
+	model->addJoint(knee_l);
+	model->addJoint(knee_r);
+	model->addJoint(ankle_l);
+	model->addJoint(ankle_r);
+	model->addJoint(subtalar_l);
+	model->addJoint(subtalar_r);
+	model->addJoint(mtp_l);
+	model->addJoint(mtp_r);
 	model->addJoint(back);
 
 	// Definition of contacts
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s1_r;
 	SmoothSphereHalfSpaceForce_s1_r = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s1_r", *calcn_r, model->getGround());
-	SmoothSphereHalfSpaceForce_s1_r->set_contact_sphere_location(Vec3(-0.00046630424594596716, -0.01000000000000000021, -0.00552812577775950702));
-	SmoothSphereHalfSpaceForce_s1_r->set_contact_sphere_radius(0.03232000000000000151);
+	Vec3 SmoothSphereHalfSpaceForce_s1_r_location(-0.00043756479226277333, -0.01000000000000000021, -0.00518741407263126602);
+	SmoothSphereHalfSpaceForce_s1_r->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s1_r_location);
+	double SmoothSphereHalfSpaceForce_s1_r_radius = (0.03232000000000000151);
+	SmoothSphereHalfSpaceForce_s1_r->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s1_r_radius );
 	SmoothSphereHalfSpaceForce_s1_r->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s1_r->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s1_r->set_stiffness(1000000.00000000000000000000);
@@ -367,8 +342,10 @@ int F_generic(const T** arg, T** res) {
 
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s2_r;
 	SmoothSphereHalfSpaceForce_s2_r = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s2_r", *calcn_r, model->getGround());
-	SmoothSphereHalfSpaceForce_s2_r->set_contact_sphere_location(Vec3(0.06637467915344000269, -0.01000000000000000021, 0.02212599929579922575));
-	SmoothSphereHalfSpaceForce_s2_r->set_contact_sphere_radius(0.03232000000000000151);
+	Vec3 SmoothSphereHalfSpaceForce_s2_r_location(0.06228384782635794370, -0.01000000000000000021, 0.02076232067291642128);
+	SmoothSphereHalfSpaceForce_s2_r->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s2_r_location);
+	double SmoothSphereHalfSpaceForce_s2_r_radius = (0.03232000000000000151);
+	SmoothSphereHalfSpaceForce_s2_r->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s2_r_radius );
 	SmoothSphereHalfSpaceForce_s2_r->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s2_r->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s2_r->set_stiffness(1000000.00000000000000000000);
@@ -383,8 +360,10 @@ int F_generic(const T** arg, T** res) {
 
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s3_r;
 	SmoothSphereHalfSpaceForce_s3_r = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s3_r", *calcn_r, model->getGround());
-	SmoothSphereHalfSpaceForce_s3_r->set_contact_sphere_location(Vec3(0.18253036767196001433, -0.01000000000000000021, 0.02343358047512199283));
-	SmoothSphereHalfSpaceForce_s3_r->set_contact_sphere_radius(0.02337399999999999894);
+	Vec3 SmoothSphereHalfSpaceForce_s3_r_location(0.17128058152248434864, -0.01000000000000000021, 0.02198931247509567158);
+	SmoothSphereHalfSpaceForce_s3_r->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s3_r_location);
+	double SmoothSphereHalfSpaceForce_s3_r_radius = (0.02337399999999999894);
+	SmoothSphereHalfSpaceForce_s3_r->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s3_r_radius );
 	SmoothSphereHalfSpaceForce_s3_r->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s3_r->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s3_r->set_stiffness(1000000.00000000000000000000);
@@ -399,8 +378,10 @@ int F_generic(const T** arg, T** res) {
 
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s4_r;
 	SmoothSphereHalfSpaceForce_s4_r = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s4_r", *calcn_r, model->getGround());
-	SmoothSphereHalfSpaceForce_s4_r->set_contact_sphere_location(Vec3(0.18253036767196001433, -0.01000000000000000021, -0.01106244652557333494));
-	SmoothSphereHalfSpaceForce_s4_r->set_contact_sphere_radius(0.02050799999999999845);
+	Vec3 SmoothSphereHalfSpaceForce_s4_r_location(0.17128058152248434864, -0.01000000000000000021, -0.01038064130439299119);
+	SmoothSphereHalfSpaceForce_s4_r->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s4_r_location);
+	double SmoothSphereHalfSpaceForce_s4_r_radius = (0.02050799999999999845);
+	SmoothSphereHalfSpaceForce_s4_r->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s4_r_radius );
 	SmoothSphereHalfSpaceForce_s4_r->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s4_r->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s4_r->set_stiffness(1000000.00000000000000000000);
@@ -415,8 +396,10 @@ int F_generic(const T** arg, T** res) {
 
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s5_r;
 	SmoothSphereHalfSpaceForce_s5_r = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s5_r", *toes_r, model->getGround());
-	SmoothSphereHalfSpaceForce_s5_r->set_contact_sphere_location(Vec3(0.05880132826203249979, -0.01000000000000000021, -0.00378036985118417523));
-	SmoothSphereHalfSpaceForce_s5_r->set_contact_sphere_radius(0.01624400000000000149);
+	Vec3 SmoothSphereHalfSpaceForce_s5_r_location(0.05517726078937050527, -0.01000000000000000021, -0.00354737655295021652);
+	SmoothSphereHalfSpaceForce_s5_r->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s5_r_location);
+	double SmoothSphereHalfSpaceForce_s5_r_radius = (0.01624400000000000149);
+	SmoothSphereHalfSpaceForce_s5_r->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s5_r_radius );
 	SmoothSphereHalfSpaceForce_s5_r->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s5_r->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s5_r->set_stiffness(1000000.00000000000000000000);
@@ -431,8 +414,10 @@ int F_generic(const T** arg, T** res) {
 
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s6_r;
 	SmoothSphereHalfSpaceForce_s6_r = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s6_r", *toes_r, model->getGround());
-	SmoothSphereHalfSpaceForce_s6_r->set_contact_sphere_location(Vec3(0.00000192276383060990, -0.01000000000000000021, 0.02466261828411319204));
-	SmoothSphereHalfSpaceForce_s6_r->set_contact_sphere_radius(0.01841399999999999981);
+	Vec3 SmoothSphereHalfSpaceForce_s6_r_location(0.00000180425926511655, -0.01000000000000000021, 0.02314260172401373661);
+	SmoothSphereHalfSpaceForce_s6_r->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s6_r_location);
+	double SmoothSphereHalfSpaceForce_s6_r_radius = (0.01841399999999999981);
+	SmoothSphereHalfSpaceForce_s6_r->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s6_r_radius );
 	SmoothSphereHalfSpaceForce_s6_r->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s6_r->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s6_r->set_stiffness(1000000.00000000000000000000);
@@ -447,8 +432,10 @@ int F_generic(const T** arg, T** res) {
 
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s1_l;
 	SmoothSphereHalfSpaceForce_s1_l = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s1_l", *calcn_l, model->getGround());
-	SmoothSphereHalfSpaceForce_s1_l->set_contact_sphere_location(Vec3(-0.00046630424594596716, -0.01000000000000000021, 0.00552812577775950702));
-	SmoothSphereHalfSpaceForce_s1_l->set_contact_sphere_radius(0.03232000000000000151);
+	Vec3 SmoothSphereHalfSpaceForce_s1_l_location(-0.00043756479226277333, -0.01000000000000000021, 0.00518741407263126602);
+	SmoothSphereHalfSpaceForce_s1_l->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s1_l_location);
+	double SmoothSphereHalfSpaceForce_s1_l_radius = (0.03232000000000000151);
+	SmoothSphereHalfSpaceForce_s1_l->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s1_l_radius );
 	SmoothSphereHalfSpaceForce_s1_l->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s1_l->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s1_l->set_stiffness(1000000.00000000000000000000);
@@ -463,8 +450,10 @@ int F_generic(const T** arg, T** res) {
 
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s2_l;
 	SmoothSphereHalfSpaceForce_s2_l = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s2_l", *calcn_l, model->getGround());
-	SmoothSphereHalfSpaceForce_s2_l->set_contact_sphere_location(Vec3(0.06637467915344000269, -0.01000000000000000021, -0.02212599929579922575));
-	SmoothSphereHalfSpaceForce_s2_l->set_contact_sphere_radius(0.03232000000000000151);
+	Vec3 SmoothSphereHalfSpaceForce_s2_l_location(0.06228384782635794370, -0.01000000000000000021, -0.02076232067291642128);
+	SmoothSphereHalfSpaceForce_s2_l->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s2_l_location);
+	double SmoothSphereHalfSpaceForce_s2_l_radius = (0.03232000000000000151);
+	SmoothSphereHalfSpaceForce_s2_l->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s2_l_radius );
 	SmoothSphereHalfSpaceForce_s2_l->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s2_l->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s2_l->set_stiffness(1000000.00000000000000000000);
@@ -479,8 +468,10 @@ int F_generic(const T** arg, T** res) {
 
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s3_l;
 	SmoothSphereHalfSpaceForce_s3_l = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s3_l", *calcn_l, model->getGround());
-	SmoothSphereHalfSpaceForce_s3_l->set_contact_sphere_location(Vec3(0.18253036767196001433, -0.01000000000000000021, -0.02343358047512199283));
-	SmoothSphereHalfSpaceForce_s3_l->set_contact_sphere_radius(0.02337399999999999894);
+	Vec3 SmoothSphereHalfSpaceForce_s3_l_location(0.17128058152248434864, -0.01000000000000000021, -0.02198931247509567158);
+	SmoothSphereHalfSpaceForce_s3_l->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s3_l_location);
+	double SmoothSphereHalfSpaceForce_s3_l_radius = (0.02337399999999999894);
+	SmoothSphereHalfSpaceForce_s3_l->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s3_l_radius );
 	SmoothSphereHalfSpaceForce_s3_l->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s3_l->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s3_l->set_stiffness(1000000.00000000000000000000);
@@ -495,8 +486,10 @@ int F_generic(const T** arg, T** res) {
 
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s4_l;
 	SmoothSphereHalfSpaceForce_s4_l = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s4_l", *calcn_l, model->getGround());
-	SmoothSphereHalfSpaceForce_s4_l->set_contact_sphere_location(Vec3(0.18253036767196001433, -0.01000000000000000021, 0.01106244652557333494));
-	SmoothSphereHalfSpaceForce_s4_l->set_contact_sphere_radius(0.02050799999999999845);
+	Vec3 SmoothSphereHalfSpaceForce_s4_l_location(0.17128058152248434864, -0.01000000000000000021, 0.01038064130439299119);
+	SmoothSphereHalfSpaceForce_s4_l->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s4_l_location);
+	double SmoothSphereHalfSpaceForce_s4_l_radius = (0.02050799999999999845);
+	SmoothSphereHalfSpaceForce_s4_l->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s4_l_radius );
 	SmoothSphereHalfSpaceForce_s4_l->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s4_l->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s4_l->set_stiffness(1000000.00000000000000000000);
@@ -511,8 +504,10 @@ int F_generic(const T** arg, T** res) {
 
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s5_l;
 	SmoothSphereHalfSpaceForce_s5_l = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s5_l", *toes_l, model->getGround());
-	SmoothSphereHalfSpaceForce_s5_l->set_contact_sphere_location(Vec3(0.05880132826203249979, -0.01000000000000000021, 0.00378036985118417523));
-	SmoothSphereHalfSpaceForce_s5_l->set_contact_sphere_radius(0.01624400000000000149);
+	Vec3 SmoothSphereHalfSpaceForce_s5_l_location(0.05517726078937050527, -0.01000000000000000021, 0.00354737655295021652);
+	SmoothSphereHalfSpaceForce_s5_l->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s5_l_location);
+	double SmoothSphereHalfSpaceForce_s5_l_radius = (0.01624400000000000149);
+	SmoothSphereHalfSpaceForce_s5_l->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s5_l_radius );
 	SmoothSphereHalfSpaceForce_s5_l->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s5_l->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s5_l->set_stiffness(1000000.00000000000000000000);
@@ -527,8 +522,10 @@ int F_generic(const T** arg, T** res) {
 
 	OpenSim::SmoothSphereHalfSpaceForce* SmoothSphereHalfSpaceForce_s6_l;
 	SmoothSphereHalfSpaceForce_s6_l = new SmoothSphereHalfSpaceForce("SmoothSphereHalfSpaceForce_s6_l", *toes_l, model->getGround());
-	SmoothSphereHalfSpaceForce_s6_l->set_contact_sphere_location(Vec3(0.00000192276383060990, -0.01000000000000000021, -0.02466261828411319204));
-	SmoothSphereHalfSpaceForce_s6_l->set_contact_sphere_radius(0.01841399999999999981);
+	Vec3 SmoothSphereHalfSpaceForce_s6_l_location(0.00000180425926511655, -0.01000000000000000021, -0.02314260172401373661);
+	SmoothSphereHalfSpaceForce_s6_l->set_contact_sphere_location(SmoothSphereHalfSpaceForce_s6_l_location);
+	double SmoothSphereHalfSpaceForce_s6_l_radius = (0.01841399999999999981);
+	SmoothSphereHalfSpaceForce_s6_l->set_contact_sphere_radius(SmoothSphereHalfSpaceForce_s6_l_radius );
 	SmoothSphereHalfSpaceForce_s6_l->set_contact_half_space_location(Vec3(0.00000000000000000000, 0.00000000000000000000, 0.00000000000000000000));
 	SmoothSphereHalfSpaceForce_s6_l->set_contact_half_space_orientation(Vec3(0.00000000000000000000, 0.00000000000000000000, -1.57079632679489655800));
 	SmoothSphereHalfSpaceForce_s6_l->set_stiffness(1000000.00000000000000000000);
