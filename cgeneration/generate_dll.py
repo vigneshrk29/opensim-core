@@ -55,8 +55,7 @@ if __name__ == "__main__":
 # 5. path_cgeneration is the path the folder containing this PowerShell script.
 # 6. compiler is by default set to Visual Studio 2017. For Visual Studio 2015, change to "Visual Studio 14 2015 Win64".
 
-    filename = "mobilecap_squat_t3_pp"
-    nInputs_F = 63
+    filename = "s2_PredSim_mtpPin_ss_pp"
     path_opensim_build_external_functions = "C:/Users/u0101727/Documents/Visual Studio 2017/Projects/opensim-recorder-github-py/core/build/OpenSim/External_Functions"
     path_external_functions = "C:/Users/u0101727/Documents/Visual Studio 2017/Projects/opensim-recorder-github-py/external_functions"
     path_cgeneration = "C:/Users/u0101727/Documents/MyRepositories/opensim-recorder-github-py/cgeneration"
