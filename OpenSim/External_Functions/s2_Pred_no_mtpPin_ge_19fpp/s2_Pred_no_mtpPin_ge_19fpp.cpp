@@ -718,7 +718,7 @@ int F_generic(const T** arg, T** res) {
 	ut[NU + 1] = 0;
 	/// OpenSim and Simbody have different state orders.
 	auto indicesOSInSimbody = getIndicesOSInSimbody(*model);
-	for (int i = 0; i < NU; ++i) ua[i] = ut[indicesOSInSimbody[i]];
+	for (int i = 0; i < NU+2; ++i) ua[i] = ut[indicesOSInSimbody[i]];
 
 	// Set state variables and realize.
 	model->setStateVariableValues(*state, QsUs);

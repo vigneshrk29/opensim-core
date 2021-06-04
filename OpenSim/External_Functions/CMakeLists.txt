@@ -114,6 +114,13 @@ if(BUILD_EXTERNAL_FUNCTIONS)
     add_subdirectory(s2_Pred_no_mtpPin_ge_19epp)
     add_subdirectory(s2_Pred_no_mtpPin_ge_19f)
     add_subdirectory(s2_Pred_no_mtpPin_ge_19fpp)
+    add_subdirectory(PredSim_no_mtpPin_cm0b)
+    add_subdirectory(PredSim_no_mtpPin_pp_cm0b)
+    add_subdirectory(s2_Pred_no_mtpPin_ge_19g)
+    add_subdirectory(s2_PredSim_no_mtpPin_gb)
+    add_subdirectory(s2_PredSim_no_mtpPin_gb_pp)
+    add_subdirectory(PredSim_no_mtpPin_cm0c)
+    add_subdirectory(PredSim_no_mtpPin_pp_cm0c)
 endif()
 
 
