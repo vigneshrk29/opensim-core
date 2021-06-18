@@ -134,6 +134,7 @@ if(BUILD_EXTERNAL_FUNCTIONS)
     add_subdirectory(mocap_s4_KA_c1)
     add_subdirectory(mocap_s4_KA_c2)
     add_subdirectory(mocap_s4_KA_c2_pp)
+    add_subdirectory(testRaja)
 endif()
 
 

@@ -55,12 +55,17 @@ if __name__ == "__main__":
 # 5. path_cgeneration is the path the folder containing this PowerShell script.
 # 6. compiler is by default set to Visual Studio 2017. For Visual Studio 2015, change to "Visual Studio 14 2015 Win64".
 
-    filename = "mocap_s4_KA_c2"
-    path_opensim_build_external_functions = "C:/Users/u0101727/Documents/Visual Studio 2017/Projects/opensim-recorder-github-py/core/build/OpenSim/External_Functions"
-    path_external_functions = "C:/Users/u0101727/Documents/Visual Studio 2017/Projects/opensim-recorder-github-py/external_functions"
-    path_cgeneration = "C:/Users/u0101727/Documents/MyRepositories/opensim-recorder-github-py/cgeneration"
+    filename = "testRaja"
+    computername = os.environ.get('COMPUTERNAME', None)
+    if computername == "GBW-L-W2003": # Antoine's laptop
+        path_opensim_build_external_functions = "C:/Users/u0101727/Documents/Visual Studio 2017/Projects/opensim-recorder-github-py/core/build/OpenSim/External_Functions"
+        path_external_functions = "C:/Users/u0101727/Documents/Visual Studio 2017/Projects/opensim-recorder-github-py/external_functions"
+        path_cgeneration = "C:/Users/u0101727/Documents/MyRepositories/opensim-recorder-github-py/cgeneration"
+    elif computername == "DESKTOP-RV5S4TL": # Antoine's desktop (Stanford)
+        path_opensim_build_external_functions = "C:/Users/antoi/Documents/VS2017/opensim-ad/core/build/OpenSim/External_Functions"
+        path_external_functions = "C:/Users/antoi/Documents/VS2017/opensim-ad/external_functions"
+        path_cgeneration = "C:/Users/antoi/Documents/MyRepositories/opensim-ad/cgeneration"
     compiler = "Visual Studio 15 2017 Win64"
-    path_python_folder = "C:/Users/u0101727/AppData/Local/Continuum/anaconda3"
     
     # The remaining setting should not be changed except if you want things to be organized differently.
     fooName = "foo.py"
