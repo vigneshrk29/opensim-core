@@ -134,7 +134,12 @@ if(BUILD_EXTERNAL_FUNCTIONS)
     add_subdirectory(mocap_s4_KA_c1)
     add_subdirectory(mocap_s4_KA_c2)
     add_subdirectory(mocap_s4_KA_c2_pp)
-    add_subdirectory(testRaja)
+    add_subdirectory(mocap_s4_raja_KA)
+    add_subdirectory(mocap_s4_raja_KA_pp)
+    add_subdirectory(mobcap_0422_A1_raja)
+    add_subdirectory(mobcap_0422_A1_raja_pp)
+    add_subdirectory(mocap_0422_A1_raja)
+    add_subdirectory(mocap_0422_A1_raja_pp)
 endif()
 
 
