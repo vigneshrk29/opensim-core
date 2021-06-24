@@ -36,9 +36,6 @@ public:
     osimInstantiator() {
         RegisterTypes_osimCommon();
         RegisterTypes_osimSimulation();
-        RegisterTypes_osimActuators();
-        RegisterTypes_osimAnalyses();
-        RegisterTypes_osimTools();
     }
 };
 
