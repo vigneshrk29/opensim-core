@@ -25,7 +25,7 @@ constexpr int n_out = 1;
 constexpr int nCoordinates = 31; 
 constexpr int NX = nCoordinates*2; 
 constexpr int NU = nCoordinates; 
-constexpr int NR = nCoordinates + 3*4 + 3*2*12; 
+constexpr int NR = nCoordinates + 3*4; 
 
 template<typename T> 
 T value(const Recorder& e) { return e; }; 
@@ -820,7 +820,6 @@ int F_generic(const T** arg, T** res) {
 	GRF_l += GRF_11;
 	GRM_l += GRM_11;
 
-
 	/// Residual forces.
 	/// OpenSim and Simbody have different state orders so we need to adjust
 	auto indicesSimbodyInOS = getIndicesSimbodyInOS(*model);
@@ -832,42 +831,6 @@ int F_generic(const T** arg, T** res) {
 	for (int i = 0; i < nc; ++i) res[0][i + NU + 1 * nc] = value<T>(GRF_l[1][i]);
 	for (int i = 0; i < nc; ++i) res[0][i + NU + 2 * nc] = value<T>(GRM_r[1][i]);
 	for (int i = 0; i < nc; ++i) res[0][i + NU + 3 * nc] = value<T>(GRM_l[1][i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 4 * nc] = value<T>(GRF_0[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 5 * nc] = value<T>(locationCP_G_adj_0[i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 6 * nc] = value<T>(GRF_1[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 7 * nc] = value<T>(locationCP_G_adj_1[i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 8 * nc] = value<T>(GRF_2[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 9 * nc] = value<T>(locationCP_G_adj_2[i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 10 * nc] = value<T>(GRF_3[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 11 * nc] = value<T>(locationCP_G_adj_3[i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 12 * nc] = value<T>(GRF_4[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 13 * nc] = value<T>(locationCP_G_adj_4[i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 14 * nc] = value<T>(GRF_5[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 15 * nc] = value<T>(locationCP_G_adj_5[i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 16 * nc] = value<T>(GRF_6[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 17 * nc] = value<T>(locationCP_G_adj_6[i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 18 * nc] = value<T>(GRF_7[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 19 * nc] = value<T>(locationCP_G_adj_7[i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 20 * nc] = value<T>(GRF_8[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 21 * nc] = value<T>(locationCP_G_adj_8[i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 22 * nc] = value<T>(GRF_9[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 23 * nc] = value<T>(locationCP_G_adj_9[i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 24 * nc] = value<T>(GRF_10[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 25 * nc] = value<T>(locationCP_G_adj_10[i]);
-
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 26 * nc] = value<T>(GRF_11[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 27 * nc] = value<T>(locationCP_G_adj_11[i]);
 
 	return 0;
 }

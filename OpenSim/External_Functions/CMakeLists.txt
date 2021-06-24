@@ -140,6 +140,7 @@ if(BUILD_EXTERNAL_FUNCTIONS)
     add_subdirectory(mobcap_0422_A1_raja_pp)
     add_subdirectory(mocap_0422_A1_raja)
     add_subdirectory(mocap_0422_A1_raja_pp)
+    add_subdirectory(mocap_0422_A1_GR_raja)
 endif()
 
 

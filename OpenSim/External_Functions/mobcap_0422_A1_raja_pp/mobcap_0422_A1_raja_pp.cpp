@@ -831,7 +831,7 @@ int F_generic(const T** arg, T** res) {
 	for (int i = 0; i < nc; ++i) res[0][i + NU + 0 * nc] = value<T>(GRF_r[1][i]);
 	for (int i = 0; i < nc; ++i) res[0][i + NU + 1 * nc] = value<T>(GRF_l[1][i]);
 	for (int i = 0; i < nc; ++i) res[0][i + NU + 2 * nc] = value<T>(GRM_r[1][i]);
-	for (int i = 0; i < nc; ++i) res[0][i + NU + 3 * nc] = value<T>(GRM_r[1][i]);
+	for (int i = 0; i < nc; ++i) res[0][i + NU + 3 * nc] = value<T>(GRM_l[1][i]);
 
 	for (int i = 0; i < nc; ++i) res[0][i + NU + 4 * nc] = value<T>(GRF_0[1][i]);
 	for (int i = 0; i < nc; ++i) res[0][i + NU + 5 * nc] = value<T>(locationCP_G_adj_0[i]);
