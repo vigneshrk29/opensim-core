@@ -147,6 +147,12 @@ if(BUILD_EXTERNAL_FUNCTIONS)
     add_subdirectory(mocap_0422_A1_2392)
     add_subdirectory(mocap_0422_A1_2392_pp)
     add_subdirectory(mocap_0422_A1_2392_gr)
+    
+    add_subdirectory(PredSim_mtpPin_cm0c)
+    add_subdirectory(PredSim_mtpPin_pp_cm0c)
+
+    add_subdirectory(testSpline)    
+    
 endif()
 
 
