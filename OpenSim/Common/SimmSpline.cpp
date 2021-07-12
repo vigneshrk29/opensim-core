@@ -568,7 +568,6 @@ osim_double_adouble SimmSpline::calcValue(const Vector& x) const
         /* Do a binary search to find which two points the abscissa is between. */
         i = 0;
         j = n;
-
         while (1)
         {
             k = (i+j)/2;
@@ -659,7 +658,6 @@ osim_double_adouble SimmSpline::calcDerivative(const std::vector<int>& derivComp
         /* Do a binary search to find which two points the abscissa is between. */
         i = 0;
         j = n;
-
         while (1)
         {
             k = (i+j)/2;
