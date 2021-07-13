@@ -3,7 +3,7 @@
     Contributor: Joris Gillis, Gil Serrancoli, Chris Dembia
 */
 #include <OpenSim/Simulation/Model/Model.h>
-#include <OpenSim/Simulation/SimbodyEngine/PlanarJoint.h>
+//#include <OpenSim/Simulation/SimbodyEngine/PlanarJoint.h>
 #include <OpenSim/Simulation/SimbodyEngine/PinJoint.h>
 #include <OpenSim/Simulation/SimbodyEngine/WeldJoint.h>
 #include <OpenSim/Simulation/SimbodyEngine/Joint.h>
@@ -11,9 +11,9 @@
 #include <OpenSim/Simulation/SimbodyEngine/CustomJoint.h>
 #include <OpenSim/Common/LinearFunction.h>
 #include <OpenSim/Common/Constant.h>
-#include <OpenSim/Common/SimmSpline.h>
-#include <OpenSim/Simulation/Model/ConditionalPathPoint.h>
-#include <OpenSim/Simulation/Model/MovingPathPoint.h>
+//#include <OpenSim/Common/SimmSpline.h>
+//#include <OpenSim/Simulation/Model/ConditionalPathPoint.h>
+//#include <OpenSim/Simulation/Model/MovingPathPoint.h>
 #include <OpenSim/Simulation/Model/SmoothSphereHalfSpaceForce.h>
 #include "SimTKcommon/internal/recorder.h"
 
@@ -40,7 +40,7 @@ using namespace OpenSim;
 constexpr int n_in = 2;
 constexpr int n_out = 1;
 /// number of elements in input/output vectors of function F
-constexpr int ndof = 29;       // # degrees of freedom (excluding locked)
+constexpr int ndof = 31;       // # degrees of freedom (excluding locked)
 constexpr int ndofr = ndof+2;  // # degrees of freedom (including locked)
 constexpr int NX = ndof*2;     // # states
 constexpr int NU = ndof;       // # controls
@@ -134,8 +134,8 @@ int F_generic(const T** arg, T** res) {
     OpenSim::CustomJoint* ankle_l;
     OpenSim::CustomJoint* subtalar_r;
     OpenSim::CustomJoint* subtalar_l;
-    OpenSim::WeldJoint* mtp_r;
-    OpenSim::WeldJoint* mtp_l;
+    OpenSim::PinJoint* mtp_r;
+    OpenSim::PinJoint* mtp_l;
     OpenSim::CustomJoint* back;
     OpenSim::CustomJoint* shoulder_r;
     OpenSim::CustomJoint* shoulder_l;
@@ -306,8 +306,8 @@ int F_generic(const T** arg, T** res) {
     ankle_r = new CustomJoint("ankle_r", *tibia_r, Vec3(0, -0.415694825374905, 0), Vec3(0), *talus_r, Vec3(0), Vec3(0), st_ankle_r);
     subtalar_l = new CustomJoint("subtalar_l", *talus_l, Vec3(-0.0445720919117321, -0.0383391276542374, -0.00723828107321956), Vec3(0), *calcn_l, Vec3(0), Vec3(0),st_subtalar_l);
     subtalar_r = new CustomJoint("subtalar_r", *talus_r, Vec3(-0.0445720919117321, -0.0383391276542374, 0.00723828107321956), Vec3(0), *calcn_r, Vec3(0), Vec3(0),st_subtalar_r);
-    mtp_l = new WeldJoint("mtp_l", *calcn_l, Vec3(0.163409678774199, -0.00182784875586352, -0.000987038328166303), Vec3(0), *toes_l, Vec3(0), Vec3(0));
-    mtp_r = new WeldJoint("mtp_r", *calcn_r, Vec3(0.163409678774199, -0.00182784875586352, 0.000987038328166303), Vec3(0), *toes_r, Vec3(0), Vec3(0));
+    mtp_l = new PinJoint("mtp_l", *calcn_l, Vec3(0.163409678774199, -0.00182784875586352, -0.000987038328166303), Vec3(0), *toes_l, Vec3(0), Vec3(0));
+    mtp_r = new PinJoint("mtp_r", *calcn_r, Vec3(0.163409678774199, -0.00182784875586352, 0.000987038328166303), Vec3(0), *toes_r, Vec3(0), Vec3(0));
     back = new CustomJoint("back", *pelvis, Vec3(-0.0972499926058214, 0.0787077894476112, 0), Vec3(0), *torso, Vec3(0), Vec3(0), st_back);
     shoulder_l = new CustomJoint("shoulder_l", *torso, Vec3(0.0028142880546385, 0.35583331053375, -0.151641511660395), Vec3(0), *humerus_l, Vec3(0), Vec3(0), st_sho_l);
     shoulder_r = new CustomJoint("shoulder_r", *torso, Vec3(0.0028142880546385, 0.35583331053375, 0.151641511660395), Vec3(0), *humerus_r, Vec3(0), Vec3(0), st_sho_r);
