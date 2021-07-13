@@ -10,7 +10,8 @@
 #include <OpenSim/Simulation/SimbodyEngine/Joint.h>
 #include <OpenSim/Common/LinearFunction.h>
 #include <OpenSim/Common/Constant.h>
-#include <OpenSim/Common/SimmSpline.h>
+#include <OpenSim/Common/MultivariatePolynomialFunction.h>
+#include <OpenSim/Common/PolynomialFunction.h>
 #include <OpenSim/Common/MultiplierFunction.h>
 #include "SimTKcommon/internal/recorder.h"
 
@@ -156,7 +157,8 @@ int F_generic(const T** arg, T** res) {
     st_knee_r[1].setAxis(Vec3(0,1,0));
     st_knee_r[2].setFunction(new Constant(0));
     st_knee_r[2].setAxis(Vec3(1,0,0));
-    st_knee_r[3].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
+
+    /*st_knee_r[3].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
     osim_double_adouble knee_X_l_x[] = { -2.0944, -1.74533, -1.39626, -1.0472, -0.698132, -0.349066, -0.174533, 0.197344, 0.337395, 0.490178, 1.52146, 2.0944 };
     osim_double_adouble knee_X_l_y[] = { -0.0032, 0.00179, 0.00411, 0.0041, 0.00212, -0.001, -0.0031, -0.005227, -0.005435, -0.005574, -0.005435, -0.00525 };
     OpenSim::SimmSpline* knee_X_l = new SimmSpline(12, knee_X_l_x, knee_X_l_y, "function_X");
@@ -167,8 +169,34 @@ int F_generic(const T** arg, T** res) {
     osim_double_adouble knee_Y_l_y[] = { -0.4226, -0.4082, -0.399, -0.3976, -0.3966, -0.395264, -0.396 };
     OpenSim::SimmSpline* knee_Y_l = new SimmSpline(7, knee_Y_l_x, knee_Y_l_y, "function_Y");
     st_knee_r[4].setFunction(new MultiplierFunction(knee_Y_l, 1.0165488144806301));
-    st_knee_r[4].setAxis(Vec3(0,1,0));
-    st_knee_r[5].setFunction(new Constant(0));
+    st_knee_r[4].setAxis(Vec3(0,1,0));*/
+	
+	// Example with MultivariatePolynomialFunction
+	st_knee_r[3].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
+	osim_double_adouble coefficientsTr1[5] = { -0.0036, -0.0063, 0.0028, 0.0013, -0.0007 };
+	auto* tr1 = new MultivariatePolynomialFunction();
+	tr1->setDimension(1);
+	tr1->setOrder(4);
+	Vector coefficientsTr1_vec(5);
+	for (int i = 0; i < 5; ++i) coefficientsTr1_vec[i] = coefficientsTr1[i];
+	tr1->setCoefficients(coefficientsTr1_vec);
+	st_knee_r[3].setFunction(new MultiplierFunction(tr1, 1.0165488144806301));
+	st_knee_r[3].setAxis(Vec3(1, 0, 0));
+
+	// Example with PolynomialFunction
+	//st_knee_r[3].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
+	//osim_double_adouble coefficientsTr1[5] = {-0.0007, 0.0013, 0.0028, -0.0063 -0.0036 };
+	//auto* tr1 = new PolynomialFunction();
+	//Vector coefficientsTr1_vec(5);
+	//for (int i = 0; i < 5; ++i) coefficientsTr1_vec[i] = coefficientsTr1[i];
+	//tr1->setCoefficients(coefficientsTr1_vec);
+	//st_knee_r[3].setFunction(new MultiplierFunction(tr1, 1.0165488144806301));
+	//st_knee_r[3].setAxis(Vec3(1, 0, 0));
+	
+	st_knee_r[4].setFunction(new Constant(0));
+	st_knee_r[4].setAxis(Vec3(0, 1, 0));
+	
+	st_knee_r[5].setFunction(new Constant(0));
     st_knee_r[5].setAxis(Vec3(0,0,1));
 
     /// Joint specifications
