@@ -211,7 +211,6 @@ int F_generic(const T** arg, T** res) {
     // Initialize system and state
     SimTK::State* state;
     state = new State(model->initSystem());
-	// Problem is that init system calls calcValue with 0 as input, why??? 
 
     // Read inputs
     std::vector<T> x(arg[0], arg[0] + NX);
