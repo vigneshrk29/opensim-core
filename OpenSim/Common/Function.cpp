@@ -163,14 +163,14 @@ osim_double_adouble Function::calcValue(const Vector& x) const
 {
     if (_function == NULL)
         _function = createSimTKFunction();
-    return _function->calcValue(x).value();
+    return _function->calcValue(x);
 }
 
 osim_double_adouble Function::calcDerivative(const std::vector<int>& derivComponents, const Vector& x) const
 {
     if (_function == NULL)
         _function = createSimTKFunction();
-    return _function->calcDerivative(derivComponents, x).value();
+    return _function->calcDerivative(derivComponents, x);
 }
 
 int Function::getArgumentSize() const
