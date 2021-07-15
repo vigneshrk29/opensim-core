@@ -151,7 +151,8 @@ if(BUILD_EXTERNAL_FUNCTIONS)
     add_subdirectory(PredSim_mtpPin_cm0c)
     add_subdirectory(PredSim_mtpPin_pp_cm0c)
 
-    add_subdirectory(testSpline)    
+    add_subdirectory(testSpline)
+    add_subdirectory(TestLai)  
     
 endif()
 
