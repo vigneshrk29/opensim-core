@@ -55,7 +55,7 @@ if __name__ == "__main__":
 # 5. path_cgeneration is the path the folder containing this PowerShell script.
 # 6. compiler is by default set to Visual Studio 2017. For Visual Studio 2015, change to "Visual Studio 14 2015 Win64".
 
-    filename = "testSpline"
+    filename = "testLai"
     computername = os.environ.get('COMPUTERNAME', None)
     if computername == "GBW-L-W2003": # Antoine's laptop
         path_opensim_build_external_functions = "C:/Users/u0101727/Documents/Visual Studio 2017/Projects/opensim-recorder-github-py/core/build/OpenSim/External_Functions"

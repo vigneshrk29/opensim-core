@@ -172,18 +172,18 @@ int F_generic(const T** arg, T** res) {
     st_knee_r[4].setAxis(Vec3(0,1,0));*/
 	
 	// Example with MultivariatePolynomialFunction
-	st_knee_r[3].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
-	osim_double_adouble coefficientsTr1[5] = { -0.0036, -0.0063, 0.0028, 0.0013, -0.0007 };
-	auto* tr1 = new MultivariatePolynomialFunction();
-	tr1->setDimension(1);
-	tr1->setOrder(4);
-	Vector coefficientsTr1_vec(5);
-	for (int i = 0; i < 5; ++i) coefficientsTr1_vec[i] = coefficientsTr1[i];
-	tr1->setCoefficients(coefficientsTr1_vec);
-	st_knee_r[3].setFunction(new MultiplierFunction(tr1, 1.0165488144806301));
-	st_knee_r[3].setAxis(Vec3(1, 0, 0));
+	//st_knee_r[3].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
+	//osim_double_adouble coefficientsTr1[5] = { -0.0036, -0.0063, 0.0028, 0.0013, -0.0007 };
+	//auto* tr1 = new MultivariatePolynomialFunction();
+	//tr1->setDimension(1);
+	//tr1->setOrder(4);
+	//Vector coefficientsTr1_vec(5);
+	//for (int i = 0; i < 5; ++i) coefficientsTr1_vec[i] = coefficientsTr1[i];
+	//tr1->setCoefficients(coefficientsTr1_vec);
+	//st_knee_r[3].setFunction(new MultiplierFunction(tr1, 1.0165488144806301));
+	//st_knee_r[3].setAxis(Vec3(1, 0, 0));
 
-	// Example with PolynomialFunction
+	//// Example with PolynomialFunction
 	//st_knee_r[3].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
 	//osim_double_adouble coefficientsTr1[5] = {-0.0007, 0.0013, 0.0028, -0.0063 -0.0036 };
 	//auto* tr1 = new PolynomialFunction();
@@ -192,8 +192,18 @@ int F_generic(const T** arg, T** res) {
 	//tr1->setCoefficients(coefficientsTr1_vec);
 	//st_knee_r[3].setFunction(new MultiplierFunction(tr1, 1.0165488144806301));
 	//st_knee_r[3].setAxis(Vec3(1, 0, 0));
+
+	// Example with PolynomialFunction
+	st_knee_r[3].setCoordinateNames(OpenSim::Array<std::string>("knee_angle_r", 1, 1));
+	osim_double_adouble coefficientsTr1[5] = { -0.0007, 0.0013, 0.0028, -0.0063 - 0.0036 };
+	//auto* tr1 = new PolynomialFunction();
+	Vector coefficientsTr1_vec(5);
+	for (int i = 0; i < 5; ++i) coefficientsTr1_vec[i] = coefficientsTr1[i];
+	//tr1->setCoefficients(coefficientsTr1_vec);
+	st_knee_r[3].setFunction(new MultiplierFunction(new PolynomialFunction(coefficientsTr1_vec), 1.0165488144806301));
+	st_knee_r[3].setAxis(Vec3(1, 0, 0));
 	
-	st_knee_r[4].setFunction(new Constant(0));
+	st_knee_r[4].setFunction(new MultiplierFunction(new Constant(0), 1));
 	st_knee_r[4].setAxis(Vec3(0, 1, 0));
 	
 	st_knee_r[5].setFunction(new Constant(0));
