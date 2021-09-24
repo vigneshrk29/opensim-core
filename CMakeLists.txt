@@ -107,7 +107,7 @@ mark_as_advanced(OPENSIM_PYTHON_STANDALONE) # Mainly for packagers; not users.
 #   debian, homebrew, conda: OFF (can have a separate C++ library package)
 
 option(BUILD_API_ONLY "Build/install only headers, libraries,
-wrapping, tests; not applications (opensim, ik, rra, etc.)." OFF)
+wrapping, tests; not applications (opensim, ik, rra, etc.)." ON)
 
 option(WITH_RECORDER "Get the Simbody libraries build with Recorder" OFF)
 
