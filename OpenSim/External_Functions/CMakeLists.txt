@@ -153,6 +153,8 @@ if(BUILD_EXTERNAL_FUNCTIONS)
 
     add_subdirectory(testSpline)
     add_subdirectory(TestLai)  
+	
+	add_subdirectory(AcrobotPlanar)
     
 endif()
 
