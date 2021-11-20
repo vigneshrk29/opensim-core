@@ -26,9 +26,9 @@
 # 6. $compiler is by default set to Visual Studio 2017. For Visual Studio 2015, change to "Visual Studio 14 2015 Win64".
 $filename = "PredSim"
 $nInputs_F = 87
-$path_opensim_build_external_functions = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-contact\core\build\OpenSim\External_Functions"
-$path_external_functions = "C:\Users\u0101727\Documents\Visual Studio 2017\Projects\opensim-recorder-github-contact\external_functions"
-$path_cgeneration = "C:\Users\u0101727\Documents\MyRepositories\opensim-recorder-github-contact\cgeneration"
+$path_opensim_build_external_functions = "C:\Users\antoi\Documents\VS17\opensim-ad-dev\build\OpenSim\External_Functions"
+$path_external_functions = "C:\Users\antoi\Documents\VS17\opensim-ad-dev\external_functions"
+$path_cgeneration = "C:\Users\antoi\Documents\MyRepositories\opensim-ad-dev\cgeneration"
 $compiler = "Visual Studio 15 2017 Win64"
 
 # The remaining setting should not be changed except if you want things to be organized differently.
