@@ -73,10 +73,11 @@ macro(OpenSimAddPythonModule)
     # We run swig once to get dependencies and then again to actually generate
     # the wrappers. This variable holds the parts of the swig command that
     # are shared between both invocations.
-    set(_swig_common_args -c++ -python
+    set(_swig_common_args -c++ -python -py3
             -I${OpenSim_SOURCE_DIR}
             -I${OpenSim_SOURCE_DIR}/Bindings/
             -I${Simbody_INCLUDE_DIR}
+            -v
             ${SWIG_FLAGS}
             ${_interface_file}
             )
@@ -95,6 +96,7 @@ macro(OpenSimAddPythonModule)
             #-debug-tmused # Which typemaps were used?
             -v # verbose
             -o ${_output_cxx_file}
+            ${SWIG_DOXYGEN_STRING}
             -outdir "${CMAKE_CURRENT_BINARY_DIR}"
             ${_swig_common_args}
         DEPENDS ${_${OSIMSWIGPY_MODULE}_dependencies}
@@ -137,8 +139,8 @@ macro(OpenSimAddPythonModule)
     add_library(${_libname} SHARED ${_output_cxx_file} ${_output_header_file})
 
     target_include_directories(${_libname} PRIVATE
-            "${PYTHON_INCLUDE_PATH}"
-            "${PYTHON_NUMPY_INCLUDE_DIR}")
+            "${Python3_INCLUDE_DIRS}"
+            "${Python3_NumPy_INCLUDE_DIRS}")
     
     # On macOS, the python interpreter might link to the python library 
     # statically, in which case we do not want to link dynamically to the
@@ -150,7 +152,7 @@ macro(OpenSimAddPythonModule)
     # https://stackoverflow.com/questions/25421479/clang-and-undefined-symbols-when-building-a-library
     # https://github.com/lisitsyn/shogun/commit/961f6109c2a8abab4941bcdde1a19dfe70c440f1
     # https://github.com/shogun-toolbox/shogun/issues/4068
-    execute_process(COMMAND "${PYTHON_EXECUTABLE}" -c
+    execute_process(COMMAND "${Python3_EXECUTABLE}" -c
         "import sysconfig; print(sysconfig.get_config_var('LDSHARED'))"
         OUTPUT_VARIABLE PYTHON_LDSHARED
         OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -158,7 +160,7 @@ macro(OpenSimAddPythonModule)
         set_target_properties(${_libname} PROPERTIES LINK_FLAGS
             "-undefined dynamic_lookup")
     else()
-        target_link_libraries(${_libname} ${PYTHON_LIBRARIES})
+        target_link_libraries(${_libname} ${Python3_LIBRARIES})
     endif()
 
     target_link_libraries(${_libname} osimTools osimExampleComponents osimMoco)
@@ -253,6 +255,11 @@ OpenSimPutFileInPythonPackage("${CMAKE_CURRENT_SOURCE_DIR}/setup.py" ".")
 OpenSimPutFileInPythonPackage("${CMAKE_CURRENT_SOURCE_DIR}/__init__.py" opensim)
 
 OpenSimPutFileInPythonPackage("${CMAKE_CURRENT_SOURCE_DIR}/report.py" opensim)
+# for Python 3.8+/Windows we use a special script
+# setup_win_python38.py to set additional dll directory in __init__.py on client machine
+if (WIN32)
+    OpenSimPutFileInPythonPackage("${CMAKE_CURRENT_SOURCE_DIR}/setup_win_python38.py" ".")
+endif()
 
 # Test files. If you require more test resource files, list them here.
 foreach(test_file
@@ -298,7 +305,7 @@ set_target_properties(PythonBindings PROPERTIES
 # ${OPENSIM_PYTHON_BINARY_DIR}, but the former avoids an `if(MSVC OR XCODE)`.
 add_test(NAME python_tests
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
-    COMMAND "${PYTHON_EXECUTABLE}" -m unittest discover
+    COMMAND "${Python3_EXECUTABLE}" -m unittest discover
                 --start-directory "${CMAKE_CURRENT_SOURCE_DIR}/tests"
                 --verbose
     )
@@ -328,7 +335,7 @@ endif()
 # test_*.py, so we must specify a more general search pattern.
 add_test(NAME python_examples
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
-    COMMAND "${PYTHON_EXECUTABLE}" -m unittest
+    COMMAND "${Python3_EXECUTABLE}" -m unittest
                 ${PYTHON_EXAMPLES_UNITTEST_ARGS}
                 --verbose
     )
@@ -380,6 +387,14 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/examples/"
         DESTINATION "${OPENSIM_INSTALL_PYTHONEXDIR}")
 install(DIRECTORY ../Java/Matlab/OpenSenseExample
         DESTINATION "${OPENSIM_INSTALL_PYTHONEXDIR}"
+        # Exclude Matlab m files
+        PATTERN "*.m" EXCLUDE)
+install(DIRECTORY ../Java/Matlab/examples/Moco/exampleEMGTracking
+        DESTINATION "${OPENSIM_INSTALL_PYTHONEXDIR}/Moco"
+        # Exclude Matlab m files
+        PATTERN "*.m" EXCLUDE)
+install(DIRECTORY ../Java/Matlab/examples/Moco/exampleSquatToStand
+        DESTINATION "${OPENSIM_INSTALL_PYTHONEXDIR}/Moco"
         # Exclude Matlab m files
         PATTERN "*.m" EXCLUDE)
 install(DIRECTORY OpenSenseExample

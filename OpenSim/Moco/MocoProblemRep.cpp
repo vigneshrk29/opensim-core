@@ -21,15 +21,19 @@
 #include "Components/AccelerationMotion.h"
 #include "Components/DiscreteController.h"
 #include "Components/DiscreteForces.h"
-#include "Components/PositionMotion.h"
 #include "MocoProblem.h"
 #include "MocoProblemInfo.h"
+#include "MocoScaleFactor.h"
 #include <regex>
 #include <unordered_set>
 
+#include <OpenSim/Simulation/PositionMotion.h>
 #include <OpenSim/Simulation/SimulationUtilities.h>
 
 using namespace OpenSim;
+
+const std::vector<std::string> MocoProblemRep::m_disallowedJoints(
+        {"FreeJoint", "BallJoint", "EllipsoidJoint", "ScapulothoracicJoint"});
 
 MocoProblemRep::MocoProblemRep(const MocoProblem& problem)
         : m_problem(&problem) {
@@ -39,9 +43,11 @@ void MocoProblemRep::initialize() {
 
     // Clear member variables.
     m_model_base = Model();
+    m_model_base.updDisplayHints().disableVisualization();
     m_state_base.clear();
     m_position_motion_base.reset();
     m_model_disabled_constraints = Model();
+    m_model_disabled_constraints.updDisplayHints().disableVisualization();
     m_position_motion_disabled_constraints.reset();
     m_constraint_forces.reset();
     m_acceleration_motion.reset();
@@ -70,6 +76,27 @@ void MocoProblemRep::initialize() {
     m_discrete_controller_base.reset(discreteControllerBaseUPtr.get());
     m_model_base.addController(discreteControllerBaseUPtr.release());
 
+    // Scale factors
+    // -------------
+    int numScaleFactors = 0;
+    std::unordered_set<std::string> scaleFactorNames;
+    for (int i = 0; i < ph0.getProperty_goals().size(); ++i) {
+        const auto& goal = ph0.get_goals(i);
+        std::vector<MocoScaleFactor> scaleFactors = goal.getScaleFactors();
+        for (const auto& scaleFactor : scaleFactors) {
+            OPENSIM_THROW_IF(scaleFactor.getName().empty(), Exception,
+                    "All scale factors must have a name.");
+            OPENSIM_THROW_IF(scaleFactorNames.count(scaleFactor.getName()),
+                     Exception, "A scale factor with name '{}' already exists.",
+                     scaleFactor.getName());
+            scaleFactorNames.insert(scaleFactor.getName());
+            MocoScaleFactor* thisScaleFactor = new MocoScaleFactor(
+                    scaleFactor.getName(),
+                    scaleFactor.getBounds());
+            m_model_base.addComponent(thisScaleFactor);
+            ++numScaleFactors;
+        }
+    }
     m_model_base.finalizeFromProperties();
 
     int countMotion = 0;
@@ -103,6 +130,19 @@ void MocoProblemRep::initialize() {
         m_position_motion_base->setEnabled(m_state_base, true);
     }
 
+    // Disallow joints where the derivative of the generalized coordinates does
+    // not equal the generalized speeds.
+    for (const auto& joint : m_model_base.getComponentList<Joint>()) {
+        const std::string& jointType = joint.getConcreteClassName();
+        if (std::find(m_disallowedJoints.begin(), m_disallowedJoints.end(),
+                      jointType) != m_disallowedJoints.end()) {
+            OPENSIM_THROW(Exception, "{} with name '{}' detected, but "
+                                     "{}s are not yet supported in Moco "
+                                     "(since qdot != u). Consider replacing "
+                                     "with a CustomJoint.",
+                          jointType, joint.getName(), jointType);
+        }
+    }
 
     // We would like to eventually compute the model accelerations through
     // realizing to Stage::Acceleration. However, if the model has constraints,
@@ -464,12 +504,13 @@ void MocoProblemRep::initialize() {
         }
     }
 
-
     // Parameters.
     // -----------
-    m_parameters.resize(ph0.getProperty_parameters().size());
+    int numParametersFromPhase = (int)ph0.getProperty_parameters().size();
+    m_parameters.resize(ph0.getProperty_parameters().size() + numScaleFactors);
+    // Construct MocoParameters added to the MocoProblem via addParameter().
     std::unordered_set<std::string> paramNames;
-    for (int i = 0; i < ph0.getProperty_parameters().size(); ++i) {
+    for (int i = 0; i < numParametersFromPhase; ++i) {
         const auto& param = ph0.get_parameters(i);
         OPENSIM_THROW_IF(param.getName().empty(), Exception,
                 "All parameters must have a name.");
@@ -479,12 +520,30 @@ void MocoProblemRep::initialize() {
         m_parameters[i] = std::unique_ptr<MocoParameter>(param.clone());
         // We must initialize on both models so that they are consistent
         // when parameters are updated when applyParameterToModel() is
-        // called. Calling initalizeOnModel() twice here is fine since the
+        // called. Calling initializeOnModel() twice here is fine since the
         // models are identical aside from disabled Simbody constraints. The
         // property references to the parameters in both models are added to
         // the MocoParameter's internal vector of property references.
         m_parameters[i]->initializeOnModel(m_model_base);
         m_parameters[i]->initializeOnModel(m_model_disabled_constraints);
+    }
+    // Add MocoParameters based on MocoScaleFactors added to the model. We use
+    // the name of the MocoScaleFactor for the MocoParameter, which is already
+    // guaranteed to be unique based on the checks we made above.
+    int iparam = numParametersFromPhase;
+    const auto& scaleFactors =
+            m_model_disabled_constraints.getComponentList<MocoScaleFactor>();
+    for (const auto& scaleFactor : scaleFactors) {
+        m_parameters[iparam] = std::unique_ptr<MocoParameter>(
+                new MocoParameter(
+                        scaleFactor.getName(),
+                        scaleFactor.getAbsolutePathString(),
+                        "scale_factor",
+                        scaleFactor.getBounds()));
+        m_parameters[iparam]->initializeOnModel(m_model_base);
+        m_parameters[iparam]->initializeOnModel(
+                m_model_disabled_constraints);
+        ++iparam;
     }
 
     // Goals.
